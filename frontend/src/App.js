@@ -5,20 +5,21 @@ import './App.css';
 import LoginPage from './pages/LoginPage';
 import CardPage from './pages/CardPage';
 
-function App()  {
-  return (
-    <Router >
-      <Switch>
-        <Route path="/" exact>
-          <LoginPage />
-        </Route>
-        <Route path="/cards" exact>
-          <CardPage />
-        </Route>
-        <Redirect to="/" />
-      </Switch>
-    </Router>  
-  );
+function App() {
+	return (
+		<Router >
+		<Switch>
+		<Route path="/" exact>
+		<LoginPage />
+		</Route>
+		<Route path="/cards" exact>
+		<CardPage />
+		</Route>
+		<Redirect to="/" />
+		</Switch>  
+		</Router>
+	);
 }
 
 export default App;
+

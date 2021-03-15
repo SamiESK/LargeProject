@@ -1,24 +1,36 @@
-import React from 'react';
+import React from "react";
 
-function LoggedInName()
-{
+function LoggedInName() {
+    var _ud = localStorage.getItem("user_data");
+    var ud = JSON.parse(_ud);
+    var userId = ud.id;
+    var firstName = ud.firstName;
+    var lastName = ud.lastName;
 
-    var user={}
-
-    const doLogout = event =>
-    {
+    const doLogout = (event) => {
         event.preventDefault();
 
-        alert('doLogout');
+        localStorage.removeItem("user_data");
+        window.location.href = "/";
     };
 
-    return(
+    return (
         <div id="loggedInDiv">
-            <span id="userName">Logged In As John Doe </span><br />
-            <button type="button" id="logoutButton" class="buttons"
-                onClick={doLogout}> Log Out </button>
+            <span id="userName">
+                Logged In As {firstName} {lastName}
+            </span>
+            <br />
+            <button
+                type="button"
+                id="logoutButton"
+                class="buttons"
+                onClick={doLogout}
+            >
+                {" "}
+                Log Out{" "}
+            </button>
         </div>
     );
-};
+}
 
 export default LoggedInName;

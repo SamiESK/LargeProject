@@ -6,13 +6,14 @@ import CardUI from '../components/CardUI';
 
 const CardPage = () =>
 {
-    return(
-        <div>
-            <PageTitle />
-            <LoggedInName />
-            <CardUI />
-        </div>
-    );
+	return(
+		<div>
+		<PageTitle />
+		<LoggedInName />
+		<CardUI />
+		</div>
+	);
 }
 
 export default CardPage;
+
