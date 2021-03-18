@@ -6,7 +6,8 @@ const registrationValidation = (data) => {
         lastName: Joi.string().min(1).required(),
         email: Joi.string().min(5).email().required(), // we should add a function to check for unique email
         password: Joi.string().min(8).required(),
-    });
+        repeat_password: Joi.ref('password'),
+    }).with('password', 'repeat_password');
     return registerSchema.validateAsync(data);
 };
 

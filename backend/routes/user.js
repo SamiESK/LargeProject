@@ -50,9 +50,8 @@ router.get("/login", async (req, res, next) => {
             });
 
             // send token back in header and json (the json is not required I think)
-            res.header(HEADER, TOKEN_PREFIX + token)
-                .status(200)
-                .json({ token: token });
+            //.header(HEADER, TOKEN_PREFIX + token)
+            res.status(200).json({ token: token });
         } else {
             res.json({ error: "incorrect pass" });
         }
@@ -68,7 +67,7 @@ router.get("/login", async (req, res, next) => {
 });
 
 router.post("/register", async (req, res, next) => {
-    const { firstName, lastName, email, password } = req.body;
+    const { firstName, lastName, email, password, repeat_password } = req.body;
 
     try {
         // check if email is already taken
@@ -84,6 +83,7 @@ router.post("/register", async (req, res, next) => {
             // could add username: req.body.username
             // I omitted it for simplicity
             password: password,
+            repeat_password: repeat_password,
         });
 
         // hash password
@@ -100,7 +100,7 @@ router.post("/register", async (req, res, next) => {
 
         // save user to db and return json
         const savedUser = await user.save();
-        res.status(200).json(savedUser);
+        res.status(200).json({_id: savedUser._id, firstName: firstName, lastName: lastName, email: email});
     } catch (err) {
         // if there is a validation error
         if (err.hasOwnProperty("details")) {
