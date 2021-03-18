@@ -90,8 +90,8 @@ router.post("/register", async (req, res, next) => {
         const hash = await argon2.hash(password);
 
         const user = new User({
-            lastName: firstName,
-            firstName: lastName,
+            firstName: firstName,
+            lastName: lastName,
             email: email,
             // could add username: req.body.username
             // I omitted it for simplicity
