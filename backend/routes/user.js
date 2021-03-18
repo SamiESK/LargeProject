@@ -100,7 +100,7 @@ router.post("/register", async (req, res, next) => {
 
         // save user to db and return json
         const savedUser = await user.save();
-        res.status(200).json(savedUser);
+        res.status(200).json({_id: savedUser._id, firstName: firstName, lastName: lastName, email: email});
     } catch (err) {
         // if there is a validation error
         if (err.hasOwnProperty("details")) {
