@@ -17,7 +17,7 @@ const HEADER = require("../config").header;
 const TOKEN_PREFIX = require("../config").token_prefix;
 
 // login API
-router.get("/login", async (req, res, next) => {
+router.post("/login", async (req, res, next) => {
     // incoming: email, password
     // outgoing: token
 
