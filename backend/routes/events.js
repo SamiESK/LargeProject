@@ -16,69 +16,108 @@ const TOKEN_PREFIX = require("../config").token_prefix;
 
 // current searches events by name, description, and location
 router.get("/", verify, async (req, res) => {
-    // incoming: search
+    // incoming: search, startDate, endDate
 
-    const { search } = req.body;
+    // api call should look something like this:
+    // {{url}}/api/events/?search=awesome event&startDate=2021-03-10T22:44:43.415Z&endDate=2021-03-25T22:44:43.415Z
 
-    // getting userID from token decoded in verify
-    const userID = req.user._id;
+    // however if you just want all the events of a user you can do this:
+    // {{url}}/api/events/
 
     try {
+        // getting userID from token decoded in verify
+        const userID = req.user._id;
+
+        // get search and dates from req.query
+        let { search, startDate, endDate } = req.query;
+
+        // check that date is not empty
+        if (startDate === "" || endDate === "") {
+            return res.status(400).json({
+                error: "Please ensure you pick two dates",
+            });
+        }
+
+        // check that date is in the right format
+        // expected result: YYYY-MM-DD
+        console.log({ search, startDate, endDate });
+        //console.log(`start: ${startDate}, end:${endDate}`);
+
+        let timeRange = null;
+        if (startDate && endDate) {
+            timeRange = {
+                time: {
+                    $gte: new Date(new Date(startDate).setHours(00, 00, 00)),
+                    $lt: new Date(new Date(endDate).setHours(23, 59, 59)),
+                },
+            };
+        } else {
+            timeRange = {};
+        }
+
+        let events = null;
+
+        // Query database using Mongoose
+        // Mind the curly braces
         if (search) {
             let _search = search.trim();
+
+            let searchJSON = {
+                $or: [
+                    {
+                        title: {
+                            $regex: _search + ".*",
+                            $options: "i",
+                        },
+                    },
+                    {
+                        description: {
+                            $regex: _search + ".*",
+                            $options: "i",
+                        },
+                    },
+                    {
+                        location: {
+                            $regex: _search + ".*",
+                            $options: "i",
+                        },
+                    },
+                ],
+            };
 
             // search DB for this user's events
             // where _search partially matches
             // the title, description, or location
-            const events = await Event.find({
-                $and: [
-                    { userID: userID },
-                    {
-                        $or: [
-                            {
-                                title: {
-                                    $regex: _search + ".*",
-                                    $options: "i",
-                                },
-                            },
-                            {
-                                description: {
-                                    $regex: _search + ".*",
-                                    $options: "i",
-                                },
-                            },
-                            {
-                                location: {
-                                    $regex: _search + ".*",
-                                    $options: "i",
-                                },
-                            },
-                        ],
-                    },
-                ],
-            }).select("-userID -__v");
-
-            // refreshing token
-            const token = jwt.refresh(req.token);
-
-            // sending result
-            res.header(HEADER, TOKEN_PREFIX + token)
-                .status(200)
-                .json(events);
+            events = await Event.find({
+                $and: [{ userID: userID }, timeRange, searchJSON],
+            })
+                .sort({ time: "asc" })
+                .select("-userID -__v");
         } else {
             // if no search is specify return all events for user
-            const events = await Event.find({ userID: userID }).select(
-                "-userID -__v"
-            );
-
-            const token = jwt.refresh(req.token);
-
-            res.header(HEADER, TOKEN_PREFIX + token)
-                .status(200)
-                .json(events);
+            events = await Event.find({
+                $and: [{ userID: userID }, timeRange],
+            })
+                .sort({ time: "asc" })
+                .select("-userID -__v");
         }
+
+        // Handle responses
+        if (!events) {
+            return res.status(404).json({
+                error: "Could not retrieve events",
+            });
+        }
+
+        // refreshing token
+        const token = jwt.refresh(req.token);
+
+        // sending result
+        res.header(HEADER, TOKEN_PREFIX + token)
+            .status(200)
+            .json(events);
     } catch (err) {
-        res.json({ error: err });
+        res.status(500).json({ error: err });
     }
 });
 
