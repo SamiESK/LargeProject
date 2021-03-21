@@ -27,15 +27,15 @@ function PageTitle()
     var lastName;
     var email;
     var password;
+    var repeatPassword;
 
     const [message, setMessage] = useState("");
 
     const doSignup = async (event) => {
         event.preventDefault();
 
-        var obj = { firstName: firstName.value, lastName: lastName.value, email: email.value, password: password.value };
+        var obj = { firstName: firstName.value, lastName: lastName.value, email: email.value, password: password.value, repeat_password: repeatPassword.value };
         var js = JSON.stringify(obj);
-        console.log(js);
         try {
             const response = await fetch(buildPath('api/user/register'), {
                 method: "POST",
@@ -51,8 +51,8 @@ function PageTitle()
                     email: res.email,
                     password: res.password,
                 };
-               console.log(user);
-
+               
+                console.log(res);
                 
                 
 
@@ -96,6 +96,10 @@ function PageTitle()
                             <input style={{width: "100%"}}  id="password" type="password" placeholder="Password" ref={(c) => (password = c)}/>
                         </FormGroup>
                         <FormGroup>
+                        <FormGroup>
+                            <label className="required">Confirm Password</label><br></br>
+                            <input style={{width: "100%"}}  id="repeatPassword" type="password" placeholder="Password" ref={(c) => (repeatPassword = c)}/>
+                        </FormGroup>
                         <Button color="primary" onClick={doSignup} block type="submit">Sign Up!</Button>
                         </FormGroup>
                     </Form>

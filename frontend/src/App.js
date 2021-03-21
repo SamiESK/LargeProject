@@ -1,9 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom';
 import './App.css';
+import HomePage from './pages/HomePage';
 
 import LoginPage from './pages/LoginPage';
-import CardPage from './pages/CardPage';
+
 
 function App() {
 	return (
@@ -12,8 +13,8 @@ function App() {
 		<Route path="/" exact>
 		<LoginPage />
 		</Route>
-		<Route path="/cards" exact>
-		<CardPage />
+		<Route path="/HomePage" exact>
+			<HomePage />
 		</Route>
 		<Redirect to="/" />
 		</Switch>  
