@@ -1,12 +1,12 @@
 import React from 'react';
 import Calendar from '../components/Calendar';
-import navBar from '../components/navBar';
+import HomeNavBar from '../components/HomeNavBar';
 
 const HomePage = () =>
 {
     return(
     <div>
-        <navBar/>
+        <HomeNavBar />
         <div id ="moveCalendar">
         <Calendar/>
         </div>

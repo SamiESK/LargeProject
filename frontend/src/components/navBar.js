@@ -23,10 +23,9 @@ import { ModalContent } from 'reacthalfmoon';
 import { NavLink } from 'react-router-dom'
 import { Router } from 'react-router-dom'
 
-
 function NavBar()
 {
-    const [isOpen, setIsOpen] = useState(false)
+    const [isOpen, setIsOpen] = useState(false);
     const [darkmode, setDarkmode] = useState(false);
 
     const app_name = "LargeProject";
@@ -99,7 +98,7 @@ function NavBar()
             
                 <DarkmodeSwitch checked={darkmode} toggle={()=>{setDarkmode(!darkmode)}} />
                 
-                <Button color="primary" id="LoginButton" onClick={()=>{setIsOpen(true)}}>Sign in</Button>
+                <Button color="primary" id="LoginButton" onClick={()=>{setIsOpen(true)}}>Sign In</Button>
             </NavbarNav>
         </NavbarContent>
     </Navbar>
@@ -122,7 +121,7 @@ function NavBar()
                             <span id="loginError" style={{color: "red"}}></span>
                         </FormGroup>
                         <FormGroup>
-                        <Button color="primary" onClick={doLogin} block type="submit">Sign in</Button>
+                        <Button color="primary" onClick={doLogin} block type="submit">Sign In</Button>
                         </FormGroup>
                     </Form>
                     <Button block color="danger" onClick={()=>{setIsOpen(false)}}>Cancel</Button>
