@@ -6,10 +6,11 @@ const HomePage = () =>
 {
     return(
     <div>
-        <HomeNavBar />
+        
         <div id ="moveCalendar">
         <Calendar/>
         </div>
+        <HomeNavBar />
     </div>
     );
 };
