@@ -44,6 +44,7 @@ app.use((req, res, next) => {
 // import routes
 app.use("/api/user", require("./backend/routes/user"));
 app.use("/api/events", require("./backend/routes/events"));
+app.use("/api/token", require("./backend/routes/refreshToken"));
 
 // Server static assets if in production
 if (process.env.NODE_ENV === "production") {
