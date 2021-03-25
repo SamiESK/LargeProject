@@ -2,7 +2,8 @@ const express = require("express");
 
 const router = express.Router();
 
-const verify = require("../middleware/verifyToken");
+const verify = require("../middleware/authToken").auth;
+const checkIfVerified = require("../middleware/authToken").checkIfVerified;
 
 const mongoose = require("mongoose");
 
@@ -20,7 +21,7 @@ const HEADER = require("../config").header;
 const TOKEN_PREFIX = require("../config").token_prefix;
 
 // current searches events by name, description, and location
-router.get("/", verify, async (req, res) => {
+router.get("/", verify, checkIfVerified, async (req, res) => {
     // incoming: search, startDate, endDate
 
     // api call should look something like this:
@@ -39,7 +40,7 @@ router.get("/", verify, async (req, res) => {
         // check that date is not empty
         if (startDate === "" || endDate === "") {
             return res.status(400).json({
-                error: "Please ensure you pick two dates",
+                success: false, error:"Please ensure you pick two dates",
             });
         }
 
@@ -110,7 +111,7 @@ router.get("/", verify, async (req, res) => {
         // Handle responses
         if (!events) {
             return res.status(404).json({
-                error: "Could not retrieve events",
+                success: false, error:"Could not retrieve events",
             });
         }
 
@@ -123,12 +124,12 @@ router.get("/", verify, async (req, res) => {
         res.status(200).json(events);
     } catch (err) {
         console.log(`Error in ${__filename}: \n\t${err}`);
-        res.status(500).json({ error: err });
+        res.status(500).json({ success: false, error:err });
     }
 });
 
 // create an event
-router.post("/create", verify, async (req, res) => {
+router.post("/create", verify, checkIfVerified, async (req, res) => {
     // getting userID from token decoded in verify
     req.body.userID = req.user._id
 
@@ -154,16 +155,16 @@ router.post("/create", verify, async (req, res) => {
     } catch (err) {
         // if there is a validation error
         if (err.hasOwnProperty("details")) {
-            res.status(400).json({ error: err.details[0].message });
+            res.status(400).json({ success: false, error:err.details[0].message });
         } else {
             // other error(s)
             console.log(`Error in ${__filename}: \n\t${err}`);
-            res.status(500).json({ error: err });
+            res.status(500).json({ success: false, error:err });
         }
     }
 });
 
-router.patch("/update/:eventID", verify, async (req, res) => {
+router.patch("/update/:eventID", verify, checkIfVerified, async (req, res) => {
     const entries = Object.keys(req.body);
     const updates = {};
 
@@ -193,17 +194,17 @@ router.patch("/update/:eventID", verify, async (req, res) => {
     } catch (err) {
         // if there is a validation error
         if (err.hasOwnProperty("details")) {
-            res.status(400).json({ error: err.details[0].message });
+            res.status(400).json({ success: false, error:err.details[0].message });
         } else {
             // other error(s)
             console.log(`Error in ${__filename}: \n\t${err}`);
-            res.status(500).json({ error: err });
+            res.status(500).json({ success: false, error:err });
         }
     }
 });
 
 // delete an event
-router.delete("/remove/:eventID", verify, async (req, res) => {
+router.delete("/remove/:eventID", verify, checkIfVerified, async (req, res) => {
     try {
         // delete event from db
         const removedEvent = await Event.deleteOne({ _id: req.params.eventID });
@@ -220,7 +221,7 @@ router.delete("/remove/:eventID", verify, async (req, res) => {
         });
     } catch (err) {
         console.log(`Error in ${__filename}: \n\t${err}`);
-        res.status(500).json({ error: err });
+        res.status(500).json({ success: false, error:err });
     }
 });
 

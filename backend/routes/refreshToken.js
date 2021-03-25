@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const verify = require("../middleware/verifyToken");
+const verify = require("../middleware/authToken").auth;
 const jwt = require("../createToken");
 
 const path = require("path");

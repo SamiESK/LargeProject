@@ -47,15 +47,18 @@ const loginValidation = (data) => {
     return loginSchema.validateAsync(data);
 };
 
-const emailValidation = (data) => {
-    const emailSchema = Joi.object({
+const updateUserValidation = (data) => {
+    const updateSchema = Joi.object({
+        firstName: Joi.string().min(1),
+        lastName: Joi.string().min(1),
         email: Joi.string()
             .min(5)
             .email()
-            .external(checkEmail, "Email in use")
-            .required(),
-    });
-    return emailSchema.validateAsync(data);
+            .external(checkEmail, "Email in use"),
+        password: Joi.string().min(8),
+        repeat_password: Joi.ref("password"),
+    }).with("password", "repeat_password");
+    return updateSchema.validateAsync(data);
 };
 
-module.exports = { registrationValidation, loginValidation, emailValidation };
+module.exports = { registrationValidation, loginValidation, updateUserValidation };

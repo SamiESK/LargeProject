@@ -6,9 +6,9 @@ require("dotenv").config();
 module.exports.createToken = (user) => {
     const expiration = new Date(); // not used yet
 
-    const token = jwt.sign(user, process.env.JWT_SECRET);
+    // const token = jwt.sign(user, process.env.JWT_SECRET);
 
-    // const token = jwt.sign(user, process.env.JWT_SECRET, {expiresIn: 1h});
+    const token = jwt.sign(user, process.env.JWT_SECRET, {expiresIn: '30m'});
 
     return token;
 };
@@ -20,6 +20,7 @@ module.exports.refresh = (token) => {
     const id = ud.payload._id;
     const fname = ud.payload.firstName;
     const lname = ud.payload.lastName;
+    const isVerified = ud.payload.isVerified;
 
-    return this.createToken({ _id: id, firstName: fname, lastName: lname });
+    return this.createToken({ _id: id, firstName: fname, lastName: lname, isVerified: isVerified});
 };
