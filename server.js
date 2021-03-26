@@ -17,15 +17,19 @@ require("dotenv").config();
 
 require("./backend/models/User");
 require("./backend/models/Event");
+require("./backend/models/Code");
 
 const url = process.env.MONGODB_URI;
 
 mongoose.connect(
     url,
-    { useNewUrlParser: true, useUnifiedTopology: true },
-    () => {
-        console.log("Connected to DB with Mongoose");
-    }
+    { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true },
+    (error) => {
+        if (error) {
+            return new Error("Failed to connect to database");
+        }
+        console.log("Connected to DB with Mongoose")
+      }
 );
 
 app.use((req, res, next) => {
@@ -44,6 +48,7 @@ app.use((req, res, next) => {
 // import routes
 app.use("/api/user", require("./backend/routes/user"));
 app.use("/api/events", require("./backend/routes/events"));
+app.use("/api/token", require("./backend/routes/refreshToken"));
 
 // Server static assets if in production
 if (process.env.NODE_ENV === "production") {
