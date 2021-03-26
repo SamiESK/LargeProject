@@ -9,6 +9,8 @@
     "date-fns": "^2.19.0",
     "react": "^17.0.1",
     "react-big-calendar": "^0.33.2",
+    "react-date-picker": "^8.1.1",
+    "react-datetime-picker": "^3.2.0",
     "react-dom": "^17.0.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",

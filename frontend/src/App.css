@@ -70,11 +70,12 @@
 #card{
   text-align: center;
   font-size: 1.5vw;
-  
+  line-height: 0px;  
 }
 #title{
   text-align: center;
   font-size: 2vw;
+  line-height: 200px;
   
 }
 #loginbox{
@@ -87,7 +88,15 @@
   position: absolute;
 }
 #cally{
-  padding-top: 10%;
   margin-left: 4%;
   margin-right: 4%;
+}
+#addEventButton{
+  right: -55%;
+  position: relative;
+}
+#addEvent{
+  position: relative;
+  top: 100px;
+  left: 4%;
 }

@@ -28,7 +28,7 @@ function NavBar()
     const [isOpen, setIsOpen] = useState(false);
     const [darkmode, setDarkmode] = useState(false);
 
-    const app_name = "LargeProject";
+    const app_name = "eventure-calandar";
     function buildPath(route) {
         if (process.env.NODE_ENV === "production") {
             return "https://" + app_name + ".herokuapp.com/" + route;
@@ -62,7 +62,7 @@ function NavBar()
             }
             else if (res.error === "Email/Password combination is incorrect") {
                 document.getElementById("loginError").innerHTML = res.error;
-            } else {
+            } else if(res.token) {
                 document.getElementById("loginError").innerHTML = "";
 
                 var user = {

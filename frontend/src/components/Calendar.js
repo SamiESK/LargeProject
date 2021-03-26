@@ -17,24 +17,31 @@ const localizer = dateFnsLocalizer({
   getDay,
   locales,
 })
-
+var bob;
+bob = "Sat Mar 06 2021 21:38:01 GMT-0500 (Eastern Standard Time)";
 let myEventsList=[
   {
     id: 11,
     title: 'wedding',
-    start: new Date('Thu Mar 18 2021 00:00:00'),
-    end: new Date('Thu Mar 18 2021 10:00:00'),
+    start: new Date('Mar 18 2021 01:00 AM'),
+    end: new Date('Mar 18 2021 01:00 AM' ),
     allDay : false,
     description : "I like big butts",
   },
   {
     title: 'bobs Birthday',
-    start: '03/25/2021',
-    end: '03/27/2021',
+    start: new Date(bob),
+    end: new Date('Sat Mar 06 2021 22:38:01 GMT-0500 (Eastern Standard Time)'),
+    allDay : false,
+    description : "I like big butts",
+  },
+  {
+    title: 'baloni Assignment 5',
+    start: '04/7/2021',
+    end: '04/7/2021',
     allDay : true,
     description : "I like big butts",
   }
-  
 ];
 
 const MyCalendar = props => (

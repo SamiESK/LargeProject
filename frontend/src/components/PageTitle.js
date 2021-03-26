@@ -14,7 +14,7 @@ import { useState } from 'react';
 
 function PageTitle()
 {
-    const app_name = "LargeProject";
+    const app_name = "eventure-calendar";
     function buildPath(route) {
         if (process.env.NODE_ENV === "production") {
             return "https://" + app_name + ".herokuapp.com/" + route;
@@ -65,8 +65,8 @@ function PageTitle()
 	return(
 		<div>
         <Col id="pageTitle" className="text-center" >
-            <div>
-                <h1 id="title">Organize Your Calendar</h1>
+        <h1 id="title">Organize Your Calendar</h1>
+            <div id="subtitles">
                 <CardTitle id="card">Plan, Schedule, Socialize, all of your events with Eventra </CardTitle>
                 <br></br>
                 <Button id="getStartedButton" onClick={()=>{setIsOpen(true)}} color="primary">Get Started</Button>

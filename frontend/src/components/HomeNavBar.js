@@ -48,7 +48,7 @@ function HomeNavBar()
     };
 
     return(
-    <div>
+   
     <PageWrapper withNavbar>
         <Navbar  id="nav">
         <NavbarContent> 
@@ -67,7 +67,7 @@ function HomeNavBar()
         </NavbarContent>
     </Navbar>
     </PageWrapper>
-</div>
+
     );
 };
 export default HomeNavBar;
