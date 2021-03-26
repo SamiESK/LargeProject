@@ -64,12 +64,8 @@ function NavBar()
                 document.getElementById("loginError").innerHTML = res.error;
             } else if(res.token) {
                 document.getElementById("loginError").innerHTML = "";
-
-                var user = {
-                    firstName: res.firstName,
-                    lastName: res.lastName,
-                };
-                localStorage.setItem("user_data", JSON.stringify(user));
+                
+                localStorage.setItem('token', res.token);
                 window.location.href = "/HomePage";
                 
                 

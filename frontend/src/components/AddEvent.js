@@ -4,8 +4,10 @@ import {useState} from 'react';
 import { InputGroup, InputGroupPrepend, InputGroupText, Button, Row,TextArea, Form,FormGroup, Modal, ModalContent, ModalDialog, ModalTitle, Select, Input, FormRow} from 'reacthalfmoon'
 import {onChange} from 'react';
 import DateTimePicker from 'react-datetime-picker';
+
 function AddEvent()
 {
+    
     const [isOpen, setIsOpen] = useState(false)
     
     const app_name = "eventure-calendar";
@@ -18,39 +20,31 @@ function AddEvent()
     }
     const [startDate, onChange] = useState(new Date());
     const [endDate, onChange2] = useState(new Date());
-
+    
     var title;
     var location;
     var description;
     
-    
-    
-    
-    const [message, setMessage] = useState("");
-
     const addEvent = async (event) => {
         event.preventDefault();
+        title = document.getElementById("eventtitle").value
+        location = document.getElementById("location").value
+        description = document.getElementById("description").value
         
-        var obj = { email: email.value, password: password.value };
+        var obj = {title: title, description: description, location: location, startTime: startDate, endTime: endDate};
         
-        
-        
-        /*var js = JSON.stringify(obj);
+        console.log(obj);
+        var js = JSON.stringify(obj);
         try {
-            const response = await fetch(buildPath('api/user/register'), {
+            const response = await fetch(buildPath('api/events/create'), {
                 method: "POST",
                 body: js,
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json", Authorization: 'Bearer ' + localStorage.getItem('token')},
             });
             
             var res = JSON.parse(await response.text());
 
-                var user = {
-                    firstName: res.firstName,
-                    lastName: res.lastName,
-                    email: res.email,
-                    password: res.password,
-                };
+               
                
                 console.log(res);
                 
@@ -59,7 +53,7 @@ function AddEvent()
         } catch (e) {
             alert(e.toString());
             return;
-        }*/
+        }
     };
 
 	return(
@@ -92,11 +86,11 @@ function AddEvent()
                     </FormGroup>
                     <FormGroup>
                         <label>Location</label>
-                        <Input></Input>
+                        <Input id="location"></Input>
                     </FormGroup>
                     <FormGroup>
                         <label>Description</label>
-                        <TextArea placeholder="Write a short description about your Event." />
+                        <TextArea id="description" placeholder="Write a short description about your Event." />
                     </FormGroup>
                     </Form>
                     
