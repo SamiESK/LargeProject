@@ -94,7 +94,7 @@ function AddEvent()
                     </FormGroup>
                     </Form>
                     
-                    <Button color="danger" Click={()=>{setIsOpen(!isOpen)}}>Cancel</Button>
+                    <Button color="danger" onClick={()=>{setIsOpen(!isOpen)}}>Cancel</Button>
                     <Button id="addEventButton" color="primary" onClick={addEvent}>Add</Button>
                     
                 </ModalContent>
