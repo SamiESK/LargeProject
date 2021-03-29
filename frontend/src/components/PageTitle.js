@@ -1,15 +1,13 @@
 import React from 'react';
-import { Button, Card } from 'reacthalfmoon'
+import { Button } from 'reacthalfmoon'
 import { CardTitle } from 'reacthalfmoon'
 import { Col} from 'reacthalfmoon'
-import { Img } from 'reacthalfmoon'
 import { Modal } from 'reacthalfmoon';
 import { ModalDialog } from 'reacthalfmoon';
 import { ModalTitle} from 'reacthalfmoon';
 import { ModalContent } from 'reacthalfmoon';
 import { FormGroup } from 'reacthalfmoon';
-import { Input } from 'reacthalfmoon';
-import { Form } from 'reacthalfmoon';
+import { Form, Alert, AlertHeading } from 'reacthalfmoon';
 import { useState } from 'react';
 
 function PageTitle()
@@ -29,8 +27,6 @@ function PageTitle()
     var password;
     var repeatPassword;
 
-    const [message, setMessage] = useState("");
-
     const doSignup = async (event) => {
         event.preventDefault();
 
@@ -45,7 +41,7 @@ function PageTitle()
             
             var res = JSON.parse(await response.text());
 
-                var user = {
+               var user = {
                     firstName: res.firstName,
                     lastName: res.lastName,
                     email: res.email,
@@ -109,6 +105,7 @@ function PageTitle()
         </Modal>
         
         </div>
+        
     </div>
 	);
 };

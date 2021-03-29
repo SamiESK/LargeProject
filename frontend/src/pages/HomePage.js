@@ -7,11 +7,10 @@ import { Component } from 'react';
 
 const HomePage = () =>
 {
-
     return(
         <div >
         <AddEvent />
-        <Calendar/>
+        <Calendar />
         <HomeNavBar />     
     </div>
         

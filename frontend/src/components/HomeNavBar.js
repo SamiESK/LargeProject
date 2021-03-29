@@ -5,29 +5,13 @@ import { NavbarBrand } from 'reacthalfmoon';
 import { NavItem } from 'reacthalfmoon';
 import { NavbarNav } from 'reacthalfmoon';
 import { Img } from 'reacthalfmoon';
-import { DarkmodeSwitch } from 'reacthalfmoon';
-import { useState } from 'react';
-import { setDarkmode } from 'react';
-import { setIsOpen } from 'react';
+//import { useState } from 'react';
 import { Button } from 'reacthalfmoon';
-import { darkmode } from 'react';
 import { PageWrapper } from 'reacthalfmoon';
-import { Form } from 'reacthalfmoon';
-import { FormGroup } from 'reacthalfmoon';
-import { Input } from 'reacthalfmoon';
-import { Container } from 'reacthalfmoon';
-import { Modal } from 'reacthalfmoon';
-import { ModalDialog } from 'reacthalfmoon';
-import { ModalTitle} from 'reacthalfmoon';
-import { ModalContent } from 'reacthalfmoon';
-import { NavLink } from 'react-router-dom'
-import { Router } from 'react-router-dom'
+
 
 function HomeNavBar()
 {
-    const [isOpen, setIsOpen] = useState(false);
-    const [darkmode, setDarkmode] = useState(false);
-
     const app_name = "LargeProject";
     function buildPath(route) {
         if (process.env.NODE_ENV === "production") {
@@ -37,10 +21,7 @@ function HomeNavBar()
         }
     }
 
-    var email;
-    var password;
-
-    const [message, setMessage] = useState("");
+    //const [message, setMessage] = useState("");
 
     const doLogOut = async (event) => {
         window.location.href = "/LoginPage";
@@ -59,9 +40,6 @@ function HomeNavBar()
             <NavbarNav>
                 <NavItem active to={"../pages/HomePage"}>About Us</NavItem>
                 <NavItem active>Mobile App</NavItem>
-            
-                <DarkmodeSwitch checked={darkmode} toggle={()=>{setDarkmode(!darkmode)}} />
-                
                 <Button color="primary" id="LoginButton" onClick={doLogOut}>Sign Out</Button>
             </NavbarNav>
         </NavbarContent>

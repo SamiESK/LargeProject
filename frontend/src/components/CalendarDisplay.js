@@ -5,13 +5,13 @@ import startOfWeek from 'date-fns/startOfWeek'
 import getDay from 'date-fns/getDay'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import React from 'react'
-import {Button} from 'reacthalfmoon';
-import { Component } from 'react'
-
+import {Button, Modal, ModalContent, ModalDialog, ModalTitle, } from 'reacthalfmoon';
+import { Component, isOpen, setIsOpen, useState, state, setState } from 'react'
+import MyCalendar from './BigCalendar';
 const locales = {
   'en-US': require('date-fns/locale/en-US'),
 }
-let myEventsList = [];
+
 
 const localizer = dateFnsLocalizer({
   format,
@@ -20,37 +20,25 @@ const localizer = dateFnsLocalizer({
   getDay,
   locales,
 })
-const MyCalendar = props => (
-  <div id="cally">
-    <Calendar
-      localizer={localizer}
-      events={myEventsList}
-      selectable={true}
-      startAccessor="start"
-      endAccessor="end"
-      style={{ height:1000}}
-      onSelectEvent={event => alert(event.description)}
-      views={['month', 'week']}
-    />
-    
-  </div>
-) 
+
 
 function CalendarDisplay()
 {
-    
-    const app_name = "eventure-calendar";
-    function buildPath(route) {
-        if (process.env.NODE_ENV === "production") {
-            return "https://" + app_name + ".herokuapp.com/" + route;
-        } else {
-            return "http://localhost:5000/" + route;
-        }
-      
-    }
+  const [myEventsList, setevent] = useState([])
+  const temp=[]
 
-   const displayEvents = async (event) => {
-        
+  const app_name = "eventure-calendar";
+  function buildPath(route) {
+    if (process.env.NODE_ENV === "production") {
+          return "https://" + app_name + ".herokuapp.com/" + route;
+    } else {
+          return "http://localhost:5000/" + route;
+    }
+      
+  }
+
+  window.onload = async(event) => 
+   {
         event.preventDefault();
         var obj;// = {title: title, description: description, location: location, startTime: startDate, endTime: endDate};
         
@@ -61,37 +49,45 @@ function CalendarDisplay()
                 method: "GET",
                 headers: { "Content-Type": "application/json", Authorization: 'Bearer ' + localStorage.getItem('token')},
             });
-            let temp;
+            var Event;
+            
+            myEventsList.length = 0;
+            temp.length = 0;
             var res = JSON.parse(await response.text());
             for(var i=0;i<res.length;i++)
             {
-              temp = {
+              Event = {
                 "title" : res[i].title,
                 "description" : res[i].description,
                 "location" : res[i].location,
-                "start" : res[i].startTime,
-                "end" : res[i].endTime,
+                "start" : new Date(res[i].startTime),
+                "end" :  new Date(res[i].endTime),
+                "allDay" : false,
                 }
-                  myEventsList.push(temp);
+                temp.push(Event);
              }
-          
+             setevent(temp);
+             console.log(myEventsList);
         } catch (e) {
             alert(e.toString());
             return;
+        
         }
         
-        
     };
-  
-    
     return(
-      
       <div>
-        <Button onClick={displayEvents}>Display Events</Button>
-      <MyCalendar />
-      
+        <div id="cally">
+        <Calendar
+          localizer={localizer}
+          events={myEventsList}
+          startAccessor="start"
+          endAccessor="end"
+          style={{ height:1000}}
+          views={['month', 'week']}
+        />
+      </div>
       </div>
     );
-  };
-
+};
 export default CalendarDisplay;
