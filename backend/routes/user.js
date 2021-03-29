@@ -68,7 +68,7 @@ router.post("/login", async (req, res, next) => {
             });
 
             //.header(HEADER, TOKEN_PREFIX + token)
-            res.status(200).json({ token: token });
+            res.status(200).json({ firstName: user.firstName, lastName: user.lastName, token: token });
         } else {
             res.json({ success: false, error: "Incorrect Password" });
         }
@@ -125,11 +125,11 @@ router.post("/register", async (req, res, next) => {
 
         // creating and sending email with verification link to user
         const msg = {
-            from: `Eventure <${process.env.FROM_EMAIL}>`,
+            from: `Eventree <${process.env.FROM_EMAIL}>`,
             to: savedUser.email,
-            subject: "Your Activation Link for Eventure",
-            text: `Please use the following link within the next 10 minutes to activate your account on Eventure: ${baseUrl}/api/user/verification/verify-account/${user._id}/${secretCode}`,
-            html: `<p>Please use the following link within the next 10 minutes to activate your account on Eventure: <strong><a href="${baseUrl}/api/user/verification/verify-account/${user._id}/${secretCode}" target="_blank">Verify Email</a></strong></p>`,
+            subject: "Your Activation Link for Eventree",
+            text: `Please use the following link within the next 10 minutes to activate your account on Eventree: ${baseUrl}/api/user/verification/verify-account/${user._id}/${secretCode}`,
+            html: `<p>Please use the following link within the next 10 minutes to activate your account on Eventree: <strong><a href="${baseUrl}/api/user/verification/verify-account/${user._id}/${secretCode}" target="_blank">Verify Email</a></strong></p>`,
         };
 
         await sgMail.send(msg).catch((error) => {console.error(error)});
@@ -171,7 +171,7 @@ router.patch("/update", verify, checkIfVerified, async (req, res) => {
         // validate update information
         const value = await updateUserValidation(updates);
 
-        
+
         const updatedUser = await User.findByIdAndUpdate(
             { _id: req.user._id },
             { $set: updates },
@@ -232,11 +232,11 @@ router.get(
                 await newCode.save();
 
                 const msg = {
-                    from: `Eventure <${process.env.FROM_EMAIL}>`,
+                    from: `Eventree <${process.env.FROM_EMAIL}>`,
                     to: user.email,
-                    subject: "Your Activation Link for Eventure",
-                    text: `Please use the following link within the next 10 minutes to activate your account on Eventure: ${baseUrl}/api/user/verification/verify-account/${user._id}/${secretCode}`,
-                    html: `<p>Please use the following link within the next 10 minutes to activate your account on Eventure: <strong><a href="${baseUrl}/api/user/verification/verify-account/${user._id}/${secretCode}" target="_blank">Verify Email</a></strong></p>`,
+                    subject: "Your Activation Link for Eventree",
+                    text: `Please use the following link within the next 10 minutes to activate your account on Eventree: ${baseUrl}/api/user/verification/verify-account/${user._id}/${secretCode}`,
+                    html: `<p>Please use the following link within the next 10 minutes to activate your account on Eventree: <strong><a href="${baseUrl}/api/user/verification/verify-account/${user._id}/${secretCode}" target="_blank">Verify Email</a></strong></p>`,
                 };
                 await sgMail.send(msg)
                     .then(() => {console.log('Email sent')})
@@ -287,7 +287,7 @@ router.get(
                 res.redirect(redirectPath);
                 */
 
-                // should replace this with a redirecton to the website
+                // should replace this with a redirection to the website
                 res.status(200).json({ msg: 'user has been verified' });
             }
         } catch (err) {
@@ -379,11 +379,11 @@ router.post("/password-reset/get-code", async (req, res) => {
                 await newCode.save();
 
                 const msg = {
-                    from: `Eventure <${process.env.FROM_EMAIL}>`,
+                    from: `Eventree <${process.env.FROM_EMAIL}>`,
                     to: email,
-                    subject: "Your Password Reset Code for Eventure",
-                    text: `Please use the following code within the next 10 minutes to reset your password on Eventure: ${secretCode}`,
-                    html: `<p>Please use the following code within the next 10 minutes to reset your password on Eventure: <strong>${secretCode}</strong></p>`,
+                    subject: "Your Password Reset Code for Eventree",
+                    text: `Please use the following code within the next 10 minutes to reset your password on Eventree: ${secretCode}`,
+                    html: `<p>Please use the following code within the next 10 minutes to reset your password on Eventree: <strong>${secretCode}</strong></p>`,
                 };
                 await sgMail.send(msg).catch((error) => {console.error(error)});
 
