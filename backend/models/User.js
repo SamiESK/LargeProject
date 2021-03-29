@@ -38,15 +38,4 @@ UserSchema.pre("save", async function (next) {
     next();
 });
 
-// hash password on update
-UserSchema.pre("findOneAndUpdate", async function (next) {
-    if (this.hasOwnProperty("_update") && 
-        this._update.hasOwnProperty("$set") && 
-        this._update.$set.hasOwnProperty("password")) {
-        const hash = await argon2.hash(this._update.$set.password);
-        this._update.$set.password = hash;
-    }
-    next();
-});
-
 module.exports = mongoose.model("User", UserSchema);

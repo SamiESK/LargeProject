@@ -11,8 +11,8 @@ const CodeSchema = mongoose.Schema({
     },
     createdAt: {
         type: Date,
-        expires: '10m',
-        default: Date.now(),
+        // expires: 60 * 60, // 1 hour
+        default: Date.now,
     },
 });
 
