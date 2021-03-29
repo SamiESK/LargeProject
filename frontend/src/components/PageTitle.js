@@ -9,6 +9,15 @@ import { ModalContent } from 'reacthalfmoon';
 import { FormGroup } from 'reacthalfmoon';
 import { Form, Alert, AlertHeading } from 'reacthalfmoon';
 import { useState } from 'react';
+//import Parser from 'html-react-parser';
+
+var success = `<div id="success" class="alert alert-primary" role="alert">
+<button class="close" onclick="this.parentNode.classList.add('dispose')" type="button" aria-label="Close">
+  <span aria-hidden="true">&times;</span>
+</button>
+<h4 class="alert-heading">Account created!</h4>
+Please check your email and verify your account before logging in.
+</div>`;
 
 function PageTitle()
 {
@@ -26,6 +35,7 @@ function PageTitle()
     var email;
     var password;
     var repeatPassword;
+
 
     const doSignup = async (event) => {
         event.preventDefault();
@@ -47,7 +57,12 @@ function PageTitle()
                     email: res.email,
                     password: res.password,
                 };
-               
+
+                if (email.value === user.email)
+                {
+                    setIsOpen(false);
+                    document.getElementById("signUpSuccess").innerHTML = success;
+                }
                 console.log(res);
                 
                 
@@ -56,6 +71,7 @@ function PageTitle()
             alert(e.toString());
             return;
         }
+       
     };
 	const [isOpen, setIsOpen] = useState(false)
 	return(
@@ -68,7 +84,7 @@ function PageTitle()
                 <Button id="getStartedButton" onClick={()=>{setIsOpen(true)}} color="primary">Get Started</Button>
             </div>
         </Col>
-
+        <p id="signUpSuccess"></p>
         <div style={{height: "400px"}}>
         <Modal isOpen={isOpen} toggle={()=>{setIsOpen(!isOpen)}}>
             <ModalDialog>

@@ -13,6 +13,8 @@ const User = mongoose.model("User");
 
 const Code = mongoose.model("Code");
 
+const Event = mongoose.model("Event");
+
 const jwt = require("../createToken");
 
 const {
@@ -140,6 +142,7 @@ router.post("/register", async (req, res, next) => {
             lastName: lastName,
             email: email,
         });
+    
     } catch (err) {
         // if there is a validation error
         if (err.hasOwnProperty("details")) {
@@ -170,6 +173,7 @@ router.patch("/update", verify, checkIfVerified, async (req, res) => {
         // validate update information
         const value = await updateUserValidation(updates);
 
+        updates.password = await argon2.hash(updates.password);
 
         const updatedUser = await User.findByIdAndUpdate(
             { _id: req.user._id },
@@ -326,6 +330,9 @@ router.delete("/delete-account", verify, checkIfVerified, async (req, res) => {
                         email: user.email,
                     });
 
+                    await Code.deleteMany({ email: user.email });
+                    await Event.deleteMany({ userID: user._id });
+
                     if (!deleted) {
                         res.json({
                             success: false,
@@ -368,6 +375,8 @@ router.post("/password-reset/get-code", async (req, res) => {
                 });
                 res.json({ success: false, errors });
             } else {
+                await Code.deleteOne({ email });
+
                 const secretCode = cryptoRandomString({
                     length: 10,
                 });
@@ -420,7 +429,8 @@ router.post("/password-reset/verify", async (req, res) => {
                 });
                 res.json({ success: false, errors });
             } else {
-                await User.updateOne({ email }, { password: password });
+                const hash = await argon2.hash(password);
+                await User.updateOne({ email }, { password: hash });
                 await Code.deleteOne({ email, code });
                 res.json({ success: true });
             }
