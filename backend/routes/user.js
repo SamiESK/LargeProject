@@ -13,6 +13,8 @@ const User = mongoose.model("User");
 
 const Code = mongoose.model("Code");
 
+const Event = mongoose.model("Event");
+
 const jwt = require("../createToken");
 
 const {
@@ -327,6 +329,9 @@ router.delete("/delete-account", verify, checkIfVerified, async (req, res) => {
                     const deleted = await User.deleteOne({
                         email: user.email,
                     });
+
+                    await Code.deleteMany({ email: user.email });
+                    await Event.deleteMany({ userID: user._id });
 
                     if (!deleted) {
                         res.json({
