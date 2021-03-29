@@ -140,6 +140,7 @@ router.post("/register", async (req, res, next) => {
             lastName: lastName,
             email: email,
         });
+    
     } catch (err) {
         // if there is a validation error
         if (err.hasOwnProperty("details")) {

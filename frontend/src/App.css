@@ -100,3 +100,42 @@
   top: 100px;
   left: 4%;
 }
+#success{
+  width: 200px;
+  height: 200px;
+  position: absolute;
+  top: 6%;
+  right: 1%;
+}
+#getCode{
+  position: absolute;
+  top: 30%;
+  right: 60%
+  
+}
+#banner{
+  position: absolute;
+  top: 10%;
+  height: 100px;
+  width: 100%;
+  background-color:rgb(57, 186, 255);
+  text-align: center;
+  font-size: 15pt;
+  color: white;
+
+}
+#bannerText{
+  position: relative;
+  top: 30%;
+}
+#changePassword{
+  position: absolute;
+  left: 60%;
+  top: 30%;
+}
+#changePasswordError{
+  position: absolute;
+}
+#getCodeError{
+  position: absolute;
+}

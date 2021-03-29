@@ -14,19 +14,15 @@ import { darkmode } from 'react';
 import { PageWrapper } from 'reacthalfmoon';
 import { Form } from 'reacthalfmoon';
 import { FormGroup } from 'reacthalfmoon';
-import { Input } from 'reacthalfmoon';
-import { Container } from 'reacthalfmoon';
 import { Modal } from 'reacthalfmoon';
 import { ModalDialog } from 'reacthalfmoon';
 import { ModalTitle} from 'reacthalfmoon';
 import { ModalContent } from 'reacthalfmoon';
-import { NavLink } from 'react-router-dom'
-import { Router } from 'react-router-dom'
+
 
 function NavBar()
 {
     const [isOpen, setIsOpen] = useState(false);
-    const [darkmode, setDarkmode] = useState(false);
 
     const app_name = "eventure-calandar";
     function buildPath(route) {
@@ -40,14 +36,12 @@ function NavBar()
     var email;
     var password;
 
-    const [message, setMessage] = useState("");
-
     const doLogin = async (event) => {
         event.preventDefault();
 
         var obj = { email: email.value, password: password.value };
         var js = JSON.stringify(obj);
-        console.log(js);
+       
         try {
             const response = await fetch(buildPath('api/user/login'), {
                 method: "POST",
@@ -57,12 +51,10 @@ function NavBar()
 
             var res = JSON.parse(await response.text());
             console.log(res);
-            if (res.error === "incorrect pass") {
+            if (!res.token) {
                 document.getElementById("loginError").innerHTML = res.error;
             }
-            else if (res.error === "Email/Password combination is incorrect") {
-                document.getElementById("loginError").innerHTML = res.error;
-            } else if(res.token) {
+            else if(res.token) {
                 document.getElementById("loginError").innerHTML = "";
                 console.log(res);
                 
@@ -75,8 +67,13 @@ function NavBar()
             alert(e.toString());
             return;
         }
-        
     };
+
+    const redirect = async (event) => {
+        event.preventDefault();
+        window.location.href = "/ResetPage";
+    };
+
 
     return(
     <div>
@@ -121,14 +118,12 @@ function NavBar()
                     </Form>
                     <Button block color="danger" onClick={()=>{setIsOpen(false)}}>Cancel</Button>
                     <FormGroup>
-                        <Button className="SignIn" color="link" block type="submit">Forgot Password?</Button>
+                        <Button className="SignIn" color="link" block type="submit" onClick={redirect}>Reset Password</Button>
                     </FormGroup>
                 </ModalContent>
             </ModalDialog>
         </Modal>
-    
-        </div>
-    
+    </div>
 </PageWrapper>
 </div>
     );
