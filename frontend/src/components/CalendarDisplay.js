@@ -8,6 +8,8 @@ import React from 'react'
 import {Button, Modal, ModalContent, ModalDialog, ModalTitle, } from 'reacthalfmoon';
 import { Component, isOpen, setIsOpen, useState, state, setState } from 'react'
 import MyCalendar from './BigCalendar';
+import { async } from 'crypto-random-string'
+import e from 'cors'
 const locales = {
   'en-US': require('date-fns/locale/en-US'),
 }
@@ -21,12 +23,18 @@ const localizer = dateFnsLocalizer({
   locales,
 })
 
-
+var eTitle;
+var eDescription;
+var eLocation;
+var eStartTime;
+var eEndTime;
+var d = new Date();
 function CalendarDisplay()
 {
+  
   const [myEventsList, setevent] = useState([])
   const temp=[]
-
+  const [isOpen, setIsOpen] = useState(false)
   const app_name = "eventure-calendar";
   function buildPath(route) {
     if (process.env.NODE_ENV === "production") {
@@ -36,7 +44,16 @@ function CalendarDisplay()
     }
       
   }
-
+  const EventInfo = (e) =>
+  {
+    setIsOpen(true);
+    eTitle = e.title;
+    eDescription = e.description;
+    eLocation = e.location;
+    eStartTime = d.toString(e.start);
+    eEndTime = d.toString(e.end);
+  };
+  
   window.onload = async(event) => 
    {
         event.preventDefault();
@@ -50,7 +67,6 @@ function CalendarDisplay()
                 headers: { "Content-Type": "application/json", Authorization: 'Bearer ' + localStorage.getItem('token')},
             });
             var Event;
-            
             myEventsList.length = 0;
             temp.length = 0;
             var res = JSON.parse(await response.text());
@@ -72,8 +88,7 @@ function CalendarDisplay()
             alert(e.toString());
             return;
         
-        }
-        
+        }  
     };
     return(
       <div>
@@ -85,8 +100,24 @@ function CalendarDisplay()
           endAccessor="end"
           style={{ height:1000}}
           views={['month', 'week']}
+          onSelectEvent = {event => {EventInfo(event)}}
         />
       </div>
+      <div style={{height: "400px"}}>
+        <Modal withCloseButton isOpen={isOpen} toggle={()=>{setIsOpen(!isOpen)}}>
+            <ModalDialog>
+                <ModalContent>
+                    <ModalTitle>{eTitle}</ModalTitle>
+                    <p>Location: {eLocation}</p>
+                    <p>Description: {eDescription}</p>
+                    <p>Start Date: {eStartTime}</p>
+                    <p>End Date: {eEndTime}</p>
+                    <Button onClick={()=>{setIsOpen(!isOpen)}}>Close</Button>
+                </ModalContent>
+            </ModalDialog>
+        </Modal>
+        
+        </div>
       </div>
     );
 };
