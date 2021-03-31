@@ -5,7 +5,7 @@ function getCode()
 {
     var email;
 
-    const app_name = "eventure-calandar";
+    const app_name = "eventree-calandar";
     function buildPath(route) {
         if (process.env.NODE_ENV === "production") {
             return "https://" + app_name + ".herokuapp.com/" + route;

@@ -95,6 +95,10 @@
   right: -55%;
   position: relative;
 }
+#delButton{
+  right: -55%;
+  position: relative;
+}
 #addEvent{
   position: relative;
   top: 100px;

@@ -21,7 +21,7 @@ Please check your email and verify your account before logging in.
 
 function PageTitle()
 {
-    const app_name = "eventure-calendar";
+    const app_name = "eventree-calandar";
     function buildPath(route) {
         if (process.env.NODE_ENV === "production") {
             return "https://" + app_name + ".herokuapp.com/" + route;

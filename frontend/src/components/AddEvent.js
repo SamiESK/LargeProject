@@ -4,13 +4,12 @@ import {useState} from 'react';
 import { Alert, AlertHeading, InputGroup, InputGroupPrepend, InputGroupText, Button, Row,TextArea, Form,FormGroup, Modal, ModalContent, ModalDialog, ModalTitle, Select, Input, FormRow} from 'reacthalfmoon'
 import {onChange} from 'react';
 import DateTimePicker from 'react-datetime-picker';
-
+import CalendarDisplay from './CalendarDisplay';
 function AddEvent()
 {
-    
     const [isOpen, setIsOpen] = useState(false)
     
-    const app_name = "eventure-calendar";
+    const app_name = "eventree-calendar";
     function buildPath(route) {
         if (process.env.NODE_ENV === "production") {
             return "https://" + app_name + ".herokuapp.com/" + route;
@@ -43,7 +42,7 @@ function AddEvent()
             });
             
             var res = JSON.parse(await response.text());
-            console.log(res)
+            
             if(res.error)
             {
                 alert(res.error);

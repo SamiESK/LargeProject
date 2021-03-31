@@ -82,7 +82,7 @@ function NavBar()
         <NavbarContent> 
         <Img rounded src={require("../images/Logo.png").default} height="40px"/>
             <NavbarBrand id="brand">
-                Eventra
+                Eventree
             </NavbarBrand>
             <NavbarNav>
                 <NavItem active to={"../pages/HomePage"}>About Us</NavItem>
