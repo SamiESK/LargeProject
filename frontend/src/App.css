@@ -90,6 +90,7 @@
 #cally{
   margin-left: 4%;
   margin-right: 4%;
+  margin-top: 9%;
 }
 #addEventButton{
   right: -55%;
@@ -101,7 +102,7 @@
 }
 #addEvent{
   position: relative;
-  top: 100px;
+  top: 105px;
   left: 4%;
 }
 #success{

@@ -12,7 +12,7 @@ import { PageWrapper } from 'reacthalfmoon';
 
 function HomeNavBar()
 {
-    const app_name = "eventree-calandar";
+    const app_name = "eventree-calendar";
     function buildPath(route) {
         if (process.env.NODE_ENV === "production") {
             return "https://" + app_name + ".herokuapp.com/" + route;
