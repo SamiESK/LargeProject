@@ -24,7 +24,7 @@ function NavBar()
 {
     const [isOpen, setIsOpen] = useState(false);
 
-    const app_name = "eventure-calandar";
+    const app_name = "eventree-calendar";
     function buildPath(route) {
         if (process.env.NODE_ENV === "production") {
             return "https://" + app_name + ".herokuapp.com/" + route;
@@ -85,7 +85,7 @@ function NavBar()
         <NavbarContent> 
         <Img rounded src={require("../images/Logo.png").default} height="40px"/>
             <NavbarBrand id="brand">
-                Eventra
+                Eventree
             </NavbarBrand>
             <NavbarNav>
                 <NavItem active to={"../pages/HomePage"}>About Us</NavItem>

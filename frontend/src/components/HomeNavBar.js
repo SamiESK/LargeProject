@@ -5,16 +5,20 @@ import { NavbarBrand } from 'reacthalfmoon';
 import { NavItem } from 'reacthalfmoon';
 import { NavbarNav } from 'reacthalfmoon';
 import { Img } from 'reacthalfmoon';
+<<<<<<< HEAD
 import { DarkmodeSwitch } from 'reacthalfmoon';
 import { useState } from 'react';
 import Dropdown from './AccountDropdown';
+=======
+//import { useState } from 'react';
+import { Button } from 'reacthalfmoon';
+import { PageWrapper } from 'reacthalfmoon';
+
+>>>>>>> cdd48fd3a6b2341d4bbf16d6646d14eb2c1709e8
 
 function HomeNavBar()
 {
-    const [isOpen, setIsOpen] = useState(false);
-    const [darkmode, setDarkmode] = useState(false);
-
-    const app_name = "LargeProject";
+    const app_name = "eventree-calendar";
     function buildPath(route) {
         if (process.env.NODE_ENV === "production") {
             return "https://" + app_name + ".herokuapp.com/" + route;
@@ -23,10 +27,7 @@ function HomeNavBar()
         }
     }
 
-    var email;
-    var password;
-
-    const [message, setMessage] = useState("");
+    //const [message, setMessage] = useState("");
 
 
     return(
@@ -35,13 +36,17 @@ function HomeNavBar()
         <NavbarContent> 
         <Img id="logo" rounded src={require("../images/Logo.png").default} height="40px"/>
             <NavbarBrand id="brand">
-                Eventra
+                Eventree
             </NavbarBrand>
             <NavbarNav>
                 <NavItem active to={"../pages/HomePage"}>About Us</NavItem>
                 <NavItem active>Mobile App</NavItem>
+<<<<<<< HEAD
             
                 <DarkmodeSwitch checked={darkmode} toggle={()=>{setDarkmode(!darkmode)}} />
+=======
+                <Button color="primary" id="LoginButton" onClick={doLogOut}>Sign Out</Button>
+>>>>>>> cdd48fd3a6b2341d4bbf16d6646d14eb2c1709e8
             </NavbarNav>
         </NavbarContent>
     </nav>

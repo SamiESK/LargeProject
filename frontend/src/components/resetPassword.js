@@ -8,7 +8,7 @@ function resetPassword()
     var confirmResetPassword;
     var resetCode;
 
-    const app_name = "eventure-calandar";
+    const app_name = "eventree-calendar";
     function buildPath(route) {
         if (process.env.NODE_ENV === "production") {
             return "https://" + app_name + ".herokuapp.com/" + route;

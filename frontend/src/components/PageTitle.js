@@ -1,15 +1,13 @@
 import React from 'react';
-import { Button, Card } from 'reacthalfmoon'
+import { Button } from 'reacthalfmoon'
 import { CardTitle } from 'reacthalfmoon'
 import { Col} from 'reacthalfmoon'
-import { Img } from 'reacthalfmoon'
 import { Modal } from 'reacthalfmoon';
 import { ModalDialog } from 'reacthalfmoon';
 import { ModalTitle} from 'reacthalfmoon';
 import { ModalContent } from 'reacthalfmoon';
 import { FormGroup } from 'reacthalfmoon';
-import { Input } from 'reacthalfmoon';
-import { Form } from 'reacthalfmoon';
+import { Form, Alert, AlertHeading } from 'reacthalfmoon';
 import { useState } from 'react';
 //import Parser from 'html-react-parser';
 
@@ -23,7 +21,7 @@ Please check your email and verify your account before logging in.
 
 function PageTitle()
 {
-    const app_name = "eventure-calendar";
+    const app_name = "eventree-calendar";
     function buildPath(route) {
         if (process.env.NODE_ENV === "production") {
             return "https://" + app_name + ".herokuapp.com/" + route;
@@ -39,8 +37,6 @@ function PageTitle()
     var repeatPassword;
 
 
-    const [message, setMessage] = useState("");
-
     const doSignup = async (event) => {
         event.preventDefault();
 
@@ -55,7 +51,7 @@ function PageTitle()
             
             var res = JSON.parse(await response.text());
 
-                var user = {
+               var user = {
                     firstName: res.firstName,
                     lastName: res.lastName,
                     email: res.email,
@@ -125,6 +121,7 @@ function PageTitle()
         </Modal>
         
         </div>
+        
     </div>
 	);
 };

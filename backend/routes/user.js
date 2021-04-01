@@ -13,6 +13,8 @@ const User = mongoose.model("User");
 
 const Code = mongoose.model("Code");
 
+const Event = mongoose.model("Event");
+
 const jwt = require("../createToken");
 
 const {
@@ -107,6 +109,14 @@ router.post("/register", async (req, res, next) => {
         // save user to db and return json
         const savedUser = await user.save();
 
+        // create token
+        const token = jwt.createToken({
+            _id: user._id,
+            firstName: savedUser.firstName,
+            lastName: savedUser.lastName,
+            isVerified: savedUser.isVerified,
+        });
+
         // could create token here
 
         const baseUrl = req.protocol + "://" + req.get("host");
@@ -139,8 +149,9 @@ router.post("/register", async (req, res, next) => {
             firstName: firstName,
             lastName: lastName,
             email: email,
+            token: token,
         });
-    
+
     } catch (err) {
         // if there is a validation error
         if (err.hasOwnProperty("details")) {
@@ -171,7 +182,9 @@ router.patch("/update", verify, checkIfVerified, async (req, res) => {
         // validate update information
         const value = await updateUserValidation(updates);
 
-        updates.password = await argon2.hash(updates.password);
+        if (updates.password) {
+            updates.password = await argon2.hash(updates.password);
+        }
 
         const updatedUser = await User.findByIdAndUpdate(
             { _id: req.user._id },
@@ -273,23 +286,22 @@ router.get(
                 );
 
                 await Code.deleteMany({ email: user.email });
+                /*await Code.deleteOne({
+                    email: user.email,
+                    code: req.params.secretCode,
+                });*/
 
-                /*
                 let redirectPath;
 
+                // we might want to replace this with a redirect to a simple page that
+                // tells the user they are verified http://127.0.0.1:3000/Verified or something
                 if (process.env.NODE_ENV == "production") {
-                    redirectPath = `${req.protocol}://${req.get(
-                        "host"
-                    )}account/verified`;
+                    redirectPath = `${req.protocol}://${req.get("host")}`;
                 } else {
-                    redirectPath = `http://127.0.0.1:8080/account/verified`;
+                    redirectPath = `http://127.0.0.1:3000/`;
                 }
 
                 res.redirect(redirectPath);
-                */
-
-                // should replace this with a redirection to the website
-                res.status(200).json({ msg: 'user has been verified' });
             }
         } catch (err) {
             console.log("Error on /api/verification/verify-account: ", err);
@@ -327,6 +339,9 @@ router.delete("/delete-account", verify, checkIfVerified, async (req, res) => {
                     const deleted = await User.deleteOne({
                         email: user.email,
                     });
+
+                    await Code.deleteMany({ email: user.email });
+                    await Event.deleteMany({ userID: user._id });
 
                     if (!deleted) {
                         res.json({
