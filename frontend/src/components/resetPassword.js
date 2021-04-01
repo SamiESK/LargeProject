@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, FormGroup, PageWrapper, ModalDialog, ModalContent, Button } from 'reacthalfmoon';
+import { Form, FormGroup, Button } from 'reacthalfmoon';
 
 function resetPassword()
 {

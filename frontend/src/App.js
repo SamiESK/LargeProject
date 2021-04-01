@@ -4,6 +4,7 @@ import './App.css';
 import HomePage from './pages/HomePage';
 import ResetPage from './pages/ResetPage';
 import LoginPage from './pages/LoginPage';
+import AccountPage from './pages/AccountPage';
 
 
 function App() {
@@ -18,6 +19,9 @@ function App() {
 		</Route>
 		<Route path="/ResetPage" exact>
 			<ResetPage />
+		</Route>
+		<Route path="/AccountPage" exact>
+			<AccountPage />
 		</Route>
 		<Redirect to="/" />
 		</Switch>  

@@ -37,12 +37,13 @@
   }
 }
 
-/* */
+/*navbar */
 #nav
 {
   height: 5%;
   font-size: medium;
-  
+  position: absolute;
+  left: 1%;
 }
 #brand
 {
@@ -138,4 +139,12 @@
 }
 #getCodeError{
   position: absolute;
+}
+#dropdown{
+  position: absolute;
+  right: 1%;
+  top: 1%;
+}
+#account{
+  padding-top: 10%;
 }

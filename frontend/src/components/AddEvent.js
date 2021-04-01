@@ -59,7 +59,7 @@ function AddEvent()
 	return(
 		<div>
             <Button id="addEvent" onClick={()=>{setIsOpen(true)}} color="primary" size="lg">Add Event</Button>
-
+            
             <div style={{height: "116px"}}>
         <Modal isOpen={isOpen} toggle={()=>{setIsOpen(!isOpen)}}>
             <ModalDialog>

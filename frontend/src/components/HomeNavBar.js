@@ -7,21 +7,7 @@ import { NavbarNav } from 'reacthalfmoon';
 import { Img } from 'reacthalfmoon';
 import { DarkmodeSwitch } from 'reacthalfmoon';
 import { useState } from 'react';
-import { setDarkmode } from 'react';
-import { setIsOpen } from 'react';
-import { Button } from 'reacthalfmoon';
-import { darkmode } from 'react';
-import { PageWrapper } from 'reacthalfmoon';
-import { Form } from 'reacthalfmoon';
-import { FormGroup } from 'reacthalfmoon';
-import { Input } from 'reacthalfmoon';
-import { Container } from 'reacthalfmoon';
-import { Modal } from 'reacthalfmoon';
-import { ModalDialog } from 'reacthalfmoon';
-import { ModalTitle} from 'reacthalfmoon';
-import { ModalContent } from 'reacthalfmoon';
-import { NavLink } from 'react-router-dom'
-import { Router } from 'react-router-dom'
+import Dropdown from './AccountDropdown';
 
 function HomeNavBar()
 {
@@ -42,17 +28,12 @@ function HomeNavBar()
 
     const [message, setMessage] = useState("");
 
-    const doLogOut = async (event) => {
-        window.location.href = "/LoginPage";
-        
-    };
 
     return(
-   
-    <PageWrapper withNavbar>
-        <Navbar  id="nav">
+        <div>
+        <nav  id="nav">
         <NavbarContent> 
-        <Img rounded src={require("../images/Logo.png").default} height="40px"/>
+        <Img id="logo" rounded src={require("../images/Logo.png").default} height="40px"/>
             <NavbarBrand id="brand">
                 Eventra
             </NavbarBrand>
@@ -61,13 +42,11 @@ function HomeNavBar()
                 <NavItem active>Mobile App</NavItem>
             
                 <DarkmodeSwitch checked={darkmode} toggle={()=>{setDarkmode(!darkmode)}} />
-                
-                <Button color="primary" id="LoginButton" onClick={doLogOut}>Sign Out</Button>
             </NavbarNav>
         </NavbarContent>
-    </Navbar>
-    </PageWrapper>
-
+    </nav>
+    <Dropdown />
+    </div>
     );
 };
 export default HomeNavBar;

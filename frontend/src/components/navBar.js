@@ -59,6 +59,9 @@ function NavBar()
                 console.log(res);
                 
                 localStorage.setItem('token', res.token);
+                localStorage.setItem('firstName', res.firstName);
+                localStorage.setItem('lastName', res.lastName);
+                localStorage.setItem('email', res.email);
                 window.location.href = "/HomePage"; 
             }
             
