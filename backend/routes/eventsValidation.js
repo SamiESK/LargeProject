@@ -8,7 +8,7 @@ const newEventValidation = (data) => {
         description: Joi.string().min(1),
         location: Joi.string().min(1),
         startTime: Joi.date().required(),
-        endTime: Joi.date().min(Joi.ref('startTime')),
+        endTime: Joi.date().min(Joi.ref('startTime')).required(),
     })
     return eventSchema.validateAsync(data);
 };
