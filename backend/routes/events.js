@@ -16,10 +16,6 @@ const {
     updateEventValidation,
 } = require("./eventsValidation");
 
-const HEADER = require("../config").header;
-
-const TOKEN_PREFIX = require("../config").token_prefix;
-
 // current searches events by name, description, and location
 router.get("/", verify, checkIfVerified, async (req, res) => {
     // incoming: search, startDate, endDate
@@ -40,7 +36,8 @@ router.get("/", verify, checkIfVerified, async (req, res) => {
         // check that date is not empty
         if (startDate === "" || endDate === "") {
             return res.status(400).json({
-                success: false, error:"Please ensure you pick two dates",
+                success: false,
+                error: "Please ensure you pick two dates",
             });
         }
 
@@ -53,7 +50,7 @@ router.get("/", verify, checkIfVerified, async (req, res) => {
         if (startDate && endDate) {
             timeRange = {
                 startTime: {
-                    $gte: new Date(new Date(startDate).setHours(00, 00, 00)),
+                    $gte: new Date(new Date(startDate).setHours(0, 0, 0)),
                     $lt: new Date(new Date(endDate).setHours(23, 59, 59)),
                 },
             };
@@ -111,7 +108,8 @@ router.get("/", verify, checkIfVerified, async (req, res) => {
         // Handle responses
         if (!events) {
             return res.status(404).json({
-                success: false, error:"Could not retrieve events",
+                success: false,
+                error: "Could not retrieve events",
             });
         }
 
@@ -124,14 +122,14 @@ router.get("/", verify, checkIfVerified, async (req, res) => {
         res.status(200).json(events);
     } catch (err) {
         console.log(`Error in ${__filename}: \n\t${err}`);
-        res.status(500).json({ success: false, error:err });
+        res.status(500).json({ success: false, error: err });
     }
 });
 
 // create an event
 router.post("/create", verify, checkIfVerified, async (req, res) => {
     // getting userID from token decoded in verify
-    req.body.userID = req.user._id
+    req.body.userID = req.user._id;
 
     const eventJSON = req.body;
 
@@ -155,11 +153,14 @@ router.post("/create", verify, checkIfVerified, async (req, res) => {
     } catch (err) {
         // if there is a validation error
         if (err.hasOwnProperty("details")) {
-            res.status(400).json({ success: false, error:err.details[0].message });
+            res.status(400).json({
+                success: false,
+                error: err.details[0].message,
+            });
         } else {
             // other error(s)
             console.log(`Error in ${__filename}: \n\t${err}`);
-            res.status(500).json({ success: false, error:err });
+            res.status(500).json({ success: false, error: err });
         }
     }
 });
@@ -187,18 +188,21 @@ router.patch("/update/:eventID", verify, checkIfVerified, async (req, res) => {
         );
         // refreshing token
         const token = jwt.refresh(req.token);
-        //_updatedEvent._doc.token = token;
+        // _updatedEvent._doc.token = token;
 
         // sending result to client side application
         res.status(200).json(_updatedEvent);
     } catch (err) {
         // if there is a validation error
         if (err.hasOwnProperty("details")) {
-            res.status(400).json({ success: false, error:err.details[0].message });
+            res.status(400).json({
+                success: false,
+                error: err.details[0].message,
+            });
         } else {
             // other error(s)
             console.log(`Error in ${__filename}: \n\t${err}`);
-            res.status(500).json({ success: false, error:err });
+            res.status(500).json({ success: false, error: err });
         }
     }
 });
@@ -217,11 +221,11 @@ router.delete("/remove/:eventID", verify, checkIfVerified, async (req, res) => {
             ok: removedEvent.ok,
             deletedCount: removedEvent.deletedCount,
             // n: removedEvent.n,
-            // token: token
+            // token: token,
         });
     } catch (err) {
         console.log(`Error in ${__filename}: \n\t${err}`);
-        res.status(500).json({ success: false, error:err });
+        res.status(500).json({ success: false, error: err });
     }
 });
 

@@ -33,7 +33,10 @@ const registrationValidation = (data) => {
             .email()
             .external(checkEmail, "Email in use")
             .required(),
-        password: Joi.string().min(8).required(),
+        password: Joi.string()
+            .min(8)
+            .regex(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,}$/)
+            .required(),
         repeat_password: Joi.ref("password"),
     }).with("password", "repeat_password");
     return registerSchema.validateAsync(data);
@@ -51,14 +54,17 @@ const updateUserValidation = (data) => {
     const updateSchema = Joi.object({
         firstName: Joi.string().min(1),
         lastName: Joi.string().min(1),
-        email: Joi.string()
-            .min(5)
-            .email()
-            .external(checkEmail, "Email in use"),
-        password: Joi.string().min(8),
+        email: Joi.string().min(5).email().external(checkEmail, "Email in use"),
+        password: Joi.string()
+            .min(8)
+            .regex(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,}$/),
         repeat_password: Joi.ref("password"),
     }).with("password", "repeat_password");
     return updateSchema.validateAsync(data);
 };
 
-module.exports = { registrationValidation, loginValidation, updateUserValidation };
+module.exports = {
+    registrationValidation,
+    loginValidation,
+    updateUserValidation,
+};
