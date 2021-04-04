@@ -113,11 +113,6 @@ router.get("/", verify, checkIfVerified, async (req, res) => {
             });
         }
 
-        // refreshing token
-        const token = jwt.refresh(req.token);
-
-        // events._doc.token = token;
-
         // sending result
         res.status(200).json(events);
     } catch (err) {
@@ -142,9 +137,6 @@ router.post("/create", verify, checkIfVerified, async (req, res) => {
         const savedEvent = await event.save();
         delete savedEvent._doc.__v;
         delete savedEvent._doc.userID;
-
-        // refreshing token
-        const token = jwt.refresh(req.token);
 
         // savedEvent._doc.token = token;
 
@@ -186,9 +178,6 @@ router.patch("/update/:eventID", verify, checkIfVerified, async (req, res) => {
         const _updatedEvent = await Event.findById(req.params.eventID).select(
             "-userID -__v"
         );
-        // refreshing token
-        const token = jwt.refresh(req.token);
-        // _updatedEvent._doc.token = token;
 
         // sending result to client side application
         res.status(200).json(_updatedEvent);
@@ -212,9 +201,6 @@ router.delete("/remove/:eventID", verify, checkIfVerified, async (req, res) => {
     try {
         // delete event from db
         const removedEvent = await Event.deleteOne({ _id: req.params.eventID });
-
-        // refreshing token
-        const token = jwt.refresh(req.token);
 
         // sending result to client side application
         res.status(200).json({

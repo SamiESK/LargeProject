@@ -1,4 +1,4 @@
-// tests/login.test.js
+// tests/user.test.js
 require("dotenv").config();
 
 const mongoose = require("mongoose");
@@ -35,7 +35,7 @@ afterAll(async () => {
 describe(`Testing '${BASE_URL}/login' API Endpoint`, () => {
     test("Testing a User Login with Populated DataBase", async () => {
         const loginInfo = {
-            email: "andrewjamesjohn@outlook.com",
+            email: "some@email.com",
             password: "password",
         };
 
@@ -54,6 +54,21 @@ describe(`Testing '${BASE_URL}/login' API Endpoint`, () => {
             .expect(200);
 
         expect(res.body.token).toBeTruthy();
+    });
+
+    test("Testing Validation and Login Failure due to Incorrect Info", async () => {
+        // check validation error and incorrect credentials
+        res = await agent
+            .post(`${BASE_URL}/login`)
+            .type("json")
+            .send({ email: "whatever" })
+            .expect(400);
+
+        res = await agent
+            .post(`${BASE_URL}/login`)
+            .type("json")
+            .send({ email: "whatever@email.com", password: "password" })
+            .expect(404);
     });
 });
 
@@ -74,7 +89,7 @@ describe(`Testing '${BASE_URL}/register' API Endpoint`, () => {
         const registration = {
             firstName: "John",
             lastName: "Doe",
-            email: "andrewjamesjohn@outlook.com",
+            email: "some@email.com",
             password: "!Password1",
             repeat_password: "!Password1",
         };
@@ -104,7 +119,7 @@ describe(`Testing '${BASE_URL}/register' API Endpoint`, () => {
         let registration = {
             firstName: "John",
             lastName: "Doe",
-            email: "andrewjamesjohn@outlook.com",
+            email: "some@email.com",
             password: "!Password",
             repeat_password: "!Password",
         };
@@ -163,7 +178,7 @@ describe(`Testing '${BASE_URL}/update' API Endpoint`, () => {
     const registration = {
         firstName: "John",
         lastName: "Doe",
-        email: "andrewjamesjohn@outlook.com",
+        email: "some@email.com",
         password: "!Password1",
         repeat_password: "!Password1",
     };
@@ -313,6 +328,39 @@ describe(`Testing '${BASE_URL}/update' API Endpoint`, () => {
             })
             .expect(200);
     });
+
+    test("Checking update validation", async () => {
+        res = await agent
+            .patch(`${BASE_URL}/update`)
+            .set("Authorization", TOKEN_PREFIX + token)
+            .type("json")
+            .send({ firstName: "" })
+            .expect(400);
+
+        res = await agent
+            .patch(`${BASE_URL}/update`)
+            .set("Authorization", TOKEN_PREFIX + token)
+            .type("json")
+            .send({ lastName: "" })
+            .expect(400);
+
+        res = await agent
+            .patch(`${BASE_URL}/update`)
+            .set("Authorization", TOKEN_PREFIX + token)
+            .type("json")
+            .send({ password: "p", repeat_password: "p" })
+            .expect(400);
+
+        res = await agent
+            .patch(`${BASE_URL}/update`)
+            .set("Authorization", TOKEN_PREFIX + token)
+            .type("json")
+            .send({ email: "notvalidemail format" })
+            .expect(400);
+
+        // check the values in response
+        expect(res.body.success).toBe(false);
+    });
 });
 
 describe(`Testing '${BASE_URL}/verification/get-activation-email' API Endpoint`, () => {
@@ -326,13 +374,14 @@ describe(`Testing '${BASE_URL}/verification/get-activation-email' API Endpoint`,
 
     let res;
     let token;
+    let registration;
 
     test("Creating account and getting token", async () => {
         await db.clear();
-        const registration = {
+        registration = {
             firstName: "John",
             lastName: "Doe",
-            email: "andrewjamesjohn@outlook.com",
+            email: "some@email.com",
             password: "!Password1",
             repeat_password: "!Password1",
         };
@@ -352,7 +401,70 @@ describe(`Testing '${BASE_URL}/verification/get-activation-email' API Endpoint`,
             .set("Authorization", TOKEN_PREFIX + token)
             .expect(200);
         expect(res.body.success).toBe(true);
+    });
+
+    test("Check the Get Activation Email API 404 error", async () => {
+        // deleting account to test for 404 error
+        res = await agent
+            .delete(`${BASE_URL}/delete-account`)
+            .set("Authorization", TOKEN_PREFIX + token)
+            .type("json")
+            .send({ password: registration.password })
+            .expect(200);
+        expect(res.body.success).toBe(true);
+
+        res = await agent
+            .get(`${BASE_URL}/verification/get-activation-email`)
+            .set("Authorization", TOKEN_PREFIX + token)
+            .expect(404);
+        expect(res.body.success).toBe(false);
+
         await db.clear();
+    });
+});
+
+describe(`Testing '${BASE_URL}/verification/verify-account/:userId/:secretCode' API Endpoint`, () => {
+    beforeEach(async () => {
+        global.mockMailer = (options = defaultMailOptions) => {
+            return sgMail.send.mockImplementation(() =>
+                Promise.resolve(options)
+            );
+        };
+    });
+
+    let res;
+    let id;
+    let registration;
+
+    test("Creating account", async () => {
+        await db.clear();
+        registration = {
+            firstName: "John",
+            lastName: "Doe",
+            email: "some@email.com",
+            password: "!Password1",
+            repeat_password: "!Password1",
+        };
+
+        res = await agent
+            .post(`${BASE_URL}/register`)
+            .type("json")
+            .send(registration)
+            .expect(201);
+
+        id = res.body._id;
+    });
+
+    test(`Ping ${BASE_URL}/verification/verify-account/:userId/:secretCode API with userId and secret code`, async () => {
+        const code = await Code.findOne({ email: registration.email });
+
+        res = await agent
+            .get(`/api/user/verification/verify-account/${id}/${code.code}`)
+            .expect(302);
+
+        const user = await User.findOne({ email: registration.email });
+
+        expect(user.isVerified).toEqual(true);
     });
 });
 
@@ -370,7 +482,7 @@ describe(`Testing '${BASE_URL}/delete-account' API Endpoint`, () => {
         const registration = {
             firstName: "John",
             lastName: "Doe",
-            email: "andrewjamesjohn@outlook.com",
+            email: "some@email.com",
             password: "!Password1",
             repeat_password: "!Password1",
         };
@@ -390,6 +502,228 @@ describe(`Testing '${BASE_URL}/delete-account' API Endpoint`, () => {
             .send({ password: registration.password })
             .expect(200);
         expect(res.body.success).toBe(true);
+
+        // test user not found error
+        res = await agent
+            .delete(`${BASE_URL}/delete-account`)
+            .set("Authorization", TOKEN_PREFIX + token)
+            .type("json")
+            .send({ password: registration.password })
+            .expect(404);
+
+        // test validation requiring password
+        res = await agent
+            .delete(`${BASE_URL}/delete-account`)
+            .set("Authorization", TOKEN_PREFIX + token)
+            .type("json")
+            .send({})
+            .expect(400);
+        await db.clear();
+    });
+});
+
+describe(`Testing '${BASE_URL}/password-reset/get-code' API Endpoint`, () => {
+    beforeEach(async () => {
+        await db.clear();
+        global.mockMailer = (options = defaultMailOptions) => {
+            return sgMail.send.mockImplementation(() =>
+                Promise.resolve(options)
+            );
+        };
+    });
+
+    test("Creating an account and Sending password reset email", async () => {
+        const registration = {
+            firstName: "John",
+            lastName: "Doe",
+            email: "some@email.com",
+            password: "!Password1",
+            repeat_password: "!Password1",
+        };
+
+        let res = await agent
+            .post(`${BASE_URL}/register`)
+            .type("json")
+            .send(registration)
+            .expect(201);
+
+        const token = res.body.token;
+        const id = res.body._id;
+
+        res = await agent
+            .post(`${BASE_URL}/password-reset/get-code`)
+            .set("Authorization", TOKEN_PREFIX + token)
+            .type("json")
+            .send({ email: registration.email })
+            .expect(200);
+
+        expect(res.body.success).toBe(true);
+
+        // invalid json syntax
+        res = await agent
+            .post(`${BASE_URL}/password-reset/get-code`)
+            .set("Authorization", TOKEN_PREFIX + token)
+            .type("json")
+            .send({})
+            .expect(400);
+
+        res = await agent
+            .delete(`${BASE_URL}/delete-account`)
+            .set("Authorization", TOKEN_PREFIX + token)
+            .type("json")
+            .send({ password: registration.password })
+            .expect(200);
+
+        // unregistered email
+        res = await agent
+            .post(`${BASE_URL}/password-reset/get-code`)
+            .set("Authorization", TOKEN_PREFIX + token)
+            .type("json")
+            .send({ email: "yo" + registration.email })
+            .expect(404);
+        expect(res.body.success).toBe(false);
+
+        await db.clear();
+    });
+});
+
+describe(`Testing '${BASE_URL}/password-reset/verify' API Endpoint`, () => {
+    beforeEach(async () => {
+        await db.clear();
+        global.mockMailer = (options = defaultMailOptions) => {
+            return sgMail.send.mockImplementation(() =>
+                Promise.resolve(options)
+            );
+        };
+    });
+
+    test("Resetting account password with code", async () => {
+        const registration = {
+            firstName: "John",
+            lastName: "Doe",
+            email: "some@email.com",
+            password: "!Password1",
+            repeat_password: "!Password1",
+        };
+
+        let res = await agent
+            .post(`${BASE_URL}/register`)
+            .type("json")
+            .send(registration)
+            .expect(201);
+
+        const token = res.body.token;
+
+        res = await agent
+            .post(`${BASE_URL}/password-reset/get-code`)
+            .set("Authorization", TOKEN_PREFIX + token)
+            .type("json")
+            .send({ email: registration.email })
+            .expect(200);
+
+        expect(res.body.success).toBe(true);
+
+        const code = await Code.findOne({ email: registration.email });
+
+        const newPass = "Passw0rd!";
+
+        res = await agent
+            .post(`${BASE_URL}/password-reset/verify`)
+            .set("Authorization", TOKEN_PREFIX + token)
+            .type("json")
+            .send({
+                email: registration.email,
+                password: newPass,
+                repeat_password: newPass,
+                code: code.code,
+            })
+            .expect(200);
+
+        expect(res.body.success).toBe(true);
+
+        res = await agent
+            .post(`${BASE_URL}/login`)
+            .set("Authorization", TOKEN_PREFIX + token)
+            .type("json")
+            .send({
+                email: registration.email,
+                password: newPass,
+            })
+            .expect(200);
+
+        expect(res.body.token).toBeTruthy();
+
+        // check for validation that missing feilds
+        res = await agent
+            .post(`${BASE_URL}/password-reset/verify`)
+            .set("Authorization", TOKEN_PREFIX + token)
+            .type("json")
+            .send({
+                email: registration.email,
+                password: newPass,
+                repeat_password: newPass,
+            })
+            .expect(400);
+
+        res = await agent
+            .post(`${BASE_URL}/password-reset/verify`)
+            .set("Authorization", TOKEN_PREFIX + token)
+            .type("json")
+            .send({
+                email: registration.email,
+                password: newPass,
+                code: code.code,
+            })
+            .expect(400);
+
+        res = await agent
+            .post(`${BASE_URL}/password-reset/verify`)
+            .set("Authorization", TOKEN_PREFIX + token)
+            .type("json")
+            .send({
+                email: registration.email,
+                repeat_password: newPass,
+                code: code.code,
+            })
+            .expect(400);
+
+        res = await agent
+            .post(`${BASE_URL}/password-reset/verify`)
+            .set("Authorization", TOKEN_PREFIX + token)
+            .type("json")
+            .send({
+                password: newPass,
+                repeat_password: newPass,
+                code: code.code,
+            })
+            .expect(400);
+
+        // check for invalid code error
+        res = await agent
+            .post(`${BASE_URL}/password-reset/verify`)
+            .set("Authorization", TOKEN_PREFIX + token)
+            .type("json")
+            .send({
+                email: registration.email,
+                password: newPass,
+                repeat_password: newPass,
+                code: code.code + "364",
+            })
+            .expect(401);
+
+        // check for password validation error
+        res = await agent
+            .post(`${BASE_URL}/password-reset/verify`)
+            .set("Authorization", TOKEN_PREFIX + token)
+            .type("json")
+            .send({
+                email: registration.email,
+                password: "password",
+                repeat_password: "password",
+                code: code.code,
+            })
+            .expect(400);
+
         await db.clear();
     });
 });
