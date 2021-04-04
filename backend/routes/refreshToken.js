@@ -10,7 +10,7 @@ const path = require("path");
 router.get("/refresh", verify, async (req, res) => {
     try {
         // refreshing token
-        const token = jwt.refresh(req.token);
+        const token = await jwt.refresh(req.token);
 
         // sending back token
         res.status(200).json({ token: token });

@@ -171,7 +171,7 @@ router.patch("/update", verify, checkIfVerified, async (req, res) => {
         // refreshing token
         const token = jwt.refresh(req.token);
 
-        _updatedUser._doc.token = token;
+        // _updatedUser._doc.token = token;
 
         // sending result to client side application
         res.status(200).json(_updatedUser);
