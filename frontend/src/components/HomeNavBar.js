@@ -5,16 +5,9 @@ import { NavbarBrand } from 'reacthalfmoon';
 import { NavItem } from 'reacthalfmoon';
 import { NavbarNav } from 'reacthalfmoon';
 import { Img } from 'reacthalfmoon';
-<<<<<<< HEAD
-import { DarkmodeSwitch } from 'reacthalfmoon';
-import { useState } from 'react';
 import Dropdown from './AccountDropdown';
-=======
-//import { useState } from 'react';
 import { Button } from 'reacthalfmoon';
 import { PageWrapper } from 'reacthalfmoon';
-
->>>>>>> cdd48fd3a6b2341d4bbf16d6646d14eb2c1709e8
 
 function HomeNavBar()
 {
@@ -40,13 +33,7 @@ function HomeNavBar()
             </NavbarBrand>
             <NavbarNav>
                 <NavItem active to={"../pages/HomePage"}>About Us</NavItem>
-                <NavItem active>Mobile App</NavItem>
-<<<<<<< HEAD
-            
-                <DarkmodeSwitch checked={darkmode} toggle={()=>{setDarkmode(!darkmode)}} />
-=======
-                <Button color="primary" id="LoginButton" onClick={doLogOut}>Sign Out</Button>
->>>>>>> cdd48fd3a6b2341d4bbf16d6646d14eb2c1709e8
+                <NavItem active>Mobile App</NavItem> 
             </NavbarNav>
         </NavbarContent>
     </nav>

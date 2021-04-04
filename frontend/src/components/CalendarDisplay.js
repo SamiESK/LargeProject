@@ -5,11 +5,11 @@ import startOfWeek from 'date-fns/startOfWeek'
 import getDay from 'date-fns/getDay'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import React from 'react'
-import {Button, Modal, ModalContent, ModalDialog, ModalTitle, } from 'reacthalfmoon';
+import {Checkbox,Button, Modal, ModalContent, ModalDialog, ModalTitle, } from 'reacthalfmoon';
 import { useState} from 'react'
 import { Form, FormGroup, Input, TextArea } from 'reacthalfmoon';
 import DateTimePicker from 'react-datetime-picker';
-import EditableLabel from 'react-inline-editing';
+import EdiText from 'react-editext';
 
 const locales = {
   'en-US': require('date-fns/locale/en-US'),
@@ -22,27 +22,25 @@ const localizer = dateFnsLocalizer({
   getDay,
   locales,
 })
-
+var x = null;
 var title;
 var location;
 var description;
-var eTitle;
-var eDescription;
-var eLocation;
-var eStartTime;
-var eEndTime;
-var d = new Date();
-var deleteID;
+var ID;
 var loadEvents;
+var newEndEdit;
 function CalendarDisplay()
 {
   
   const [myEventsList, setevent] = useState([])
-  const temp=[]
+  const temp=[];
   const [isOpen, setIsOpen] = useState(false)
-  const app_name = "eventree-calendar";
   const [isOpen2, setIsOpen2] = useState(false)
-
+  const [eLocation, SeteLocation] = useState('');
+  const [eDescription, SeteDescription] = useState('');
+  const [eTitle, SeteTitle] = useState('');
+  
+  const app_name = "eventree-calendar";
   function buildPath(route) {
     if (process.env.NODE_ENV === "production") {
           return "https://" + app_name + ".herokuapp.com/" + route;
@@ -54,17 +52,21 @@ function CalendarDisplay()
 
   const [startDate, onChange] = useState(new Date());
   const [endDate, onChange2] = useState(new Date());
+  
+  const [EditStart, onChange3] = useState(new Date());
+  const [EditEnd, onChange4] = useState(new Date());
+
+  const [isChecked, setIsChecked] = useState(false);
 
   const EventInfo = (e) =>
   {
     setIsOpen(true);
-    eTitle = e.title;
-    eDescription = e.description;
-    eLocation = e.location;
-    console.log(typeof(eLocation));
-    eStartTime = d.toString(e.start);
-    eEndTime = d.toString(e.end);
-    deleteID = e.id;
+    SeteDescription(e.description)
+    SeteLocation(e.location);
+    SeteTitle(e.title);
+    onChange3(e.start);
+    onChange4(e.end);
+    ID = e.id;
   };
 
   
@@ -72,11 +74,11 @@ function CalendarDisplay()
   {
     event.preventDefault();
     // = {title: title, description: description, location: location, startTime: startDate, endTime: endDate};
-        console.log(deleteID);
+        
         //console.log(obj);
         //var js = JSON.stringify(obj);
         try {
-            const response = await fetch(buildPath('api/events/remove/'+String(deleteID)), {
+            const response = await fetch(buildPath('api/events/remove/'+String(ID)), {
                 method: "DELETE",
                 headers: { "Content-Type": "application/json", Authorization: 'Bearer ' + localStorage.getItem('token')},
             });
@@ -121,6 +123,37 @@ function CalendarDisplay()
     }
   };
   
+  const editEvent = async (event) => {
+    event.preventDefault();
+    if(!EditEnd)
+        newEndEdit = EditStart;       
+    else
+      newEndEdit = EditEnd;
+    var obj = {title: eTitle, description: eDescription, location: eLocation, startTime: EditStart, endTime: newEndEdit};
+    console.log(obj);
+    var js = JSON.stringify(obj);
+    try {
+        const response = await fetch(buildPath('api/events/update/'+String(ID)), {
+            method: "PATCH",
+            body: js,
+            headers: { "Content-Type": "application/json", Authorization: 'Bearer ' + localStorage.getItem('token')},
+        });
+        
+        var res = JSON.parse(await response.text());
+        console.log(res);
+        if(res.error)
+        {
+            alert(res.error);
+        }
+        loadEvents();
+        setIsOpen(false);
+
+    } catch (e) {
+        alert(e.toString());
+        return;
+    }
+  };
+
   window.onload = loadEvents = async() => 
    {
         
@@ -157,7 +190,15 @@ function CalendarDisplay()
         
         }  
     };
-
+    const saveLocation = (val) => {
+      SeteLocation(val)
+    }
+    const saveDescription = (val) => {
+      SeteDescription(val)
+    }
+    const saveTitle = (val) => {
+      SeteTitle(val)
+    }
     return(
       <div>
         <Button id="addEvent" onClick={()=>{setIsOpen2(true)}} color="primary" size="lg">Add Event</Button>
@@ -176,12 +217,24 @@ function CalendarDisplay()
         <Modal withCloseButton isOpen={isOpen} toggle={()=>{setIsOpen(!isOpen)}}>
             <ModalDialog>
                 <ModalContent>
-                    <ModalTitle><h3><b>{eTitle}</b></h3></ModalTitle>
-                    <h5><b>Location:</b>{eLocation}</h5>
-                    <p>Description: {eDescription}</p>
-                    <p>Start Date: {eStartTime}</p>
-                    <p>End Date: {eEndTime}</p>
+                    <ModalTitle><h2><b><EdiText type='text' value={eTitle} onSave={saveTitle}/></b></h2></ModalTitle>
+                    <h5><b>Location:</b></h5><EdiText type='text' value={eLocation} onSave={saveLocation}/>
+                    <h5><b>Description:</b></h5><EdiText type='text' value={eDescription} onSave={saveDescription}/>
+                    <h5><b>Start Time:</b></h5>
+                    <DateTimePicker disableClock = {true}
+                            value={EditStart}
+                            onChange ={onChange3}
+                        />
+                    
+                    <h5><b>End Time:</b></h5>
+                    <DateTimePicker disableClock = {true}
+                            value={EditEnd}
+                            onChange ={onChange4}
+                        />
+                    <p>Leave End Time blank to default to start time</p>
+                    <br></br>
                     <Button onClick={()=>{setIsOpen(!isOpen)}}>Close</Button>
+                    <Button color="primary" id="editButton" onClick={editEvent}>Save Changes</Button>
                     <Button color="danger" id="delButton" onClick={Delete}>Delete</Button>
                 </ModalContent>
             </ModalDialog>

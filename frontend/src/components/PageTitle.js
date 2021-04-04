@@ -7,7 +7,7 @@ import { ModalDialog } from 'reacthalfmoon';
 import { ModalTitle} from 'reacthalfmoon';
 import { ModalContent } from 'reacthalfmoon';
 import { FormGroup } from 'reacthalfmoon';
-import { Form, Alert, AlertHeading } from 'reacthalfmoon';
+import { Form, Container } from 'reacthalfmoon';
 import { useState } from 'react';
 //import Parser from 'html-react-parser';
 
@@ -76,14 +76,14 @@ function PageTitle()
 	const [isOpen, setIsOpen] = useState(false)
 	return(
 		<div>
-        <Col id="pageTitle" className="text-center" >
-        <h1 id="title">Organize Your Calendar</h1>
-            <div id="subtitles">
-                <CardTitle id="card">Plan, Schedule, Socialize, all of your events with Eventra </CardTitle>
-                <br></br>
-                <Button id="getStartedButton" onClick={()=>{setIsOpen(true)}} color="primary">Get Started</Button>
-            </div>
-        </Col>
+        <div id="container">
+            <h4>Organize your calendar</h4>
+            <h6>plan and schedule your events with Eventree</h6>
+        </div>
+        <div id="indexfooter">
+            f
+        </div>
+        <Button id="getStartedButton" onClick={()=>{setIsOpen(true)}} color="primary">Get Started</Button>
         <p id="signUpSuccess"></p>
         <div style={{height: "400px"}}>
         <Modal isOpen={isOpen} toggle={()=>{setIsOpen(!isOpen)}}>
