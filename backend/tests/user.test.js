@@ -42,8 +42,7 @@ describe(`Testing '${BASE_URL}/login' API Endpoint`, () => {
         const user = new User({
             firstName: "john",
             lastName: "doe",
-            email: loginInfo.email,
-            password: loginInfo.password,
+            ...loginInfo,
         });
 
         await user.save();
@@ -66,6 +65,9 @@ describe(`Testing '${BASE_URL}/register' API Endpoint`, () => {
                 Promise.resolve(options)
             );
         };
+
+        const error = jest.spyOn(console, "error").mockImplementation(() => {});
+        // error.mockReset();
     });
 
     test("Testing a User Registration", async () => {
@@ -96,6 +98,56 @@ describe(`Testing '${BASE_URL}/register' API Endpoint`, () => {
         expect(code).toBeTruthy();
         expect(code.code.toString()).toBeTruthy();
         await db.clear();
+    });
+
+    test("Testing User Registration Validation", async () => {
+        let registration = {
+            firstName: "John",
+            lastName: "Doe",
+            email: "andrewjamesjohn@outlook.com",
+            password: "!Password",
+            repeat_password: "!Password",
+        };
+
+        let res = await agent
+            .post(`${BASE_URL}/register`)
+            .type("json")
+            .send(registration)
+            .expect(400);
+
+        expect(res.body.error).toEqual(
+            "Your password must be at least 8 characters long and contain a lowercase letter, an uppercase letter, a numeric digit and a special character"
+        );
+
+        registration.password = "ss";
+        res = await agent
+            .post(`${BASE_URL}/register`)
+            .type("json")
+            .send(registration)
+            .expect(400);
+
+        expect(res.body.error).toEqual(
+            "Your password must be at least 8 characters long and contain a lowercase letter, an uppercase letter, a numeric digit and a special character"
+        );
+
+        Object.keys(registration).forEach(async (key) => {
+            res = await agent
+                .post(`${BASE_URL}/register`)
+                .type("json")
+                .send({ key: registration[key] })
+                .expect(400);
+
+            expect(res.body.error).toBeTruthy();
+        });
+
+        delete registration["repeat_password"];
+        res = await agent
+            .post(`${BASE_URL}/register`)
+            .type("json")
+            .send(registration)
+            .expect(400);
+
+        expect(res.body.error).toBeTruthy();
     });
 });
 
@@ -165,7 +217,6 @@ describe(`Testing '${BASE_URL}/update' API Endpoint`, () => {
 
         // check the values in response
         expect(res.body.firstName).toBe(updates.firstName);
-        expect(res.body.token).toBeTruthy();
     });
 
     test("Update Only Last Name", async () => {
@@ -180,7 +231,6 @@ describe(`Testing '${BASE_URL}/update' API Endpoint`, () => {
 
         // check the values in response
         expect(res.body.lastName).toBe(updates.lastName);
-        expect(res.body.token).toBeTruthy();
     });
 
     test("Update Only Email", async () => {
@@ -195,7 +245,6 @@ describe(`Testing '${BASE_URL}/update' API Endpoint`, () => {
 
         // check the values in response
         expect(res.body.email).toBe(updates.email);
-        expect(res.body.token).toBeTruthy();
     });
 
     test("Update Only Password", async () => {
@@ -209,6 +258,15 @@ describe(`Testing '${BASE_URL}/update' API Endpoint`, () => {
             .send({
                 password: updates.password,
                 repeat_password: updates.repeat_password,
+            })
+            .expect(200);
+
+        res = await agent
+            .post(`${BASE_URL}/login`)
+            .type("json")
+            .send({
+                email: updates.email,
+                password: updates.password,
             })
             .expect(200);
 
@@ -242,7 +300,6 @@ describe(`Testing '${BASE_URL}/update' API Endpoint`, () => {
             .expect(200);
 
         // check the values in response
-        expect(res.body.token).toBeTruthy();
         expect(res.body.firstName).toBe(updates.firstName);
         expect(res.body.lastName).toBe(updates.lastName);
         expect(res.body.email).toBe(updates.email);
@@ -330,7 +387,7 @@ describe(`Testing '${BASE_URL}/delete-account' API Endpoint`, () => {
             .delete(`${BASE_URL}/delete-account`)
             .set("Authorization", TOKEN_PREFIX + token)
             .type("json")
-            .send({password: registration.password})
+            .send({ password: registration.password })
             .expect(200);
         expect(res.body.success).toBe(true);
         await db.clear();
