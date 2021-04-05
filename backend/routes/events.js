@@ -2,7 +2,7 @@ const express = require("express");
 
 const router = express.Router();
 
-const verify = require("../middleware/authToken").auth;
+const verifyAuthToken = require("../middleware/authToken").auth;
 const checkIfVerified = require("../middleware/authToken").checkIfVerified;
 
 const mongoose = require("mongoose");
@@ -11,13 +11,15 @@ const Event = mongoose.model("Event");
 
 const jwt = require("../createToken");
 
+const config = require("../config");
+
 const {
     newEventValidation,
     updateEventValidation,
-} = require("./eventsValidation");
+} = require("./events.validation");
 
 // current searches events by name, description, and location
-router.get("/", verify, checkIfVerified, async (req, res) => {
+router.get("/", verifyAuthToken, checkIfVerified, async (req, res) => {
     // incoming: search, startDate, endDate
 
     // api call should look something like this:
@@ -51,6 +53,18 @@ router.get("/", verify, checkIfVerified, async (req, res) => {
             timeRange = {
                 startTime: {
                     $gte: new Date(new Date(startDate).setHours(0, 0, 0)),
+                    $lt: new Date(new Date(endDate).setHours(23, 59, 59)),
+                },
+            };
+        } else if (startDate) {
+            timeRange = {
+                startTime: {
+                    $gte: new Date(new Date(startDate).setHours(0, 0, 0)),
+                },
+            };
+        } else if (endDate) {
+            timeRange = {
+                startTime: {
                     $lt: new Date(new Date(endDate).setHours(23, 59, 59)),
                 },
             };
@@ -101,7 +115,7 @@ router.get("/", verify, checkIfVerified, async (req, res) => {
             events = await Event.find({
                 $and: [{ userID: userID }, timeRange],
             })
-                .sort({ startTime: "asc" })
+                .sort({ startTime: "asc", title: "asc", location: "asc" })
                 .select("-userID -__v");
         }
 
@@ -117,12 +131,12 @@ router.get("/", verify, checkIfVerified, async (req, res) => {
         res.status(200).json(events);
     } catch (err) {
         console.log(`Error in ${__filename}: \n\t${err}`);
-        res.status(500).json({ success: false, error: err });
+        res.status(500).json({ success: false, error: config.server});
     }
 });
 
 // create an event
-router.post("/create", verify, checkIfVerified, async (req, res) => {
+router.post("/create", verifyAuthToken, checkIfVerified, async (req, res) => {
     // getting userID from token decoded in verify
     req.body.userID = req.user._id;
 
@@ -141,7 +155,7 @@ router.post("/create", verify, checkIfVerified, async (req, res) => {
         // savedEvent._doc.token = token;
 
         // sending result to client side application
-        res.status(200).json(savedEvent);
+        res.status(200).json({ ...savedEvent.toObject(), success: true });
     } catch (err) {
         // if there is a validation error
         if (err.hasOwnProperty("details")) {
@@ -152,67 +166,81 @@ router.post("/create", verify, checkIfVerified, async (req, res) => {
         } else {
             // other error(s)
             console.log(`Error in ${__filename}: \n\t${err}`);
-            res.status(500).json({ success: false, error: err });
+            res.status(500).json({ success: false, error: config.server});
         }
     }
 });
 
-router.patch("/update/:eventID", verify, checkIfVerified, async (req, res) => {
-    const entries = Object.keys(req.body);
-    const updates = {};
+router.patch(
+    "/update/:eventID",
+    verifyAuthToken,
+    checkIfVerified,
+    async (req, res) => {
+        const entries = Object.keys(req.body);
+        const updates = {};
 
-    // constructing dynamic query
-    for (let i = 0; i < entries.length; i++) {
-        updates[entries[i]] = Object.values(req.body)[i];
-    }
+        // constructing dynamic query
+        for (let i = 0; i < entries.length; i++) {
+            updates[entries[i]] = Object.values(req.body)[i];
+        }
 
-    try {
-        const value = await updateEventValidation(updates);
+        try {
+            const value = await updateEventValidation(updates);
 
-        // updating event in db
-        const updatedEvent = await Event.findByIdAndUpdate(
-            { _id: req.params.eventID },
-            { $set: updates },
-            { useFindAndModify: false }
-        );
-        const _updatedEvent = await Event.findById(req.params.eventID).select(
-            "-userID -__v"
-        );
+            // updating event in db
+            const updatedEvent = await Event.findByIdAndUpdate(
+                { _id: req.params.eventID },
+                { $set: updates },
+                { useFindAndModify: false }
+            );
+            const _updatedEvent = await Event.findById(
+                req.params.eventID
+            ).select("-userID -__v");
 
-        // sending result to client side application
-        res.status(200).json(_updatedEvent);
-    } catch (err) {
-        // if there is a validation error
-        if (err.hasOwnProperty("details")) {
-            res.status(400).json({
-                success: false,
-                error: err.details[0].message,
-            });
-        } else {
-            // other error(s)
-            console.log(`Error in ${__filename}: \n\t${err}`);
-            res.status(500).json({ success: false, error: err });
+            _updatedEvent._doc.success = true;
+
+            // sending result to client side application
+            res.status(200).json({ ..._updatedEvent.toObject(), success: true });
+        } catch (err) {
+            // if there is a validation error
+            if (err.hasOwnProperty("details")) {
+                res.status(400).json({
+                    success: false,
+                    error: err.details[0].message,
+                });
+            } else {
+                // other error(s)
+                console.log(`Error in ${__filename}: \n\t${err}`);
+                res.status(500).json({ success: false, error: config.server});
+            }
         }
     }
-});
+);
 
 // delete an event
-router.delete("/remove/:eventID", verify, checkIfVerified, async (req, res) => {
-    try {
-        // delete event from db
-        const removedEvent = await Event.deleteOne({ _id: req.params.eventID });
+router.delete(
+    "/remove/:eventID",
+    verifyAuthToken,
+    checkIfVerified,
+    async (req, res) => {
+        try {
+            // delete event from db
+            const removedEvent = await Event.deleteOne({
+                _id: req.params.eventID,
+            });
 
-        // sending result to client side application
-        res.status(200).json({
-            ok: removedEvent.ok,
-            deletedCount: removedEvent.deletedCount,
-            // n: removedEvent.n,
-            // token: token,
-        });
-    } catch (err) {
-        console.log(`Error in ${__filename}: \n\t${err}`);
-        res.status(500).json({ success: false, error: err });
+            // sending result to client side application
+            res.status(200).json({
+                success: true,
+                ok: removedEvent.ok,
+                deletedCount: removedEvent.deletedCount,
+                // n: removedEvent.n,
+            });
+        } catch (err) {
+            console.log(`Error in ${__filename}: \n\t${err}`);
+            res.status(500).json({ success: false, error: config.server});
+        }
     }
-});
+);
 
 module.exports = router;

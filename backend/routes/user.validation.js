@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 
 const User = mongoose.model("User");
 
-const config = require("./config");
+const config = require("../config");
 
 // method to check if email is already taken
 const checkEmail = async (email) => {

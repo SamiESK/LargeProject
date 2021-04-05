@@ -12,9 +12,9 @@ app.use(bodyParser.json());
 
 require("dotenv").config();
 
-require("./models/User");
-require("./models/Event");
-require("./models/Code");
+require("./models/User.model");
+require("./models/Event.model");
+require("./models/Code.model");
 
 app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", "*");

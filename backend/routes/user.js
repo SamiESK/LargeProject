@@ -8,21 +8,22 @@ const Event = mongoose.model("Event");
 
 const jwt = require("../createToken");
 
-const verify = require("../middleware/authToken").auth;
+
+const verifyAuthToken = require("../middleware/authToken").auth;
 const checkIfVerified = require("../middleware/authToken").checkIfVerified;
 
 const {
     registrationValidation,
     loginValidation,
     updateUserValidation,
-} = require("../validation");
+} = require("./user.validation");
 
 const argon2 = require("argon2");
 
 const config = require("../config");
 
-const sendVerificationEmail = require("./email").SendVerificationEmail;
-const sendPasswordResetEmail = require("./email").SendPasswordResetEmail;
+const sendVerificationEmail = require("../email").SendVerificationEmail;
+const sendPasswordResetEmail = require("../email").SendPasswordResetEmail;
 
 require("dotenv").config();
 
@@ -78,7 +79,7 @@ router.post("/login", async (req, res, next) => {
         } else {
             // other error(s)
             console.log(`Error in ${__filename}: \n\t${err}`);
-            res.status(500).json({ success: false, error: err });
+            res.status(500).json({ success: false, error: config.server});
         }
     }
 });
@@ -139,12 +140,12 @@ router.post("/register", async (req, res, next) => {
         } else {
             // other error(s)
             console.error(`Error in ${__filename}: \n\t${err}`);
-            res.status(500).json({ success: false, error: err });
+            res.status(500).json({ success: false, error: config.server});
         }
     }
 });
 
-router.patch("/update", verify, checkIfVerified, async (req, res) => {
+router.patch("/update", verifyAuthToken, checkIfVerified, async (req, res) => {
     let entries = Object.keys(req.body);
     let updates = {};
 
@@ -192,14 +193,14 @@ router.patch("/update", verify, checkIfVerified, async (req, res) => {
         } else {
             // other error(s)
             console.log(`Error in ${__filename}: \n\t${err}`);
-            res.status(500).json({ success: false, error: err });
+            res.status(500).json({ success: false, error: config.server});
         }
     }
 });
 
 // #route:  GET api/user/verification/get-activation-email
 // #desc:   Send verification email to registered users email address
-router.get("/verification/get-activation-email", verify, async (req, res) => {
+router.get("/verification/get-activation-email", verifyAuthToken, async (req, res) => {
     try {
         const user = await User.findById(req.user._id);
 
@@ -266,7 +267,7 @@ router.get(
 
 // #route:  DELETE /delete-account
 // #desc: delete a user account
-router.delete("/delete-account", verify, async (req, res) => {
+router.delete("/delete-account", verifyAuthToken, async (req, res) => {
     const { password } = req.body;
 
     if (!password) {
