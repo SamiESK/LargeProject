@@ -74,7 +74,7 @@ function NavBar()
 
     const redirect = async (event) => {
         event.preventDefault();
-        window.location.href = "/ResetPage";
+        window.location.href = "/GetCodePage";
     };
 
 
@@ -84,9 +84,11 @@ function NavBar()
         <Navbar  id="nav">
         <NavbarContent> 
         <Img rounded src={require("../images/Logo.png").default} height="40px"/>
+        <a href="/">
             <NavbarBrand id="brand">
                 Eventree
             </NavbarBrand>
+        </a>
             <NavbarNav>
                 <NavItem active to={"../pages/HomePage"}>About Us</NavItem>
                 <NavItem active>Mobile App</NavItem>          

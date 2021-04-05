@@ -8,7 +8,7 @@ const LoginPage = () =>
 {
 
 	return(
-		<div id="background" style={{ backgroundImage: `url(${background})`}}>
+		<div /*id="background" style={{ backgroundImage: `url(${background})`}}*/>
 		<NavBar />
 		<PageTitle />
 		</div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import {Modal, ModalDialog, ModalContent, Container, Row, Col, ModalTitle } from 'reacthalfmoon';
-import { DropdownDivider, Button } from 'reacthalfmoon';
+import { DropdownDivider, Button, Table, Content} from 'reacthalfmoon';
 
 function AccountInfo()
 {
@@ -52,16 +52,77 @@ function AccountInfo()
     };
 
     return(
-        <Container id="account">
+
+        <div id="account">
+        <Row className="accountHeaders">
+            <h3 align="left">Account Information</h3>
+        </Row>
+        <Container breakpoint="fluid" className="border p-10"> 
+            <Table noOuterPadding id="accountTable">
+            <tbody>
+                <tr>
+                    <th>First Name</th>
+                    <td>{firstName}</td>
+                    <td></td><td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                    <th>Last Name</th>
+                    <td >{lastName}</td>
+                </tr>
+                <tr>
+                    <th>Email</th>
+                    <td>{email}</td>
+                </tr>
+            </tbody>
+        </Table>
+    </Container>
+    <br></br>
+    <Row className="accountHeaders">
+            <h3 align="left">Change Password</h3>
+        </Row>
+    <Container breakpoint="fluid" className="border p-10" id="accountPassword">
+        <Content>
             <Row>
-                <Col offset={3} size={6}>
-                    <h4 align="center">Account Information</h4>
-                    <DropdownDivider/>
+                <Col>
+                    <label>Old Password</label>
+                </Col>
+                <Col>
+                    <input placeholder="Old Password"></input>
+                </Col>
+                <br></br>
+            </Row>
+            <br></br>
+            <Row>
+                <Col>
+                    <label>New Password</label>
+                </Col>
+                <Col>
+                    <input placeholder="New Password"></input>
+                </Col>
+                <br></br>
+            </Row>
+            <br></br>
+            <Row>
+                <Col>
+                    <label>Confirm New Password</label>
+                </Col>
+                <Col>
+                    <input placeholder="Confirm New Password"></input>
+                </Col>
+                <br></br>
+            </Row>
+        </Content>
+    </Container>
+    <br></br>
+    <Container breakpoint="fluid" className="border p-10">
+    <Col offset={4} size={4}>
                     <Button color="danger" block type="submit" onClick={deleteAccount}>Delete Account</Button>
                     <span id="deleteError"></span>
-                </Col>
-            </Row>
-        </Container>
+    </Col>
+    </Container>
+    
+    </div>
+
     );
 };
 export default AccountInfo;

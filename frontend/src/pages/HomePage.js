@@ -10,7 +10,8 @@ const HomePage = () =>
     return(
         <div >
         <Calendar />
-        <HomeNavBar />     
+        <HomeNavBar />  
+        
         
     </div>
         

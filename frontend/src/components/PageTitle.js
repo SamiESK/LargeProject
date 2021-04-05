@@ -7,8 +7,9 @@ import { ModalDialog } from 'reacthalfmoon';
 import { ModalTitle} from 'reacthalfmoon';
 import { ModalContent } from 'reacthalfmoon';
 import { FormGroup } from 'reacthalfmoon';
-import { Form, Container } from 'reacthalfmoon';
+import { Form, Container, Row, Img } from 'reacthalfmoon';
 import { useState } from 'react';
+//import planner from '../images/planning.jpg';
 //import Parser from 'html-react-parser';
 
 var success = `<div id="success" class="alert alert-primary" role="alert">
@@ -77,13 +78,19 @@ function PageTitle()
 	return(
 		<div>
         <div id="container">
-            <h4>Organize your calendar</h4>
-            <h6>plan and schedule your events with Eventree</h6>
+            <h3>Organize your calendar</h3>
+            <h5>plan and schedule your events with Eventree</h5>
+            <Button id="getStartedButton" onClick={()=>{setIsOpen(true)}} color="primary">Get Started</Button>
         </div>
-        <div id="indexfooter">
-            f
-        </div>
-        <Button id="getStartedButton" onClick={()=>{setIsOpen(true)}} color="primary">Get Started</Button>
+        <Container id="image">
+            <Row>
+                <Col size={4}>
+                   
+                </Col>
+            </Row>
+        </Container>
+        
+        
         <p id="signUpSuccess"></p>
         <div style={{height: "400px"}}>
         <Modal isOpen={isOpen} toggle={()=>{setIsOpen(!isOpen)}}>

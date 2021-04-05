@@ -7,7 +7,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css'
 import React from 'react'
 import {Checkbox,Button, Modal, ModalContent, ModalDialog, ModalTitle, } from 'reacthalfmoon';
 import { useState} from 'react'
-import { Form, FormGroup, Input, TextArea } from 'reacthalfmoon';
+import { Form, FormGroup, Input, TextArea, Container } from 'reacthalfmoon';
 import DateTimePicker from 'react-datetime-picker';
 import EdiText from 'react-editext';
 
@@ -93,12 +93,17 @@ function CalendarDisplay()
   };
   
   const addEvent = async (event) => {
+    var defaultendDate;
     event.preventDefault();
     title = document.getElementById("eventtitle").value
     location = document.getElementById("location").value
     description = document.getElementById("description").value
-   
-    var obj = {title: title, description: description, location: location, startTime: startDate, endTime: endDate};
+    if(!endDate)
+        defaultendDate = startDate;
+    else
+        defaultendDate = endDate;
+
+    var obj = {title: title, description: description, location: location, startTime: startDate, endTime: defaultendDate};
     
     var js = JSON.stringify(obj);
     try {
@@ -201,18 +206,22 @@ function CalendarDisplay()
     }
     return(
       <div>
-        <Button id="addEvent" onClick={()=>{setIsOpen2(true)}} color="primary" size="lg">Add Event</Button>
-        <div id="cally">
-        <Calendar
-          localizer={localizer}
-          events={myEventsList}
-          startAccessor="start"
-          endAccessor="end"
-          style={{ height:1000}}
-          views={['month', 'week']}
-          onSelectEvent = {event => {EventInfo(event)}}
-        />
-      </div>
+        <Container className="border p-10" id="homeBack">
+          <Container className="border p-10" id="callyContainer">
+          <Button id="addEvent" onClick={()=>{setIsOpen2(true)}} size="lg" className="btn btn-square rounded-circle" >+</Button>
+            <div id="cally">
+            <Calendar
+              localizer={localizer}
+              events={myEventsList}
+              startAccessor="start"
+              endAccessor="end"
+              style={{ height:1000}}
+              views={['month', 'week']}
+              onSelectEvent = {event => {EventInfo(event)}}
+            />
+          </div>
+        </Container>
+      </Container>
       <div style={{height: "400px"}}>
         <Modal withCloseButton isOpen={isOpen} toggle={()=>{setIsOpen(!isOpen)}}>
             <ModalDialog>
@@ -231,7 +240,7 @@ function CalendarDisplay()
                             value={EditEnd}
                             onChange ={onChange4}
                         />
-                    <p>Leave End Time blank to default to start time</p>
+                    <p><b>*Leave End Time blank to default to start time</b></p>
                     <br></br>
                     <Button onClick={()=>{setIsOpen(!isOpen)}}>Close</Button>
                     <Button color="primary" id="editButton" onClick={editEvent}>Save Changes</Button>
@@ -264,6 +273,7 @@ function CalendarDisplay()
                             value={endDate}
                             onChange ={onChange2}
                         />
+                        <p><b>*Leave End Time blank to default to start time</b></p>
                     </FormGroup>
                     <FormGroup>
                         <label>Location</label>

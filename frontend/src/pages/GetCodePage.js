@@ -1,6 +1,6 @@
 import React from 'react';
+import GetCode from '../components/getCode';
 import NavBar from '../components/navBar';
-import ResetPassword from '../components/resetPassword';
 
 const ResetPage = () =>
 {
@@ -8,7 +8,7 @@ const ResetPage = () =>
 	return(
 		<div>
         <NavBar />
-        <ResetPassword />
+		<GetCode />
 		</div>
 		
 	);

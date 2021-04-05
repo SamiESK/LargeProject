@@ -24,21 +24,23 @@ function HomeNavBar()
 
 
     return(
-        <div>
-        <nav  id="nav">
+        <PageWrapper withNavbar>
+        <Navbar  id="nav">
         <NavbarContent> 
-        <Img id="logo" rounded src={require("../images/Logo.png").default} height="40px"/>
+        <Img rounded src={require("../images/Logo.png").default} height="40px"/>
+        <a href="/HomePage">
             <NavbarBrand id="brand">
                 Eventree
             </NavbarBrand>
+        </a>
             <NavbarNav>
                 <NavItem active to={"../pages/HomePage"}>About Us</NavItem>
-                <NavItem active>Mobile App</NavItem> 
+                <NavItem active>Mobile App</NavItem>          
+               <Dropdown />
             </NavbarNav>
         </NavbarContent>
-    </nav>
-    <Dropdown />
-    </div>
+    </Navbar>
+    </PageWrapper>
     );
 };
 export default HomeNavBar;

@@ -2,6 +2,7 @@ import React from 'react';
 import { DropdownControl, DropdownHeader, DropdownItem, DropdownDivider } from 'reacthalfmoon';
 import { Img, DropdownMenu, DropdownContent, Button, Dropdown } from 'reacthalfmoon';
 import { useState } from 'react';
+import accountIcon from '../images/account.png';
 
 function AccountDropdown()
 {
@@ -19,7 +20,7 @@ function AccountDropdown()
         <div id="dropdown">
         <Dropdown  isOpen={isOpen} toggle={()=>{setIsOpen(!isOpen)}}>
             <DropdownControl>
-                <Img style={{cursor:"pointer"}} rounded="circle" src="https://www.gethalfmoon.com/static/site/img/image-2.png" alt="dropdown-image" classNames="w-50 h-50" />
+                <Img style={{cursor:"pointer"}} rounded="circle" src={accountIcon} alt="dropdown-image" classNames="w-50 h-50" />
             </DropdownControl>
             <DropdownMenu align="right">
                 <DropdownItem style={{cursor:"pointer"}} onClick={()=>{window.location = '/AccountPage'}}>View Account</DropdownItem>

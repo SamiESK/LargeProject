@@ -1,6 +1,6 @@
 import React from 'react';
 import { Form, FormGroup, PageWrapper, ModalDialog, ModalContent, ModalTitle } from 'reacthalfmoon';
-import { Button } from 'reacthalfmoon';
+import { Button, Row, Col } from 'reacthalfmoon';
 function getCode()
 {
     var email;
@@ -38,6 +38,7 @@ function getCode()
             }
             else if(res.success) {
                 document.getElementById("getCodeError").innerHTML = "";
+                window.location.href = "/ResetPage";
             }
             
         } catch (e) {
@@ -45,6 +46,11 @@ function getCode()
             return;
         }
         
+    };
+
+    const redirect = async (event) => {
+        event.preventDefault();
+        window.location.href = "/ResetPage";
     };
     return(
         <div>
@@ -56,11 +62,12 @@ function getCode()
                     <input style={{width: "100%"}} id="resetEmail" type="text" placeholder="Email" ref={(c) => (email = c)}/>
                 </FormGroup>
                 <FormGroup>
-                <Button color="primary" onClick={resetCode} block type="submit">Reset Passowrd</Button>
+                <Button color="primary" onClick={resetCode} block type="submit">Get Code</Button>
                 </FormGroup>
                 <FormGroup>
                 <span id="getCodeError" style={{color: "red"}}></span>
                 </FormGroup>
+                <Button className="SignIn" color="link" block type="submit" onClick={redirect}>Already have a code?</Button>
             </Form>
         </div>
     );

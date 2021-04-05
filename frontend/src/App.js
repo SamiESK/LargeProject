@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage';
 import ResetPage from './pages/ResetPage';
 import LoginPage from './pages/LoginPage';
 import AccountPage from './pages/AccountPage';
+import GetCodePage from './pages/GetCodePage';
 
 
 function App() {
@@ -22,6 +23,9 @@ function App() {
 		</Route>
 		<Route path="/AccountPage" exact>
 			<AccountPage />
+		</Route>
+		<Route path="/GetCodePage">
+			<GetCodePage />
 		</Route>
 		<Redirect to="/" />
 		</Switch>  
