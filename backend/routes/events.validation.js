@@ -1,5 +1,5 @@
 const Joi = require("joi");
-Joi.objectId = require('joi-objectid')(Joi);
+Joi.objectId = require("joi-objectid")(Joi);
 
 const newEventValidation = (data) => {
     const eventSchema = Joi.object({
@@ -8,8 +8,8 @@ const newEventValidation = (data) => {
         description: Joi.string().min(1),
         location: Joi.string().min(1),
         startTime: Joi.date().required(),
-        endTime: Joi.date().min(Joi.ref('startTime')).required(),
-    })
+        endTime: Joi.date().min(Joi.ref("startTime")).required(),
+    });
     return eventSchema.validateAsync(data);
 };
 
@@ -19,9 +19,20 @@ const updateEventValidation = (data) => {
         description: Joi.string().min(1),
         location: Joi.string().min(1),
         startTime: Joi.date(),
-        endTime: Joi.date().min(Joi.ref('startTime')),
+        endTime: Joi.date().min(Joi.ref("startTime")),
     }).with("startTime", "endTime");
     return eventSchema.validateAsync(data);
 };
 
-module.exports = { newEventValidation, updateEventValidation };
+const validateObjectID = (data) => {
+    const idSchema = Joi.object({
+        id: Joi.objectId().required(),
+    });
+    return idSchema.validateAsync(data);
+};
+
+module.exports = {
+    newEventValidation,
+    updateEventValidation,
+    validateObjectID,
+};

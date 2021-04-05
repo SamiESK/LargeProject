@@ -16,6 +16,7 @@ const config = require("../config");
 const {
     newEventValidation,
     updateEventValidation,
+    validateObjectID,
 } = require("./events.validation");
 
 // current searches events by name, description, and location
@@ -131,7 +132,7 @@ router.get("/", verifyAuthToken, checkIfVerified, async (req, res) => {
         res.status(200).json(events);
     } catch (err) {
         console.log(`Error in ${__filename}: \n\t${err}`);
-        res.status(500).json({ success: false, error: config.server});
+        res.status(500).json({ success: false, error: config.server });
     }
 });
 
@@ -166,7 +167,7 @@ router.post("/create", verifyAuthToken, checkIfVerified, async (req, res) => {
         } else {
             // other error(s)
             console.log(`Error in ${__filename}: \n\t${err}`);
-            res.status(500).json({ success: false, error: config.server});
+            res.status(500).json({ success: false, error: config.server });
         }
     }
 });
@@ -185,7 +186,10 @@ router.patch(
         }
 
         try {
-            const value = await updateEventValidation(updates);
+            const updateValidationResult = await updateEventValidation(updates);
+            const eventIdValidationResult = await validateObjectID({
+                id: req.params.eventID,
+            });
 
             // updating event in db
             const updatedEvent = await Event.findByIdAndUpdate(
@@ -200,7 +204,10 @@ router.patch(
             _updatedEvent._doc.success = true;
 
             // sending result to client side application
-            res.status(200).json({ ..._updatedEvent.toObject(), success: true });
+            res.status(200).json({
+                ..._updatedEvent.toObject(),
+                success: true,
+            });
         } catch (err) {
             // if there is a validation error
             if (err.hasOwnProperty("details")) {
@@ -211,7 +218,7 @@ router.patch(
             } else {
                 // other error(s)
                 console.log(`Error in ${__filename}: \n\t${err}`);
-                res.status(500).json({ success: false, error: config.server});
+                res.status(500).json({ success: false, error: config.server });
             }
         }
     }
@@ -224,6 +231,10 @@ router.delete(
     checkIfVerified,
     async (req, res) => {
         try {
+            const eventIdValidationResult = await validateObjectID({
+                id: req.params.eventID,
+            });
+
             // delete event from db
             const removedEvent = await Event.deleteOne({
                 _id: req.params.eventID,
@@ -237,8 +248,15 @@ router.delete(
                 // n: removedEvent.n,
             });
         } catch (err) {
-            console.log(`Error in ${__filename}: \n\t${err}`);
-            res.status(500).json({ success: false, error: config.server});
+            if (err.hasOwnProperty("details")) {
+                res.status(400).json({
+                    success: false,
+                    error: err.details[0].message,
+                });
+            } else {
+                console.log(`Error in ${__filename}: \n\t${err}`);
+                res.status(500).json({ success: false, error: config.server });
+            }
         }
     }
 );
