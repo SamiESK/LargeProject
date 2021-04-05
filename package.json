@@ -5,7 +5,7 @@
 	"main": "server.js",
 	"scripts": {
 		"start": "node server.js",
-		"test": "jest --runInBand --detectOpenHandles ./backend/tests",
+		"test": "jest --runInBand --verbose --detectOpenHandles ./backend/tests",
 		"test-silent": "jest --silent --runInBand --detectOpenHandles ./backend/tests",
 		"heroku-postbuild": " NPM_CONFIG_PRODUCTION=false npm install --prefix frontend && npm run build --prefix frontend"
 	},
@@ -19,6 +19,7 @@
 		"crypto-random-string": "^3.3.1",
 		"dotenv": "^8.2.0",
 		"express": "^4.17.1",
+		"jest": "^26.6.0",
 		"joi": "^17.4.0",
 		"joi-objectid": "^3.0.1",
 		"jsonwebtoken": "^8.5.1",
@@ -28,7 +29,6 @@
 		"testEnvironment": "node"
 	},
 	"devDependencies": {
-		"jest": "^26.6.3",
 		"mongodb-memory-server": "^6.9.6",
 		"supertest": "^6.1.3"
 	}

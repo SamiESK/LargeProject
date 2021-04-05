@@ -8,21 +8,22 @@ const Event = mongoose.model("Event");
 
 const jwt = require("../createToken");
 
-const verify = require("../middleware/authToken").auth;
+
+const verifyAuthToken = require("../middleware/authToken").auth;
 const checkIfVerified = require("../middleware/authToken").checkIfVerified;
 
 const {
     registrationValidation,
     loginValidation,
     updateUserValidation,
-} = require("../validation");
+} = require("./user.validation");
 
 const argon2 = require("argon2");
 
 const config = require("../config");
 
-const sendVerificationEmail = require("./email").SendVerificationEmail;
-const sendPasswordResetEmail = require("./email").SendPasswordResetEmail;
+const sendVerificationEmail = require("../email").SendVerificationEmail;
+const sendPasswordResetEmail = require("../email").SendPasswordResetEmail;
 
 require("dotenv").config();
 
@@ -43,7 +44,7 @@ router.post("/login", async (req, res, next) => {
         // check if email exists
         const user = await User.findOne({ email: email }).select("+password");
         if (!user) {
-            return res.status(400).json({
+            return res.status(404).json({
                 success: false,
                 error: "Email/Password combination is incorrect",
             });
@@ -78,7 +79,7 @@ router.post("/login", async (req, res, next) => {
         } else {
             // other error(s)
             console.log(`Error in ${__filename}: \n\t${err}`);
-            res.status(500).json({ success: false, error: err });
+            res.status(500).json({ success: false, error: config.server});
         }
     }
 });
@@ -127,21 +128,24 @@ router.post("/register", async (req, res, next) => {
     } catch (err) {
         // if there is a validation error
         if (err.hasOwnProperty("details")) {
-            console.error({ error: err.details[0].message });
-            res.status(400).json({ error: err.details[0].message });
+            console.error({ success: false, error: err.details[0].message });
+            res.status(400).json({
+                success: false,
+                error: err.details[0].message,
+            });
         } else if (err.message.localeCompare(config.email_exists_err)) {
-            res.status(400).json({ error: err.message });
+            res.status(400).json({ success: false, error: err.message });
         } else if (err.message.localeCompare(config.db_err)) {
-            res.status(500).json({ error: err.message });
+            res.status(500).json({ success: false, error: err.message });
         } else {
             // other error(s)
             console.error(`Error in ${__filename}: \n\t${err}`);
-            res.status(500).json({ error: err });
+            res.status(500).json({ success: false, error: config.server});
         }
     }
 });
 
-router.patch("/update", verify, checkIfVerified, async (req, res) => {
+router.patch("/update", verifyAuthToken, checkIfVerified, async (req, res) => {
     let entries = Object.keys(req.body);
     let updates = {};
 
@@ -171,34 +175,37 @@ router.patch("/update", verify, checkIfVerified, async (req, res) => {
         // refreshing token
         const token = jwt.refresh(req.token);
 
-        _updatedUser._doc.token = token;
+        // _updatedUser._doc.token = token;
 
         // sending result to client side application
         res.status(200).json(_updatedUser);
     } catch (err) {
         // if there is a validation error
         if (err.hasOwnProperty("details")) {
-            res.status(400).json({ error: err.details[0].message });
+            res.status(400).json({
+                success: false,
+                error: err.details[0].message,
+            });
         } else if (err.message.localeCompare(config.email_exists_err)) {
-            res.status(400).json({ error: err.message });
+            res.status(400).json({ success: false, error: err.message });
         } else if (err.message.localeCompare(config.db_err)) {
-            res.status(500).json({ error: err.message });
+            res.status(500).json({ success: false, error: err.message });
         } else {
             // other error(s)
             console.log(`Error in ${__filename}: \n\t${err}`);
-            res.status(500).json({ error: err });
+            res.status(500).json({ success: false, error: config.server});
         }
     }
 });
 
 // #route:  GET api/user/verification/get-activation-email
 // #desc:   Send verification email to registered users email address
-router.get("/verification/get-activation-email", verify, async (req, res) => {
+router.get("/verification/get-activation-email", verifyAuthToken, async (req, res) => {
     try {
         const user = await User.findById(req.user._id);
 
         if (!user) {
-            res.status(400).json({ error: "User not found" });
+            res.status(404).json({ success: false, error: "User not found" });
         } else {
             await Code.deleteMany({ email: user.email });
 
@@ -260,17 +267,20 @@ router.get(
 
 // #route:  DELETE /delete-account
 // #desc: delete a user account
-router.delete("/delete-account", verify, async (req, res) => {
+router.delete("/delete-account", verifyAuthToken, async (req, res) => {
     const { password } = req.body;
 
     if (!password) {
-        res.json({ success: false, error: "Please provide your password." });
+        res.status(400).json({
+            success: false,
+            error: "Please provide your password.",
+        });
     } else {
         try {
             const user = await User.findById(req.user._id).select("+password");
 
             if (!user) {
-                res.json({
+                res.status(404).json({
                     success: false,
                     error: "Oh, something went wrong. Please try again!",
                 });
@@ -304,7 +314,7 @@ router.delete("/delete-account", verify, async (req, res) => {
             }
         } catch (err) {
             console.log("Error on /delete-account: ", err);
-            res.json({
+            res.status(500).json({
                 success: false,
                 error: "Oh, something went wrong. Please try again!",
             });
@@ -316,33 +326,34 @@ router.delete("/delete-account", verify, async (req, res) => {
 // #desc:   Reset password of user
 router.post("/password-reset/get-code", async (req, res) => {
     const { email } = req.body;
-    let errors = [];
 
     if (!email) {
-        errors.push({ msg: "Please provide your registered email address!" });
-        res.json({ success: false, errors });
+        res.status(400).json({
+            success: false,
+            error: "Please provide your registered email address!",
+        });
     } else {
         try {
             const user = await User.findOne({ email: email });
 
             if (!user) {
-                errors.push({
-                    msg: "The provided email address is not registered!",
+                res.status(404).json({
+                    success: false,
+                    error: "The provided email address is not registered!",
                 });
-                res.json({ success: false, errors });
             } else {
                 await Code.deleteOne({ email });
 
                 await sendPasswordResetEmail(email);
 
-                res.json({ success: true });
+                res.status(200).json({ success: true });
             }
         } catch (err) {
             console.log("Error on /password-reset/get-code: ", err);
-            errors.push({
-                msg: "Oh, something went wrong. Please try again!",
+            res.status(500).json({
+                success: false,
+                error: "Oh, something went wrong. Please try again!",
             });
-            res.json({ success: false, errors });
         }
     }
 });
@@ -354,7 +365,9 @@ router.post("/password-reset/verify", async (req, res) => {
     let errors = [];
 
     if (!email || !password || !repeat_password || !code) {
-        errors.push({ msg: "Please fill in all fields!" });
+        return res
+            .status(400)
+            .json({ success: false, error: "Please fill in all fields!" });
     }
 
     try {
@@ -362,26 +375,37 @@ router.post("/password-reset/verify", async (req, res) => {
             password: password,
             repeat_password: repeat_password,
         });
-        const response = await Code.findOne({ email, code });
+
+        const response = await Code.findOne({ email: email, code: code });
 
         if (!response) {
-            errors.push({
-                msg:
+            res.status(401).json({
+                success: false,
+                error:
                     "The entered code is not correct. Please make sure to enter the code in the requested time interval.",
             });
-            res.json({ success: false, errors });
         } else {
             const hash = await argon2.hash(password);
             await User.updateOne({ email }, { password: hash });
             await Code.deleteOne({ email, code });
-            res.json({ success: true });
+            res.status(200).json({ success: true });
         }
     } catch (err) {
-        console.log("Error on /password-reset/verify: ", err);
-        errors.push({
-            msg: "Oh, something went wrong. Please try again!",
-        });
-        res.json({ success: false, errors });
+        if (err.hasOwnProperty("details")) {
+            res.status(400).json({
+                success: false,
+                error: err.details[0].message,
+            });
+        } else if (err.message.localeCompare(config.db_err)) {
+            res.status(500).json({ success: false, error: err.message });
+        } else {
+            // other error(s)
+            console.log(`Error in ${__filename}: \n\t${err}`);
+            res.status(500).json({
+                success: false,
+                error: "Oh, something went wrong. Please try again!",
+            });
+        }
     }
 });
 

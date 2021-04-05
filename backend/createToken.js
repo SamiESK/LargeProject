@@ -1,4 +1,6 @@
 const jwt = require("jsonwebtoken");
+const mongoose = require("mongoose");
+const User = mongoose.model("User");
 
 require("dotenv").config();
 
@@ -14,13 +16,11 @@ module.exports.createToken = (user) => {
 };
 
 // creates a new token using the values extracted from the current one
-module.exports.refresh = (token) => {
+module.exports.refresh = async (token) => {
     let ud = jwt.decode(token, { complete: true });
 
     const id = ud.payload._id;
-    const fname = ud.payload.firstName;
-    const lname = ud.payload.lastName;
-    const isVerified = ud.payload.isVerified;
+    const user = await User.findById({_id: id});
 
-    return this.createToken({ _id: id, firstName: fname, lastName: lname, isVerified: isVerified});
+    return this.createToken({ _id: user.id, firstName: user.firstName, lastName: user.lastName, isVerified: user.isVerified});
 };
