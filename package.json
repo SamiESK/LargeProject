@@ -4,9 +4,10 @@
 	"description": "",
 	"main": "server.js",
 	"scripts": {
-		"start": "node server.js",
-		"test": "jest --runInBand --verbose --detectOpenHandles ./backend/tests",
-		"test-silent": "jest --silent --runInBand --detectOpenHandles ./backend/tests",
+		"start": "node ./backend/server.js",
+		"test": "jest --runInBand --detectOpenHandles ./backend/tests",
+		"test-verbose": "jest --runInBand --verbose --detectOpenHandles ./backend/tests",
+		"test-silent": "jest --runInBand --silent --detectOpenHandles ./backend/tests",
 		"heroku-postbuild": " NPM_CONFIG_PRODUCTION=false npm install --prefix frontend && npm run build --prefix frontend"
 	},
 	"author": "",

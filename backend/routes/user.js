@@ -8,7 +8,6 @@ const Event = mongoose.model("Event");
 
 const jwt = require("../createToken");
 
-
 const verifyAuthToken = require("../middleware/authToken").auth;
 const checkIfVerified = require("../middleware/authToken").checkIfVerified;
 
@@ -17,6 +16,8 @@ const {
     loginValidation,
     updateUserValidation,
 } = require("./user.validation");
+
+const validateObjectID = require("./events.validation").validateObjectID;
 
 const argon2 = require("argon2");
 
@@ -79,7 +80,7 @@ router.post("/login", async (req, res, next) => {
         } else {
             // other error(s)
             console.log(`Error in ${__filename}: \n\t${err}`);
-            res.status(500).json({ success: false, error: config.server});
+            res.status(500).json({ success: false, error: config.server });
         }
     }
 });
@@ -140,7 +141,39 @@ router.post("/register", async (req, res, next) => {
         } else {
             // other error(s)
             console.error(`Error in ${__filename}: \n\t${err}`);
-            res.status(500).json({ success: false, error: config.server});
+            res.status(500).json({ success: false, error: config.server });
+        }
+    }
+});
+
+router.get("/info", verifyAuthToken, async (req, res) => {
+    try {
+        const userIdValidationResult = await validateObjectID({
+            id: req.user._id,
+        });
+
+        // find user
+        const user = await User.findById({
+            _id: req.user._id,
+        });
+
+        delete user._doc.__v;
+        delete user._doc._id;
+
+        // sending result to client side application
+        res.status(200).json({
+            success: true,
+            user: user,
+        });
+    } catch (err) {
+        if (err.hasOwnProperty("details")) {
+            res.status(400).json({
+                success: false,
+                error: err.details[0].message,
+            });
+        } else {
+            console.log(`Error in ${__filename}: \n\t${err}`);
+            res.status(500).json({ success: false, error: config.server });
         }
     }
 });
@@ -193,32 +226,39 @@ router.patch("/update", verifyAuthToken, checkIfVerified, async (req, res) => {
         } else {
             // other error(s)
             console.log(`Error in ${__filename}: \n\t${err}`);
-            res.status(500).json({ success: false, error: config.server});
+            res.status(500).json({ success: false, error: config.server });
         }
     }
 });
 
 // #route:  GET api/user/verification/get-activation-email
 // #desc:   Send verification email to registered users email address
-router.get("/verification/get-activation-email", verifyAuthToken, async (req, res) => {
-    try {
-        const user = await User.findById(req.user._id);
+router.get(
+    "/verification/get-activation-email",
+    verifyAuthToken,
+    async (req, res) => {
+        try {
+            const user = await User.findById(req.user._id);
 
-        if (!user) {
-            res.status(404).json({ success: false, error: "User not found" });
-        } else {
-            await Code.deleteMany({ email: user.email });
+            if (!user) {
+                res.status(404).json({
+                    success: false,
+                    error: "User not found",
+                });
+            } else {
+                await Code.deleteMany({ email: user.email });
 
-            const baseUrl = req.protocol + "://" + req.get("host");
-            await sendVerificationEmail(baseUrl, user);
+                const baseUrl = req.protocol + "://" + req.get("host");
+                await sendVerificationEmail(baseUrl, user);
 
-            res.status(200).json({ success: true });
+                res.status(200).json({ success: true });
+            }
+        } catch (err) {
+            console.log("Error on /api/user/get-activation-email: ", err);
+            res.status(500).json({ success: false });
         }
-    } catch (err) {
-        console.log("Error on /api/user/get-activation-email: ", err);
-        res.status(500).json({ success: false });
     }
-});
+);
 
 // #route:  GET /verification/verify-account
 // #desc:   Verify user's email address

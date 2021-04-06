@@ -100,13 +100,17 @@ describe(`Testing '${BASE_URL}/register' API Endpoint`, () => {
             .send(registration)
             .expect(201);
 
-        // check if user added to database
-        const user = await User.findById(res.body._id);
+        let getRes = await agent
+            .get(`${BASE_URL}/info`)
+            .set("Authorization", TOKEN_PREFIX + res.body.token)
+            .expect(200);
+
+        // check if user added to database using the GET info api
+        const user = getRes.body.user;
         expect(user.firstName).toBe(registration.firstName);
         expect(user.lastName).toBe(registration.lastName);
         expect(user.email).toBe(registration.email);
-        expect(user._id).toBeTruthy();
-        expect(user._id.toString()).toEqual(res.body._id.toString());
+        expect(user.isVerified).toBe(false);
 
         // check if code was created in database for email verification
         const code = await Code.findOne({ email: user.email });
