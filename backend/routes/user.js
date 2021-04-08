@@ -305,9 +305,9 @@ router.get(
     }
 );
 
-// #route:  DELETE /delete-account
+// #route:  POST /delete-account
 // #desc: delete a user account
-router.delete("/delete-account", verifyAuthToken, async (req, res) => {
+router.post("/delete-account", verifyAuthToken, async (req, res) => {
     const { password } = req.body;
 
     if (!password) {
