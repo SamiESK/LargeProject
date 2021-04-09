@@ -5,11 +5,12 @@ import startOfWeek from 'date-fns/startOfWeek'
 import getDay from 'date-fns/getDay'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import React from 'react'
-import {Checkbox,Button, Modal, ModalContent, ModalDialog, ModalTitle, } from 'reacthalfmoon';
+import {Button, Modal, ModalContent, ModalDialog, ModalTitle, } from 'reacthalfmoon';
 import { useState} from 'react'
-import { Form, FormGroup, Input, TextArea, Container } from 'reacthalfmoon';
+import { Form, FormGroup, Input, TextArea, Container, Col, Row } from 'reacthalfmoon';
 import DateTimePicker from 'react-datetime-picker';
 import EdiText from 'react-editext';
+import { async } from 'crypto-random-string'
 
 const locales = {
   'en-US': require('date-fns/locale/en-US'),
@@ -22,6 +23,7 @@ const localizer = dateFnsLocalizer({
   getDay,
   locales,
 })
+
 var x = null;
 var title;
 var location;
@@ -29,6 +31,7 @@ var description;
 var ID;
 var loadEvents;
 var newEndEdit;
+
 function CalendarDisplay()
 {
   
@@ -73,10 +76,7 @@ function CalendarDisplay()
   const Delete = async(event) =>
   {
     event.preventDefault();
-    // = {title: title, description: description, location: location, startTime: startDate, endTime: endDate};
-        
-        //console.log(obj);
-        //var js = JSON.stringify(obj);
+    
         try {
             const response = await fetch(buildPath('api/events/remove/'+String(ID)), {
                 method: "DELETE",
@@ -117,10 +117,12 @@ function CalendarDisplay()
         
         if(res.error)
         {
-            alert(res.error);
+            document.getElementById("addEventError").innerHTML = "Error : " + res.error;
         }
-        loadEvents();
-        setIsOpen2(false);
+        else{
+            loadEvents();
+            setIsOpen2(false);
+        }
 
     } catch (e) {
         alert(e.toString());
@@ -158,7 +160,12 @@ function CalendarDisplay()
         return;
     }
   };
+  const detour = async() =>
+  {
+    document.getElementById("addEventError").innerHTML = "";
+    setIsOpen2(true);
 
+  }
   window.onload = loadEvents = async() => 
    {
         
@@ -205,23 +212,29 @@ function CalendarDisplay()
       SeteTitle(val)
     }
     return(
-      <div>
-        <Container className="border p-10" id="homeBack">
-          <Container className="border p-10" id="callyContainer">
-          <Button id="addEvent" onClick={()=>{setIsOpen2(true)}} size="lg" className="btn btn-square rounded-circle" >+</Button>
-            <div id="cally">
-            <Calendar
-              localizer={localizer}
-              events={myEventsList}
-              startAccessor="start"
-              endAccessor="end"
-              style={{ height:1000}}
-              views={['month', 'week']}
-              onSelectEvent = {event => {EventInfo(event)}}
-            />
-          </div>
+      <div >
+        <div id="indexFooter">
+          <h1 id="homeTitle">My Calendar</h1>
+          <Container className="border p-10" id="homeBack">
+            <Container className="border p-10" id="callyContainer">
+            <Button id="addEvent" onClick={detour} size="lg" className="btn btn-square rounded-circle" >+</Button>
+              <div id="cally">
+              <Calendar
+                localizer={localizer}
+                events={myEventsList}
+                startAccessor="start"
+                endAccessor="end"
+                style={{ height:1000}}
+                views={['month', 'week']}
+                onSelectEvent = {event => {EventInfo(event)}}
+              />
+              </div>
+          </Container>
         </Container>
-      </Container>
+        </div>
+      
+
+
       <div style={{height: "400px"}}>
         <Modal withCloseButton isOpen={isOpen} toggle={()=>{setIsOpen(!isOpen)}}>
             <ModalDialog>
@@ -283,7 +296,9 @@ function CalendarDisplay()
                         <label>Description</label>
                         <TextArea id="description" placeholder="Write a short description about your Event." />
                     </FormGroup>
+                    <span style={{color: "red"}}id="addEventError"></span>
                     </Form>
+
                     <Button color="danger" onClick={()=>{setIsOpen2(!isOpen2)}}>Cancel</Button>
                     <Button id="addEventButton" color="primary" onClick={addEvent}>Add</Button>
                 </ModalContent>

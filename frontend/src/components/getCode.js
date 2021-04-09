@@ -1,6 +1,6 @@
 import React from 'react';
-import { Form, FormGroup, PageWrapper, ModalDialog, ModalContent, ModalTitle } from 'reacthalfmoon';
-import { Button, Row, Col } from 'reacthalfmoon';
+import { Form, FormGroup, CardTitle } from 'reacthalfmoon';
+import { Button, Row, Col, Card } from 'reacthalfmoon';
 function getCode()
 {
     var email;
@@ -53,21 +53,27 @@ function getCode()
         window.location.href = "/ResetPage";
     };
     return(
-        <div>
-            <Form id="banner"><FormGroup id="bannerText">Reset your password</FormGroup></Form>
-            <Form id="getCode">
-                
-                <FormGroup>
-                    <label className="required" >Email</label><br></br>
-                    <input style={{width: "100%"}} id="resetEmail" type="text" placeholder="Email" ref={(c) => (email = c)}/>
-                </FormGroup>
-                <FormGroup>
-                <Button color="primary" onClick={resetCode} block type="submit">Get Code</Button>
-                </FormGroup>
-                <FormGroup>
-                <span id="getCodeError" style={{color: "red"}}></span>
-                </FormGroup>
-                <Button className="SignIn" color="link" block type="submit" onClick={redirect}>Already have a code?</Button>
+       <div>
+            <Form className="banner">
+                <Card className="border p-10" id="getCode">
+                    <Form id="getCodeInsides">
+                        <CardTitle>
+                            Reset your password
+                        </CardTitle>
+                        <hr/>
+                        <FormGroup>
+                            <label className="required" >Email</label><br></br>
+                            <input style={{width: "100%"}} id="resetEmail" type="text" placeholder="Email" ref={(c) => (email = c)}/>
+                        </FormGroup>
+                        <FormGroup>
+                        <Button color="primary" onClick={resetCode} block type="submit" id="getCodeButton">Send Code</Button>
+                        </FormGroup>
+                        <FormGroup>
+                        <span id="getCodeError" style={{color: "red"}}></span>
+                        </FormGroup>
+                        <a href="/ResetPage" id="codeToReset">Already have a code?</a>
+                    </Form>
+                </Card>
             </Form>
         </div>
     );

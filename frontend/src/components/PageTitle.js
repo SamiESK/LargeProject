@@ -77,18 +77,13 @@ function PageTitle()
 	const [isOpen, setIsOpen] = useState(false)
 	return(
 		<div>
-        <div id="container">
-            <h3>Organize your calendar</h3>
-            <h5>plan and schedule your events with Eventree</h5>
-            <Button id="getStartedButton" onClick={()=>{setIsOpen(true)}} color="primary">Get Started</Button>
+        <div id="indexFooter">
+            <div id="container">
+                <h3>Organize your calendar</h3>
+                <h5>plan and schedule your events with Eventree</h5>
+                <Button id="getStartedButton" onClick={()=>{setIsOpen(true)}} color="primary">Get Started</Button>
+            </div>
         </div>
-        <Container id="image">
-            <Row>
-                <Col size={4}>
-                   
-                </Col>
-            </Row>
-        </Container>
         
         
         <p id="signUpSuccess"></p>

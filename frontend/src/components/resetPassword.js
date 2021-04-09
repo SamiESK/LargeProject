@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, FormGroup, Button } from 'reacthalfmoon';
+import { Form, FormGroup, Button, Card, CardTitle } from 'reacthalfmoon';
 
 function resetPassword()
 {
@@ -47,30 +47,38 @@ function resetPassword()
         
     };
     return(
-       
         <div >
-                        <Form id="changePassword">
-                            <FormGroup>
-                                <label className="required" >Email</label><br></br>
-                                <input style={{width: "100%"}} id="resetEmail" type="text" placeholder="Email" ref={(c) => (resetEmail = c)}/>
-                            </FormGroup>
-                            <FormGroup>
-                                <label className="required">New Password</label><br></br>
-                                <input style={{width: "100%"}}id="resetPassword" type="password" placeholder="New Password" ref={(c) => (resetPassword = c)}/>
-                            </FormGroup>
-                            <FormGroup>
-                                <label className="required">Confirm New Password</label><br></br>
-                                <input style={{width: "100%"}}id="confirmResetPassword" type="password" placeholder="Confirm New Password" ref={(c) => (confirmResetPassword = c)}/>
-                            </FormGroup>
-                            <FormGroup>
-                                <label className="required">Code</label><br></br>
-                                <input style={{width: "100%"}}id="resetCode" type="code" placeholder="Code" ref={(c) => (resetCode = c)}/>
-                            </FormGroup>
-                            <FormGroup>
-                            <Button color="primary" onClick={passwordReset} block type="submit">Change Password</Button>
-                            </FormGroup>
-                            <span id="changePasswordError" style={{color: "red"}}></span>
-                        </Form>
+            <Form className="banner">
+                <Card className="border p-10" id="resetCard">
+                    <CardTitle>
+                            Create New Password
+                    </CardTitle>
+                    <hr/>
+                    <Form id="changePassword">
+                        <FormGroup>
+                            <label className="required" >Email</label><br></br>
+                            <input style={{width: "100%"}} id="resetEmail" type="text" placeholder="Email" ref={(c) => (resetEmail = c)}/>
+                        </FormGroup>
+                        <FormGroup>
+                            <label className="required">New Password</label><br></br>
+                            <input style={{width: "100%"}}id="resetPassword" type="password" placeholder="New Password" ref={(c) => (resetPassword = c)}/>
+                        </FormGroup>
+                        <FormGroup>
+                            <label className="required">Confirm New Password</label><br></br>
+                            <input style={{width: "100%"}}id="confirmResetPassword" type="password" placeholder="Confirm New Password" ref={(c) => (confirmResetPassword = c)}/>
+                        </FormGroup>
+                        <FormGroup>
+                            <label className="required">Code</label><br></br>
+                            <input style={{width: "100%"}}id="resetCode" type="code" placeholder="Code" ref={(c) => (resetCode = c)}/>
+                        </FormGroup>
+                        <FormGroup>
+                        <Button color="primary" onClick={passwordReset} block type="submit">Change Password</Button>
+                        </FormGroup>
+                        <span id="changePasswordError" style={{color: "red"}}></span>
+                    </Form>
+                </Card>
+            </Form>
+          
         </div>
        
     );

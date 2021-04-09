@@ -12,7 +12,7 @@ const HomePage = () =>
         <Calendar />
         <HomeNavBar />  
         
-        
+
     </div>
         
     );

@@ -90,8 +90,7 @@ function NavBar()
             </NavbarBrand>
         </a>
             <NavbarNav>
-                <NavItem active to={"../pages/HomePage"}>About Us</NavItem>
-                <NavItem active>Mobile App</NavItem>          
+                        
                 <Button color="primary" id="LoginButton" onClick={()=>{setIsOpen(true)}}>Sign In</Button>
             </NavbarNav>
         </NavbarContent>
@@ -120,7 +119,7 @@ function NavBar()
                         </Form>
                         <Button block color="danger" onClick={()=>{setIsOpen(false)}}>Cancel</Button>
                         <FormGroup>
-                            <Button className="SignIn" color="link" block type="submit" onClick={redirect}>Reset Password</Button>
+                            <Button className="SignIn" color="link" block type="submit" onClick={redirect}>Forgot Password?</Button>
                         </FormGroup>
                     </ModalContent>
                 </ModalDialog>
