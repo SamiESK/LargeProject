@@ -410,7 +410,7 @@ describe(`Testing '${BASE_URL}/verification/get-activation-email' API Endpoint`,
     test("Check the Get Activation Email API 404 error", async () => {
         // deleting account to test for 404 error
         res = await agent
-            .delete(`${BASE_URL}/delete-account`)
+            .post(`${BASE_URL}/delete-account`)
             .set("Authorization", TOKEN_PREFIX + token)
             .type("json")
             .send({ password: registration.password })
@@ -420,8 +420,8 @@ describe(`Testing '${BASE_URL}/verification/get-activation-email' API Endpoint`,
         res = await agent
             .get(`${BASE_URL}/verification/get-activation-email`)
             .set("Authorization", TOKEN_PREFIX + token)
-            .expect(404);
-        expect(res.body.success).toBe(false);
+            .expect(401);
+        expect(res.body.success).toBeUndefined();
 
         await db.clear();
     });
@@ -499,8 +499,16 @@ describe(`Testing '${BASE_URL}/delete-account' API Endpoint`, () => {
 
         const token = res.body.token;
 
+        // test validation requiring password
         res = await agent
-            .delete(`${BASE_URL}/delete-account`)
+            .post(`${BASE_URL}/delete-account`)
+            .set("Authorization", TOKEN_PREFIX + token)
+            .type("json")
+            .send({})
+            .expect(400);
+
+        res = await agent
+            .post(`${BASE_URL}/delete-account`)
             .set("Authorization", TOKEN_PREFIX + token)
             .type("json")
             .send({ password: registration.password })
@@ -515,13 +523,6 @@ describe(`Testing '${BASE_URL}/delete-account' API Endpoint`, () => {
             .send({ password: registration.password })
             .expect(404);
 
-        // test validation requiring password
-        res = await agent
-            .delete(`${BASE_URL}/delete-account`)
-            .set("Authorization", TOKEN_PREFIX + token)
-            .type("json")
-            .send({})
-            .expect(400);
         await db.clear();
     });
 });
@@ -572,7 +573,7 @@ describe(`Testing '${BASE_URL}/password-reset/get-code' API Endpoint`, () => {
             .expect(400);
 
         res = await agent
-            .delete(`${BASE_URL}/delete-account`)
+            .post(`${BASE_URL}/delete-account`)
             .set("Authorization", TOKEN_PREFIX + token)
             .type("json")
             .send({ password: registration.password })

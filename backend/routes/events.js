@@ -1,6 +1,7 @@
 const express = require("express");
 
 const router = express.Router();
+const passport = require("passport");
 
 const verifyAuthToken = require("../middleware/authToken").auth;
 const checkIfVerified = require("../middleware/authToken").checkIfVerified;
@@ -20,7 +21,7 @@ const {
 } = require("./events.validation");
 
 // current searches events by name, description, and location
-router.get("/", verifyAuthToken, checkIfVerified, async (req, res) => {
+router.get("/", passport.authenticate("jwt", { session: false }), checkIfVerified, async (req, res) => {
     // incoming: search, startDate, endDate
 
     // api call should look something like this:
@@ -28,10 +29,10 @@ router.get("/", verifyAuthToken, checkIfVerified, async (req, res) => {
 
     // however if you just want all the events of a user you can do this:
     // {{url}}/api/events/
-
+    // console.log(req.cookies)
     try {
         // getting userID from token decoded in verify
-        const userID = req.user._id;
+        const userID = req.user._id.toString();
 
         // get search and dates from req.query
         let { search, startDate, endDate } = req.query;
@@ -137,9 +138,9 @@ router.get("/", verifyAuthToken, checkIfVerified, async (req, res) => {
 });
 
 // create an event
-router.post("/create", verifyAuthToken, checkIfVerified, async (req, res) => {
+router.post("/create", passport.authenticate("jwt", { session: false }), checkIfVerified, async (req, res) => {
     // getting userID from token decoded in verify
-    req.body.userID = req.user._id;
+    req.body.userID = req.user._id.toString();
 
     const eventJSON = req.body;
 
@@ -174,7 +175,7 @@ router.post("/create", verifyAuthToken, checkIfVerified, async (req, res) => {
 
 router.patch(
     "/update/:eventID",
-    verifyAuthToken,
+    passport.authenticate("jwt", { session: false }),
     checkIfVerified,
     async (req, res) => {
         const entries = Object.keys(req.body);
@@ -227,7 +228,7 @@ router.patch(
 // delete an event
 router.delete(
     "/remove/:eventID",
-    verifyAuthToken,
+    passport.authenticate("jwt", { session: false }),
     checkIfVerified,
     async (req, res) => {
         try {

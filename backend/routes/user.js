@@ -6,6 +6,8 @@ const User = mongoose.model("User");
 const Code = mongoose.model("Code");
 const Event = mongoose.model("Event");
 
+const passport = require("passport");
+
 const jwt = require("../createToken");
 
 const verifyAuthToken = require("../middleware/authToken").auth;
@@ -60,7 +62,7 @@ router.post("/login", async (req, res, next) => {
                 lastName: user.lastName,
                 isVerified: user.isVerified,
             });
-
+            res.cookie("jwt", token);
             //.header(HEADER, TOKEN_PREFIX + token)
             res.status(200).json({
                 firstName: user.firstName,
@@ -116,6 +118,8 @@ router.post("/register", async (req, res, next) => {
             isVerified: savedUser.isVerified,
         });
 
+        res.cookie("jwt", token);
+
         const baseUrl = req.protocol + "://" + req.get("host");
         await sendVerificationEmail(baseUrl, savedUser);
 
@@ -146,10 +150,10 @@ router.post("/register", async (req, res, next) => {
     }
 });
 
-router.get("/info", verifyAuthToken, async (req, res) => {
+router.get("/info", passport.authenticate("jwt", { session: false }), async (req, res) => {
     try {
         const userIdValidationResult = await validateObjectID({
-            id: req.user._id,
+            id: req.user._id.toString(),
         });
 
         // find user
@@ -178,7 +182,7 @@ router.get("/info", verifyAuthToken, async (req, res) => {
     }
 });
 
-router.patch("/update", verifyAuthToken, checkIfVerified, async (req, res) => {
+router.patch("/update", passport.authenticate("jwt", { session: false }), checkIfVerified, async (req, res) => {
     let entries = Object.keys(req.body);
     let updates = {};
 
@@ -206,7 +210,8 @@ router.patch("/update", verifyAuthToken, checkIfVerified, async (req, res) => {
         const _updatedUser = await User.findById(req.user._id).select("-__v");
 
         // refreshing token
-        const token = jwt.refresh(req.token);
+        // const token = jwt.refresh(req.token);
+        // res.cookie("jwt", token);
 
         // _updatedUser._doc.token = token;
 
@@ -235,7 +240,7 @@ router.patch("/update", verifyAuthToken, checkIfVerified, async (req, res) => {
 // #desc:   Send verification email to registered users email address
 router.get(
     "/verification/get-activation-email",
-    verifyAuthToken,
+    passport.authenticate("jwt", { session: false }),
     async (req, res) => {
         try {
             const user = await User.findById(req.user._id);
@@ -307,7 +312,7 @@ router.get(
 
 // #route:  POST /delete-account
 // #desc: delete a user account
-router.post("/delete-account", verifyAuthToken, async (req, res) => {
+router.post("/delete-account", passport.authenticate("jwt", { session: false }), async (req, res) => {
     const { password } = req.body;
 
     if (!password) {
