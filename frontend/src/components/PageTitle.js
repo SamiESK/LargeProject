@@ -1,13 +1,11 @@
 import React from 'react';
 import { Button } from 'reacthalfmoon'
-import { CardTitle } from 'reacthalfmoon'
-import { Col} from 'reacthalfmoon'
 import { Modal } from 'reacthalfmoon';
 import { ModalDialog } from 'reacthalfmoon';
 import { ModalTitle} from 'reacthalfmoon';
 import { ModalContent } from 'reacthalfmoon';
 import { FormGroup } from 'reacthalfmoon';
-import { Form, Container, Row, Img } from 'reacthalfmoon';
+import { Form } from 'reacthalfmoon';
 import { useState } from 'react';
 //import planner from '../images/planning.jpg';
 //import Parser from 'html-react-parser';
@@ -49,7 +47,7 @@ function PageTitle()
                 body: js,
                 headers: { "Content-Type": "application/json" },
             });
-            
+
             var res = JSON.parse(await response.text());
 
                var user = {
@@ -65,14 +63,14 @@ function PageTitle()
                     document.getElementById("signUpSuccess").innerHTML = success;
                 }
                 console.log(res);
-                
-                
+
+
 
         } catch (e) {
             alert(e.toString());
             return;
         }
-       
+
     };
 	const [isOpen, setIsOpen] = useState(false)
 	return(
@@ -84,8 +82,8 @@ function PageTitle()
                 <Button id="getStartedButton" onClick={()=>{setIsOpen(true)}} color="primary">Get Started</Button>
             </div>
         </div>
-        
-        
+
+
         <p id="signUpSuccess"></p>
         <div style={{height: "400px"}}>
         <Modal isOpen={isOpen} toggle={()=>{setIsOpen(!isOpen)}}>
@@ -121,9 +119,9 @@ function PageTitle()
                 </ModalContent>
             </ModalDialog>
         </Modal>
-        
+
         </div>
-        
+
     </div>
 	);
 };

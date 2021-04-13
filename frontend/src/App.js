@@ -15,20 +15,32 @@ function App() {
 		<Route path="/" exact>
 		<LoginPage />
 		</Route>
-		<Route path="/HomePage" exact>
+		<Route path="/login" exact>
+		<LoginPage />
+		</Route>
+		<Route path="/signup" exact>
+		<LoginPage />
+		</Route>
+		<Route path="/calendar" exact>
 			<HomePage />
 		</Route>
-		<Route path="/ResetPage" exact>
+		<Route path="/password-reset" exact>
 			<ResetPage />
 		</Route>
-		<Route path="/AccountPage" exact>
+		<Route path="/profile" exact>
 			<AccountPage />
 		</Route>
-		<Route path="/GetCodePage">
+		<Route path="/get-reset-code">
+			<GetCodePage />
+		</Route>
+		<Route path="/verified">
+			<GetCodePage />
+		</Route>
+		<Route path="/unverified">
 			<GetCodePage />
 		</Route>
 		<Redirect to="/" />
-		</Switch>  
+		</Switch>
 		</Router>
 	);
 }

@@ -2,15 +2,10 @@ import React from 'react'
 import { Navbar } from 'reacthalfmoon';
 import { NavbarContent } from 'reacthalfmoon';
 import { NavbarBrand } from 'reacthalfmoon';
-import { NavItem } from 'reacthalfmoon';
 import { NavbarNav } from 'reacthalfmoon';
 import { Img } from 'reacthalfmoon';
-import { DarkmodeSwitch } from 'reacthalfmoon';
 import { useState } from 'react';
-import { setDarkmode } from 'react';
-import { setIsOpen } from 'react';
 import { Button } from 'reacthalfmoon';
-import { darkmode } from 'react';
 import { PageWrapper } from 'reacthalfmoon';
 import { Form } from 'reacthalfmoon';
 import { FormGroup } from 'reacthalfmoon';
@@ -19,19 +14,12 @@ import { ModalDialog } from 'reacthalfmoon';
 import { ModalTitle} from 'reacthalfmoon';
 import { ModalContent } from 'reacthalfmoon';
 
+import buildPath from '../config';
+
 
 function NavBar()
 {
     const [isOpen, setIsOpen] = useState(false);
-
-    const app_name = "eventree-calendar";
-    function buildPath(route) {
-        if (process.env.NODE_ENV === "production") {
-            return "https://" + app_name + ".herokuapp.com/" + route;
-        } else {
-            return "http://localhost:5000/" + route;
-        }
-    }
 
     var email;
     var password;
@@ -41,7 +29,7 @@ function NavBar()
 
         var obj = { email: email.value, password: password.value };
         var js = JSON.stringify(obj);
-        
+
         try {
             const response = await fetch(buildPath('api/user/login'), {
                 method: "POST",
@@ -57,15 +45,15 @@ function NavBar()
             else if(res.token) {
                 document.getElementById("loginError").innerHTML = "";
                 console.log(res);
-                
+
                 localStorage.setItem('token', res.token);
                 localStorage.setItem('firstName', res.firstName);
                 localStorage.setItem('lastName', res.lastName);
                 localStorage.setItem('email', res.email);
-                window.location.href = "/HomePage"; 
+                window.location.href = "/HomePage";
             }
-            
-            
+
+
         } catch (e) {
             alert(e.toString());
             return;
@@ -82,7 +70,7 @@ function NavBar()
     <div>
     <PageWrapper withNavbar>
         <Navbar  id="nav">
-        <NavbarContent> 
+        <NavbarContent>
         <Img rounded src={require("../images/Logo.png").default} height="40px"/>
         <a href="/">
             <NavbarBrand id="brand">
@@ -90,7 +78,7 @@ function NavBar()
             </NavbarBrand>
         </a>
             <NavbarNav>
-                        
+
                 <Button color="primary" id="LoginButton" onClick={()=>{setIsOpen(true)}}>Sign In</Button>
             </NavbarNav>
         </NavbarContent>

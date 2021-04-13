@@ -1,21 +1,15 @@
-import React from 'react';
-import Calendar from '../components/CalendarDisplay';
-import HomeNavBar from '../components/HomeNavBar';
-import { Component } from 'react';
-import { PageWrapper } from 'reacthalfmoon';
+import React from "react";
+import Calendar from "../components/CalendarDisplay";
+import HomeNavBar from "../components/HomeNavBar";
 
-
-const HomePage = () =>
-{
-    return(
-        <div >
-        <Calendar />
-        <HomeNavBar />  
-        
-
-    </div>
-        
-    );
+const HomePage = () => {
+    return (
+        <div>
+            <Calendar />
+            <HomeNavBar />
+                
+        </div>
+    );
 };
 
 export default HomePage;
