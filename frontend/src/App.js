@@ -122,17 +122,6 @@ function App() {
                             handleThemeChange={handleThemeChange}
                         />
                     </Route>
-                    <Route path="/profile2" exact>
-                        <UserNavBar
-                            darkState={darkState}
-                            handleThemeChange={handleThemeChange}
-                            auth={auth}
-                        />
-                        <AccountPage
-                            darkState={darkState}
-                            handleThemeChange={handleThemeChange}
-                        />
-                    </Route>
                     <Route path="/profile" exact>
                         <UserNavBar
                             darkState={darkState}

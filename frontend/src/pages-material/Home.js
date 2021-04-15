@@ -56,7 +56,7 @@ export default function Home() {
                                     variant="contained"
                                     color="primary"
                                     className={classes.submit}
-                                    onClick={()=> window.location = '/signup'}
+                                    onClick={()=> window.location.href = '/signup'}
                                 >
                                     Sign up
                                 </Button> or {' '}
@@ -64,7 +64,7 @@ export default function Home() {
                                     variant="contained"
                                     color="primary"
                                     className={classes.submit}
-                                    onClick={() => window.location = '/login'}
+                                    onClick={() => window.location.href = '/login'}
                                 >
                                     Sign in
                                 </Button>
