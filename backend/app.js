@@ -18,7 +18,7 @@ const MicrosoftStrategy = require("passport-microsoft").Strategy;
 const GithubStrategy = require("passport-github2").Strategy;
 // const FacebookStrategy = require("passport-facebook").Strategy;
 
-const buildRedirectPath = require('./config');
+const { buildRedirectPath } = require("./config");
 
 let opts = {};
 opts.jwtFromRequest = (req) => {
