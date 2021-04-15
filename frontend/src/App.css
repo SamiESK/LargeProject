@@ -52,7 +52,7 @@
   margin-bottom: 5px;
   color: black;
   margin-left: 25px;
-  
+
 }
 a:link{
   text-decoration: none;
@@ -78,7 +78,7 @@ a:link{
 #card{
   text-align: center;
   font-size: 1.5vw;
-  line-height: 0px;  
+  line-height: 0px;
 }
 #loginbox{
   width: 40%;
@@ -93,21 +93,15 @@ a:link{
   margin-left: 2%;
   margin-right: 2%;
   margin-bottom: 2%;
-  margin-top: 8%;
-  background-color: white;
-  position: relative;
 }
 #callyContainer{
   position: relative;
-  background-color: rgb(255, 255, 255);
-  margin-top: 2%;
 }
+
 #homeBack{
   position: relative;
   margin-left: auto;
   margin-right: auto;
-  background-color: rgb(241, 241, 241);
-  top: 100px;  
 }
 #delButton{
   right: -23%;
@@ -173,7 +167,7 @@ a:link{
   position: absolute;
   right: 1%;
   bottom: 15px;
-  
+
 }
 #account{
   padding-top: 150px;;
@@ -225,7 +219,7 @@ hr{
   font-size: 12pt;
   display: block;
   text-align: center;
- 
+
 }
 #indexFooter{
   position: absolute;
@@ -240,5 +234,5 @@ hr{
   line-height: 100px;
   color: white;
   position: relative;
-  
+
 }

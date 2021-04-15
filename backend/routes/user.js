@@ -65,6 +65,7 @@ router.post("/login", async (req, res, next) => {
             res.cookie("jwt", token);
             //.header(HEADER, TOKEN_PREFIX + token)
             res.status(200).json({
+                success: true,
                 firstName: user.firstName,
                 lastName: user.lastName,
                 token: token,
@@ -129,6 +130,7 @@ router.post("/register", async (req, res, next) => {
             lastName: savedUser.lastName,
             email: savedUser.email,
             token: token,
+            success: true,
         });
     } catch (err) {
         // if there is a validation error
@@ -192,6 +194,12 @@ router.patch("/update", passport.authenticate("jwt", { session: false }), checkI
     }
 
     try {
+        const userDoc = await User.findById(req.user._id);
+
+        if (updates.email && userDoc.email.toString() === updates.email) {
+            delete updates.email;
+        }
+
         // validate update information
         const value = await updateUserValidation(updates);
 
@@ -216,7 +224,7 @@ router.patch("/update", passport.authenticate("jwt", { session: false }), checkI
         // _updatedUser._doc.token = token;
 
         // sending result to client side application
-        res.status(200).json(_updatedUser);
+        res.status(200).json({success: true, ...(_updatedUser.toObject())});
     } catch (err) {
         // if there is a validation error
         if (err.hasOwnProperty("details")) {
@@ -293,19 +301,27 @@ router.get(
 
                 let redirectPath;
 
-                // we might want to replace this with a redirect to a simple page that
-                // tells the user they are verified http://127.0.0.1:3000/Verified or something
                 if (process.env.NODE_ENV == "production") {
-                    redirectPath = `${req.protocol}://${req.get("host")}`;
+                    redirectPath = `${req.protocol}://${req.get("host")}/verified`;
                 } else {
-                    redirectPath = `http://127.0.0.1:3000/`;
+                    redirectPath = `http://127.0.0.1:3000/verified`;
                 }
 
                 res.redirect(redirectPath);
             }
         } catch (err) {
             console.log("Error on /api/verification/verify-account: ", err);
-            res.sendStatus(500);
+
+            let redirectPath;
+
+            // we might want to replace this with a redirect to a simple page that
+            // tells the user they are verified http://127.0.0.1:3000/Verified or something
+            if (process.env.NODE_ENV == "production") {
+                redirectPath = `${req.protocol}://${req.get("host")}/unverified`;
+            } else {
+                redirectPath = `http://127.0.0.1:3000/unverified`;
+            }
+            res.redirect(redirectPath);;
         }
     }
 );

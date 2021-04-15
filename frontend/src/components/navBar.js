@@ -14,7 +14,7 @@ import { ModalDialog } from 'reacthalfmoon';
 import { ModalTitle} from 'reacthalfmoon';
 import { ModalContent } from 'reacthalfmoon';
 
-import buildPath from '../config';
+import {buildPath} from '../config';
 
 
 function NavBar()

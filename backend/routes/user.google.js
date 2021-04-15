@@ -4,6 +4,8 @@ const passport = require("passport");
 const mongoose = require("mongoose");
 const User = mongoose.model("User");
 
+const OAuthRedirect = require('../config').OAuthRedirect;
+
 const jwt = require("jsonwebtoken");
 
 require("dotenv").config();
@@ -32,7 +34,7 @@ router.get(
                 );
 
                 res.cookie("jwt", token);
-                res.redirect("/");
+                res.redirect(require('../config').buildRedirectPath(OAuthRedirect));
             } else {
                 res.status(400);
             }

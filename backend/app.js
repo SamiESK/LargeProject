@@ -20,6 +20,15 @@ const GithubStrategy = require("passport-github2").Strategy;
 
 let opts = {};
 opts.jwtFromRequest = (req) => {
+    // let token = null;
+    // const authHeader = req.header(require("./config").header);
+    // const headerToken = authHeader && authHeader.split(" ")[1];
+    // if (!headerToken) {
+    //     return token;
+    // } else {
+    //     return headerToken;
+    // }
+
     // tell passport to read JWT from cookies
     var token = null;
     if (req && req.cookies) {
@@ -134,7 +143,7 @@ passport.use(
             clientID: process.env.GithubClientID,
             clientSecret: process.env.GithubClientSecret,
             callbackURL: "/auth/github/callback",
-            scope: ['profile', 'read:user', 'user:email'],
+            scope: ["profile", "read:user", "user:email"],
         },
         async (accessToken, refreshToken, profile, done) => {
             // passport callback function
@@ -150,7 +159,7 @@ passport.use(
                     //if not, create a new user
                     new User({
                         firstName: profile.displayName || profile.username,
-                        lastName: '!github!',
+                        lastName: "!github!",
                         email: profile.emails[0].value,
                         isVerified: true,
                         githubId: profile.id,
@@ -180,25 +189,37 @@ const app = express();
 
 app.set("port", process.env.PORT || 5000);
 
-app.use(cors());
-app.use(bodyParser.json());
+// app.use(cors());
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(passport.initialize());
+var corsOptions = {
+    origin: function (origin, callback) {
+        // db.loadOrigins is an example call to load
+        // a list of origins from a backing database
+        db.loadOrigins(function (error, origins) {
+            callback(error, origins);
+        });
+    },
+};
 
 app.use((req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader(
+    res.header("Access-Control-Allow-Origin", req.headers.origin); // "*"
+    res.header(
         "Access-Control-Allow-Headers",
         "Origin, X-Requested-With, Content-Type, Accept, Authorization"
     );
-    res.setHeader(
+    res.header("Access-Control-Allow-Credentials", true);
+    res.header(
         "Access-Control-Allow-Methods",
         "GET, POST, PATCH, DELETE, OPTIONS"
     );
     next();
 });
+
+app.use(bodyParser.json());
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(passport.initialize());
 
 // import routes
 app.use("/api/user", require("./routes/user"));
