@@ -6,9 +6,6 @@ import {
     Switch,
 } from "react-router-dom";
 import "./App.css";
-import HomePage from "./pages/HomePage";
-import LoginPage from "./pages/LoginPage";
-import AccountPage from "./pages/AccountPage";
 
 import Login from "./pages-material/Login";
 import Signup from "./pages-material/Signup";

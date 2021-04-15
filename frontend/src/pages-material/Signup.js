@@ -41,7 +41,7 @@ export default function SignUp({ handleThemeChange, darkState }) {
             );
 
             if (res.data.success) {
-                window.location.href = buildRedirectPath("calendar");
+                window.location.href = buildRedirectPath("unverified");
             } else {
                 // display error
             }

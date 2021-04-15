@@ -90,10 +90,10 @@ function CalendarDisplay() {
         setDescription(event.target.value);
     };
     const handleStartChange = (event) => {
-        setStart(event.target.value);
+        setStart(event);
     };
     const handleEndChange = (event) => {
-        setEnd(event.target.value);
+        setEnd(event);
     };
 
     const [openAdd, setAddOpen] = React.useState(false);
@@ -318,7 +318,7 @@ function CalendarDisplay() {
                     <CardContent>
                     <Typography color="textSecondary" variant='h4' gutterBottom>
                     <TextField
-                                            autoFocus
+
                                             margin="dense"
                                             id="name"
                                             label="Title"
@@ -335,7 +335,7 @@ function CalendarDisplay() {
                     </Typography>
                     <Typography color="textSecondary" variant='h5' gutterBottom>
                     <TextField
-                                            autoFocus
+
                                             margin="dense"
                                             id="name"
                                             label="Location"
@@ -350,7 +350,7 @@ function CalendarDisplay() {
                     </Typography>
                     <Typography color="textSecondary" variant='body2' gutterBottom>
                     <TextField
-                                            autoFocus
+
                                             margin="dense"
                                             id="name"
                                             label="Description"
@@ -365,7 +365,7 @@ function CalendarDisplay() {
                     </Typography>
                     <Typography color="textSecondary" variant='body2' gutterBottom>
                     <TextField
-                                            autoFocus
+
                                             margin="dense"
                                             id="name"
                                             label="Start Time"
@@ -380,7 +380,7 @@ function CalendarDisplay() {
                     </Typography>
                     <Typography color="textSecondary" variant='body2' gutterBottom>
                     <TextField
-                                            autoFocus
+
                                             margin="dense"
                                             id="name"
                                             label="End Time"
@@ -696,7 +696,7 @@ function CalendarDisplay() {
                                 <Grid container justify="flex-end" spacing={2}>
                                     <Grid item xs={12}>
                                         <TextField
-                                            autoFocus
+
                                             margin="dense"
                                             id="name"
                                             label="Location"
@@ -712,7 +712,7 @@ function CalendarDisplay() {
 
                                     <Grid item xs={12}>
                                         <TextField
-                                            autoFocus
+
                                             margin="dense"
                                             id="name"
                                             label="Description"
@@ -728,7 +728,7 @@ function CalendarDisplay() {
 
                                     <Grid item xs={12}>
                                         <TextField
-                                            autoFocus
+
                                             margin="dense"
                                             id="name"
                                             label="Start Time"
@@ -744,7 +744,7 @@ function CalendarDisplay() {
 
                                     <Grid item xs={12}>
                                         <TextField
-                                            autoFocus
+
                                             margin="dense"
                                             id="name"
                                             label="End Time"

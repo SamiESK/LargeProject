@@ -49,7 +49,7 @@ export default function ProfileUpdate(darkState, handleThemeChange) {
     useEffect(() => {
         checkAuth(auth);
         getInfo(auth);
-    }, []);
+    }, [auth]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

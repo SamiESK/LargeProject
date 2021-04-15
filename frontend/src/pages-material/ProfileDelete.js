@@ -52,7 +52,7 @@ export default function ProfileDelete(darkState, handleThemeChange) {
 
     useEffect(() => {
         checkAuth(auth);
-    }, []);
+    }, [auth]);
 
     return (
         <Grid container component="main" className={classes.root}>

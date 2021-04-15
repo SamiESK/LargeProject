@@ -45,21 +45,4 @@ router.get(
     }
 );
 
-// This url will only open, if the user is signed in
-router.get(
-    "/profile",
-    passport.authenticate("jwt", { session: false }),
-    (req, res) => {
-        res.send(`Wellcome user ${req.user._id}`);
-    }
-);
-
-router.post(
-    "/profile",
-    passport.authenticate("jwt", { session: false }),
-    function (req, res) {
-        res.send(req);
-    }
-);
-
 module.exports = router;
