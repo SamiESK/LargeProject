@@ -18,6 +18,8 @@ const MicrosoftStrategy = require("passport-microsoft").Strategy;
 const GithubStrategy = require("passport-github2").Strategy;
 // const FacebookStrategy = require("passport-facebook").Strategy;
 
+const buildRedirectPath = require('./config');
+
 let opts = {};
 opts.jwtFromRequest = (req) => {
     // let token = null;
@@ -64,7 +66,7 @@ passport.use(
         {
             clientID: process.env.GoogleClientID,
             clientSecret: process.env.GoogleClientSecret,
-            callbackURL: "/auth/google/callback",
+            callbackURL: buildRedirectPath("auth/google/callback"),
         },
         async (accessToken, refreshToken, profile, done) => {
             // passport callback function
@@ -103,7 +105,7 @@ passport.use(
         {
             clientID: process.env.MicrosoftClientID,
             clientSecret: process.env.MicrosoftClientSecret,
-            callbackURL: "/auth/microsoft/callback",
+            callbackURL: buildRedirectPath("auth/microsoft/callback"),
         },
         async (accessToken, refreshToken, profile, done) => {
             // passport callback function
@@ -142,7 +144,7 @@ passport.use(
         {
             clientID: process.env.GithubClientID,
             clientSecret: process.env.GithubClientSecret,
-            callbackURL: "/auth/github/callback",
+            callbackURL: buildRedirectPath("auth/github/callback"),
             scope: ["profile", "read:user", "user:email"],
         },
         async (accessToken, refreshToken, profile, done) => {
