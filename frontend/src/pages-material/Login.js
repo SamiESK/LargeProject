@@ -12,6 +12,8 @@ import Typography from "@material-ui/core/Typography";
 import axios from "axios";
 import { buildPath, buildRedirectPath } from "../config";
 import Copyright from "./Copyright";
+import { useFormik } from "formik";
+import * as yup from "yup";
 
 import {
     GoogleLoginButton,
@@ -20,29 +22,18 @@ import {
 } from "react-social-login-buttons";
 
 import { useStyles } from "../config";
+import { min } from "date-fns";
 
 function SignInSide({ handleThemeChange, darkState }) {
     const classes = useStyles();
 
-    const [password, setPasword] = useState("");
-    const [email, setEmail] = useState("");
-
-    const handlePasswordChange = (event) => {
-        setPasword(event.target.value);
-    };
-    const handleEmailChange = (event) => {
-        setEmail(event.target.value);
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
+    const handleSubmit = async (values) => {
         try {
             const res = await axios.post(
                 buildPath("api/user/login"),
                 {
-                    email: email,
-                    password: password,
+                    email: values.email,
+                    password: values.password,
                 },
                 { withCredentials: true }
             );
@@ -55,9 +46,30 @@ function SignInSide({ handleThemeChange, darkState }) {
         } catch (err) {
             console.error(err);
         }
-
-        // alert(`${email} ${password}, ${e.target.email.value} ${e.target.password.value}`);
     };
+
+    const validationSchema = yup.object({
+        email: yup
+            .string("Enter your email")
+            .min(5, "Email should be of minimum 5 characters length")
+            .email("Enter a valid email")
+            .required("Email is required"),
+        password: yup
+            .string("Enter your password")
+            .min(8, "Password should be of minimum 8 characters length")
+            .required("Password is required"),
+    });
+
+    const formik = useFormik({
+        initialValues: {
+            email: "",
+            password: "",
+        },
+        validationSchema: validationSchema,
+        onSubmit: (values) => {
+            handleSubmit(values);
+        },
+    });
 
     return (
         <Grid container component="main" className={classes.root}>
@@ -82,7 +94,7 @@ function SignInSide({ handleThemeChange, darkState }) {
                     <form
                         className={classes.form}
                         noValidate
-                        onSubmit={handleSubmit}
+                        onSubmit={formik.handleSubmit}
                     >
                         <TextField
                             variant="outlined"
@@ -90,10 +102,17 @@ function SignInSide({ handleThemeChange, darkState }) {
                             required
                             fullWidth
                             id="email"
-                            label="Email Address"
                             name="email"
-                            value={email}
-                            onChange={handleEmailChange}
+                            label="Email"
+                            value={formik.values.email}
+                            onChange={formik.handleChange}
+                            error={
+                                formik.touched.email &&
+                                Boolean(formik.errors.email)
+                            }
+                            helperText={
+                                formik.touched.email && formik.errors.email
+                            }
                             autoComplete="email"
                             autoFocus
                         />
@@ -102,12 +121,20 @@ function SignInSide({ handleThemeChange, darkState }) {
                             margin="normal"
                             required
                             fullWidth
+                            id="password"
                             name="password"
                             label="Password"
                             type="password"
-                            id="password"
-                            value={password}
-                            onChange={handlePasswordChange}
+                            value={formik.values.password}
+                            onChange={formik.handleChange}
+                            error={
+                                formik.touched.password &&
+                                Boolean(formik.errors.password)
+                            }
+                            helperText={
+                                formik.touched.password &&
+                                formik.errors.password
+                            }
                             autoComplete="current-password"
                         />
                         <Button
@@ -116,6 +143,7 @@ function SignInSide({ handleThemeChange, darkState }) {
                             variant="contained"
                             color="primary"
                             className={classes.submit}
+                            // disabled={!(formik.dirty && formik.isValid)}
                         >
                             Sign In
                         </Button>

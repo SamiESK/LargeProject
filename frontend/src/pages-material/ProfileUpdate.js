@@ -12,57 +12,99 @@ import CardContent from "@material-ui/core/CardContent";
 import SideBar from "./profileBar.component";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { buildPath, checkAuth, useLocalStorage } from "../config";
+import { buildPath, treeImageURL, useLocalStorage } from "../config";
+import { useFormik } from "formik";
+import * as yup from "yup";
 
 import { useStylesProfile as useStyles } from "../config";
 
 export default function ProfileUpdate(darkState, handleThemeChange) {
     const classes = useStyles();
 
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [password2, setPassword2] = useState("");
-
-    const getInfo = async () => {
-        if (Cookies.get("jwt") !== undefined) {
-            const res = await axios.get(buildPath("api/user/info"), {
-                withCredentials: true,
-            });
-
-            if (res.data.success) {
-                setFirstName(res.data.user.firstName);
-                setLastName(res.data.user.lastName);
-                setEmail(res.data.user.email);
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
-    };
-
     const [auth, setAuth] = useLocalStorage("auth", false);
 
     useEffect(() => {
-        checkAuth(auth);
         getInfo(auth);
     }, [auth]);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [email, setEmail] = useState("");
 
+    const validationSchema = yup.object({
+        email: yup
+            .string("Enter your email")
+            .min(5, "Email should be of minimum 5 characters length")
+            .email("Enter a valid email")
+            .test(
+                "checkDuplicateEmail",
+                "Email already in use",
+                function (value) {
+                    return new Promise((resolve, reject) => {
+                        axios
+                            .get(buildPath("api/user/email-exists-auth"), {
+                                params: { email: value },
+                                withCredentials: true,
+                            })
+                            .then((res) => {
+                                // exists
+                                if (res.data.emailExists) {
+                                    resolve(false);
+                                } else {
+                                    resolve(true);
+                                }
+                            })
+                            .catch(() => {
+                                // note exists
+                                resolve(true);
+                            });
+                    });
+                }
+            ),
+        password: yup
+            .string("Enter your password")
+            .min(8, "Password should be of minimum 8 characters length")
+            .transform((value) => (!value ? undefined : value))
+            .test(
+                "validCharacters",
+                "Your password must be at least 8 characters long and contain a lowercase letter, an uppercase letter, a numeric digit and a special character",
+                (value) => {
+                    return (
+                        value === "" ||
+                        value === undefined ||
+                        /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,}$/.test(
+                            value
+                        )
+                    );
+                }
+            ),
+        repeat_password: yup
+            .string()
+            .oneOf([yup.ref("password"), null], "Passwords must match"),
+        firstName: yup
+            .string("Enter your First name")
+            .min(1, "First name should be of minimum 1 character length"),
+        lastName: yup
+            .string("Enter your Last name")
+            .min(1, "Last name should be of minimum 1 character length"),
+    });
+
+    const handleSubmit = async (values) => {
         try {
             let update = {
-                firstName: firstName,
-                lastName: lastName,
-                email: email,
+                firstName: values.firstName,
+                lastName: values.lastName,
+                email: values.email,
             };
 
-            if (password !== "" && password2 !== "") {
-                update.password = password;
-                update.repeat_password = password2;
+            if (
+                values.password !== "" &&
+                values.password !== undefined &&
+                values.repeat_password !== "" &&
+                values.repeat_password !== undefined
+            ) {
+                update.password = values.password;
+                update.repeat_password = values.repeat_password;
             }
 
             const res = await axios.patch(
@@ -80,8 +122,38 @@ export default function ProfileUpdate(darkState, handleThemeChange) {
         } catch (err) {
             console.error(err);
         }
+    };
 
-        // alert(`${email} ${password}, ${e.target.email.value} ${e.target.password.value}`);
+    const formik = useFormik({
+        initialValues: {
+            email: "",
+            password: "",
+            repeat_password: "",
+            lastName: "",
+            firstName: "",
+        },
+        validationSchema: validationSchema,
+        onSubmit: (values) => {
+            handleSubmit(values);
+        },
+    });
+
+    const getInfo = async () => {
+        if (Cookies.get("jwt") !== undefined) {
+            const res = await axios.get(buildPath("api/user/info"), {
+                withCredentials: true,
+            });
+
+            if (res.data.success) {
+                formik.setFieldValue("firstName", res.data.user.firstName);
+                formik.setFieldValue("lastName", res.data.user.lastName);
+                formik.setFieldValue("email", res.data.user.email);
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     };
 
     return (
@@ -112,7 +184,7 @@ export default function ProfileUpdate(darkState, handleThemeChange) {
                                     <form
                                         className={classes.form}
                                         noValidate
-                                        onSubmit={handleSubmit}
+                                        onSubmit={formik.handleSubmit}
                                     >
                                         <Grid
                                             container
@@ -128,12 +200,25 @@ export default function ProfileUpdate(darkState, handleThemeChange) {
                                                     id="firstName"
                                                     label="First Name"
                                                     autoFocus
-                                                    value={firstName}
-                                                    onChange={(event) => {
-                                                        setFirstName(
-                                                            event.target.value
-                                                        );
-                                                    }}
+                                                    value={
+                                                        formik.values.firstName
+                                                    }
+                                                    onChange={
+                                                        formik.handleChange
+                                                    }
+                                                    error={
+                                                        formik.touched
+                                                            .firstName &&
+                                                        Boolean(
+                                                            formik.errors
+                                                                .firstName
+                                                        )
+                                                    }
+                                                    helperText={
+                                                        formik.touched
+                                                            .firstName &&
+                                                        formik.errors.firstName
+                                                    }
                                                 />
                                             </Grid>
                                             <Grid item xs={12}>
@@ -144,12 +229,25 @@ export default function ProfileUpdate(darkState, handleThemeChange) {
                                                     label="Last Name"
                                                     name="lastName"
                                                     autoComplete="lname"
-                                                    value={lastName}
-                                                    onChange={(event) => {
-                                                        setLastName(
-                                                            event.target.value
-                                                        );
-                                                    }}
+                                                    value={
+                                                        formik.values.lastName
+                                                    }
+                                                    onChange={
+                                                        formik.handleChange
+                                                    }
+                                                    error={
+                                                        formik.touched
+                                                            .lastName &&
+                                                        Boolean(
+                                                            formik.errors
+                                                                .lastName
+                                                        )
+                                                    }
+                                                    helperText={
+                                                        formik.touched
+                                                            .lastName &&
+                                                        formik.errors.lastName
+                                                    }
                                                 />
                                             </Grid>
                                             <Grid item xs={12}>
@@ -157,49 +255,85 @@ export default function ProfileUpdate(darkState, handleThemeChange) {
                                                     variant="outlined"
                                                     fullWidth
                                                     id="email"
-                                                    label="Email Address"
                                                     name="email"
+                                                    label="Email"
+                                                    value={formik.values.email}
+                                                    onChange={
+                                                        formik.handleChange
+                                                    }
+                                                    error={
+                                                        formik.touched.email &&
+                                                        Boolean(
+                                                            formik.errors.email
+                                                        )
+                                                    }
+                                                    helperText={
+                                                        formik.touched.email &&
+                                                        formik.errors.email
+                                                    }
                                                     autoComplete="email"
-                                                    value={email}
-                                                    onChange={(event) => {
-                                                        setEmail(
-                                                            event.target.value
-                                                        );
-                                                    }}
                                                 />
                                             </Grid>
                                             <Grid item xs={12}>
                                                 <TextField
                                                     variant="outlined"
                                                     fullWidth
-                                                    name="password"
-                                                    label="New Password"
-                                                    type="password"
                                                     id="password"
-                                                    autoComplete="new-password"
-                                                    value={password}
-                                                    onChange={(event) => {
-                                                        setPassword(
-                                                            event.target.value
-                                                        );
-                                                    }}
+                                                    name="password"
+                                                    label="Password"
+                                                    type="password"
+                                                    value={
+                                                        formik.values.password
+                                                    }
+                                                    onChange={
+                                                        formik.handleChange
+                                                    }
+                                                    error={
+                                                        formik.touched
+                                                            .password &&
+                                                        Boolean(
+                                                            formik.errors
+                                                                .password
+                                                        )
+                                                    }
+                                                    helperText={
+                                                        formik.touched
+                                                            .password &&
+                                                        formik.errors.password
+                                                    }
+                                                    autoComplete="current-password"
                                                 />
                                             </Grid>
                                             <Grid item xs={12}>
                                                 <TextField
                                                     variant="outlined"
                                                     fullWidth
-                                                    name="password2"
-                                                    label="Confirm New Password"
-                                                    type="password"
                                                     id="password2"
-                                                    autoComplete="new-password"
-                                                    value={password2}
-                                                    onChange={(event) => {
-                                                        setPassword2(
-                                                            event.target.value
-                                                        );
-                                                    }}
+                                                    name="repeat_password"
+                                                    label="Confirm Password"
+                                                    type="password"
+                                                    value={
+                                                        formik.values
+                                                            .repeat_password
+                                                    }
+                                                    onChange={
+                                                        formik.handleChange
+                                                    }
+                                                    error={
+                                                        formik.touched
+                                                            .repeat_password &&
+                                                        Boolean(
+                                                            formik.errors
+                                                                .repeat_password
+                                                        )
+                                                    }
+                                                    helperText={
+                                                        formik.touched
+                                                            .repeat_password &&
+                                                        formik.errors
+                                                            .repeat_password
+                                                    }
+                                                    autoComplete="current-password"
                                                 />
                                             </Grid>
                                         </Grid>
@@ -210,6 +344,12 @@ export default function ProfileUpdate(darkState, handleThemeChange) {
                                             variant="contained"
                                             color="primary"
                                             className={classes.submit}
+                                            // disabled={
+                                            //     !(
+                                            //         formik.dirty &&
+                                            //         formik.isValid
+                                            //     )
+                                            // }
                                         >
                                             Update
                                         </Button>

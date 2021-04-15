@@ -183,6 +183,7 @@ export const useStylesProfile = makeStyles((theme) => ({
             theme.palette.type === "light"
                 ? theme.palette.grey[50]
                 : theme.palette.grey[400],
+        padding: "1%",
     },
     textarea: {
         resize: "both",
@@ -202,9 +203,13 @@ export const useStylesProfile = makeStyles((theme) => ({
         clear: "left",
     },
     centerText: {
-        textAlign: "center",
-        width: '50%',
+        alignItems: "center",
+        width: "50%",
         left: "15%",
         right: "15%",
+        margin: "0%",
+    },
+    centerPadding: {
+        padding: "1%",
     },
 }));

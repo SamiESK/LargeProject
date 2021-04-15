@@ -161,6 +161,8 @@ router.get(
                 });
             }
 
+            res.cookie("jwt", await jwt.refresh(req.cookies.jwt));
+
             // sending result
             res.status(200).json(events);
         } catch (err) {
@@ -192,6 +194,7 @@ router.post(
             delete savedEvent._doc.userID;
 
             // savedEvent._doc.token = token;
+            res.cookie("jwt", await jwt.refresh(req.cookies.jwt));
 
             // sending result to client side application
             res.status(200).json({ ...savedEvent.toObject(), success: true });
@@ -242,6 +245,8 @@ router.patch(
 
             _updatedEvent._doc.success = true;
 
+            res.cookie("jwt", await jwt.refresh(req.cookies.jwt));
+
             // sending result to client side application
             res.status(200).json({
                 ..._updatedEvent.toObject(),
@@ -278,6 +283,8 @@ router.delete(
             const removedEvent = await Event.deleteOne({
                 _id: req.params.eventID,
             });
+
+            res.cookie("jwt", await jwt.refresh(req.cookies.jwt));
 
             // sending result to client side application
             res.status(200).json({

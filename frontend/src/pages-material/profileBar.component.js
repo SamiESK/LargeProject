@@ -13,7 +13,9 @@ export default function SideBar({ selected }) {
     return (
         <Grid item xs={12} sm={4}>
             <List component="nav" aria-label="main mailbox folders">
-                <ListItem button component={LinkTo} to="/calendar">
+                <ListItem button onClick={() =>
+                        (window.location.href = "/calendar")
+                    }>
                     <ListItemIcon>
                         <ArrowBackIcon />
                     </ListItemIcon>

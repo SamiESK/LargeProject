@@ -10,6 +10,8 @@ import Box from "@material-ui/core/Box";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Typography from "@material-ui/core/Typography";
 import Switch from "@material-ui/core/Switch";
+import { useFormik } from "formik";
+import * as yup from "yup";
 
 import Copyright from "./Copyright";
 import axios from "axios";
@@ -18,24 +20,16 @@ import { buildPath, buildRedirectPath, useStyles } from "../config";
 export default function SignUp({ handleThemeChange, darkState }) {
     const classes = useStyles();
 
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [password2, setPassword2] = useState("");
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
+    const handleSubmit = async (values) => {
         try {
             const res = await axios.post(
                 buildPath("api/user/register"),
                 {
-                    firstName: firstName,
-                    lastName: lastName,
-                    email: email,
-                    password: password,
-                    repeat_password: password2,
+                    firstName: values.firstName,
+                    lastName: values.lastName,
+                    email: values.email,
+                    password: values.password,
+                    repeat_password: values.repeat_password,
                 },
                 { withCredentials: true }
             );
@@ -44,6 +38,7 @@ export default function SignUp({ handleThemeChange, darkState }) {
                 window.location.href = buildRedirectPath("unverified");
             } else {
                 // display error
+                console.error(res.error);
             }
         } catch (err) {
             console.error(err);
@@ -51,6 +46,76 @@ export default function SignUp({ handleThemeChange, darkState }) {
 
         // alert(`${email} ${password}, ${e.target.email.value} ${e.target.password.value}`);
     };
+
+    const validationSchema = yup.object({
+        email: yup
+            .string("Enter your email")
+            .min(5, "Email should be of minimum 5 characters length")
+            .email("Enter a valid email")
+            .test(
+                "checkDuplicateEmail",
+                "Email already in use",
+                function (value) {
+                    return new Promise((resolve, reject) => {
+                        axios
+                            .get(buildPath("api/user/email-exists"), {
+                                params: { email: value },
+                            })
+                            .then((res) => {
+                                // exists
+                                if (res.data.emailExists) {
+                                    resolve(false);
+                                } else {
+                                    resolve(true);
+                                }
+                            })
+                            .catch(() => {
+                                // note exists
+                                resolve(true);
+                            });
+                    });
+                }
+            )
+            .required("Email is required"),
+        password: yup
+            .string("Enter your password")
+            .min(8, "Password should be of minimum 8 characters length")
+            .test(
+                "validCharacters",
+                "Your password must be at least 8 characters long and contain a lowercase letter, an uppercase letter, a numeric digit and a special character",
+                (value) =>
+                    /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,}$/.test(
+                        value
+                    )
+            )
+            .required("Password is required"),
+        repeat_password: yup
+            .string()
+            .oneOf([yup.ref("password"), null], "Passwords must match")
+            .required("Confirmation of Password is required"),
+        firstName: yup
+            .string("Enter your First name")
+            .min(1, "First name should be of minimum 1 character length")
+            .required("First name is required"),
+        lastName: yup
+            .string("Enter your Last name")
+            .min(1, "Last name should be of minimum 1 character length")
+            .required("Last name is required"),
+    });
+
+    const formik = useFormik({
+        initialValues: {
+            email: "",
+            password: "",
+            repeat_password: "",
+            lastName: "",
+            firstName: "",
+        },
+        validationSchema: validationSchema,
+        onSubmit: (values) => {
+            handleSubmit(values);
+        },
+    });
 
     return (
         <Grid container component="main" className={classes.root}>
@@ -75,7 +140,7 @@ export default function SignUp({ handleThemeChange, darkState }) {
                     <form
                         className={classes.form}
                         noValidate
-                        onSubmit={handleSubmit}
+                        onSubmit={formik.handleSubmit}
                     >
                         <Grid container justify="flex-end" spacing={2}>
                             <Grid item xs={12} sm={6}>
@@ -88,10 +153,16 @@ export default function SignUp({ handleThemeChange, darkState }) {
                                     id="firstName"
                                     label="First Name"
                                     autoFocus
-                                    value={firstName}
-                                    onChange={(event) => {
-                                        setFirstName(event.target.value);
-                                    }}
+                                    value={formik.values.firstName}
+                                    onChange={formik.handleChange}
+                                    error={
+                                        formik.touched.firstName &&
+                                        Boolean(formik.errors.firstName)
+                                    }
+                                    helperText={
+                                        formik.touched.firstName &&
+                                        formik.errors.firstName
+                                    }
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -103,10 +174,16 @@ export default function SignUp({ handleThemeChange, darkState }) {
                                     label="Last Name"
                                     name="lastName"
                                     autoComplete="lname"
-                                    value={lastName}
-                                    onChange={(event) => {
-                                        setLastName(event.target.value);
-                                    }}
+                                    value={formik.values.lastName}
+                                    onChange={formik.handleChange}
+                                    error={
+                                        formik.touched.lastName &&
+                                        Boolean(formik.errors.lastName)
+                                    }
+                                    helperText={
+                                        formik.touched.lastName &&
+                                        formik.errors.lastName
+                                    }
                                 />
                             </Grid>
                             <Grid item xs={12}>
@@ -115,13 +192,19 @@ export default function SignUp({ handleThemeChange, darkState }) {
                                     required
                                     fullWidth
                                     id="email"
-                                    label="Email Address"
                                     name="email"
+                                    label="Email"
+                                    value={formik.values.email}
+                                    onChange={formik.handleChange}
+                                    error={
+                                        formik.touched.email &&
+                                        Boolean(formik.errors.email)
+                                    }
+                                    helperText={
+                                        formik.touched.email &&
+                                        formik.errors.email
+                                    }
                                     autoComplete="email"
-                                    value={email}
-                                    onChange={(event) => {
-                                        setEmail(event.target.value);
-                                    }}
                                 />
                             </Grid>
                             <Grid item xs={12}>
@@ -129,15 +212,21 @@ export default function SignUp({ handleThemeChange, darkState }) {
                                     variant="outlined"
                                     required
                                     fullWidth
+                                    id="password"
                                     name="password"
                                     label="Password"
                                     type="password"
-                                    id="password"
+                                    value={formik.values.password}
+                                    onChange={formik.handleChange}
+                                    error={
+                                        formik.touched.password &&
+                                        Boolean(formik.errors.password)
+                                    }
+                                    helperText={
+                                        formik.touched.password &&
+                                        formik.errors.password
+                                    }
                                     autoComplete="current-password"
-                                    value={password}
-                                    onChange={(event) => {
-                                        setPassword(event.target.value);
-                                    }}
                                 />
                             </Grid>
                             <Grid item xs={12}>
@@ -145,25 +234,32 @@ export default function SignUp({ handleThemeChange, darkState }) {
                                     variant="outlined"
                                     required
                                     fullWidth
-                                    name="password2"
+                                    id="password2"
+                                    name="repeat_password"
                                     label="Confirm Password"
                                     type="password"
-                                    id="password2"
+                                    value={formik.values.repeat_password}
+                                    onChange={formik.handleChange}
+                                    error={
+                                        formik.touched.repeat_password &&
+                                        Boolean(formik.errors.repeat_password)
+                                    }
+                                    helperText={
+                                        formik.touched.repeat_password &&
+                                        formik.errors.repeat_password
+                                    }
                                     autoComplete="current-password"
-                                    value={password2}
-                                    onChange={(event) => {
-                                        setPassword2(event.target.value);
-                                    }}
                                 />
                             </Grid>
                         </Grid>
-                        <br/>
+                        <br />
                         <Button
                             type="submit"
                             fullWidth
                             variant="contained"
                             color="primary"
                             className={classes.submit}
+                            // disabled={!(formik.dirty && formik.isValid)}
                         >
                             Sign Up
                         </Button>

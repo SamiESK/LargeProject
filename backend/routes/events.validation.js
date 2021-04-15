@@ -5,8 +5,8 @@ const newEventValidation = (data) => {
     const eventSchema = Joi.object({
         userID: Joi.objectId().required(),
         title: Joi.string().min(1).required(),
-        description: Joi.string().min(1),
-        location: Joi.string().min(1),
+        description: Joi.string().allow(null, ''),
+        location: Joi.string().allow(null, ''),
         startTime: Joi.date().required(),
         endTime: Joi.date().min(Joi.ref("startTime")).required(),
     });
@@ -16,8 +16,8 @@ const newEventValidation = (data) => {
 const updateEventValidation = (data) => {
     const eventSchema = Joi.object({
         title: Joi.string().min(1),
-        description: Joi.string().min(1),
-        location: Joi.string().min(1),
+        description: Joi.string().allow(null, ''),
+        location: Joi.string().allow(null, ''),
         startTime: Joi.date(),
         endTime: Joi.date().min(Joi.ref("startTime")),
     }).with("startTime", "endTime");

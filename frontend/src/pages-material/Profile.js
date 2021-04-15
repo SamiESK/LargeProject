@@ -10,7 +10,7 @@ import CardContent from "@material-ui/core/CardContent";
 import SideBar from './profileBar.component';
 import Cookies from "js-cookie";
 import axios from "axios";
-import { buildPath, checkAuth, useLocalStorage } from "../config";
+import { buildPath, useLocalStorage } from "../config";
 
 import {useStylesProfile as useStyles} from "../config";
 
@@ -43,8 +43,6 @@ export default function Profile(darkState, handleThemeChange) {
     };
 
     const [auth, setAuth] = useLocalStorage("auth", false);
-
-    checkAuth(auth);
 
     getInfo(auth);
 

@@ -26,6 +26,7 @@ import { green } from "@material-ui/core/colors";
 import { useLocalStorage, isAuthenticated } from "./config";
 
 import UserNavBar from "./pages-material/userNavBar.component";
+import Cookies from "js-cookie";
 
 // <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
 // <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
@@ -54,6 +55,38 @@ function App() {
     isAuthenticated().then((bool) => {
         setAuth(bool);
     });
+
+    const PrivateRoute = ({
+        component: Component,
+        exact,
+        strict,
+        path,
+        ...rest
+    }) => (
+        <Route
+            exact={exact}
+            path={path}
+            render={(props) =>
+                Cookies.get("jwt") !== undefined ? (
+                    <div>
+                        <UserNavBar
+                            darkState={darkState}
+                            handleThemeChange={handleThemeChange}
+                            auth={auth}
+                        />
+                        <Component {...props} {...rest} />
+                    </div>
+                ) : (
+                    <Redirect
+                        to={{
+                            pathname: "/login",
+                            state: { from: props.location },
+                        }}
+                    />
+                )
+            }
+        />
+    );
 
     // const [darkState, setDarkState] = useState(prefersDarkMode);
     const palletType = darkState ? "dark" : "light";
@@ -99,14 +132,11 @@ function App() {
                             handleThemeChange={handleThemeChange}
                         />
                     </Route>
-                    <Route path="/calendar" exact>
-                        <UserNavBar
-                            darkState={darkState}
-                            handleThemeChange={handleThemeChange}
-                            auth={auth}
-                        />
-                        <Calendar />
-                    </Route>
+                    <PrivateRoute
+                        path="/calendar"
+                        exact={true}
+                        component={Calendar}
+                    ></PrivateRoute>
                     <Route path="/get-reset-code">
                         <GetResetCode
                             darkState={darkState}
@@ -119,39 +149,21 @@ function App() {
                             handleThemeChange={handleThemeChange}
                         />
                     </Route>
-                    <Route path="/profile" exact>
-                        <UserNavBar
-                            darkState={darkState}
-                            handleThemeChange={handleThemeChange}
-                            auth={auth}
-                        />
-                        <Profile
-                            darkState={darkState}
-                            handleThemeChange={handleThemeChange}
-                        />
-                    </Route>
-                    <Route path="/profile/update" exact>
-                        <UserNavBar
-                            darkState={darkState}
-                            handleThemeChange={handleThemeChange}
-                            auth={auth}
-                        />
-                        <ProfileUpdate
-                            darkState={darkState}
-                            handleThemeChange={handleThemeChange}
-                        />
-                    </Route>
-                    <Route path="/profile/delete" exact>
-                        <UserNavBar
-                            darkState={darkState}
-                            handleThemeChange={handleThemeChange}
-                            auth={auth}
-                        />
-                        <ProfileDelete
-                            darkState={darkState}
-                            handleThemeChange={handleThemeChange}
-                        />
-                    </Route>
+                    <PrivateRoute
+                        path="/profile"
+                        exact={true}
+                        component={Profile}
+                    ></PrivateRoute>
+                    <PrivateRoute
+                        path="/profile/update"
+                        exact={true}
+                        component={ProfileUpdate}
+                    ></PrivateRoute>
+                    <PrivateRoute
+                        path="/profile/delete"
+                        exact={true}
+                        component={ProfileDelete}
+                    ></PrivateRoute>
                     <Route path="/verified">
                         <Verified
                             darkState={darkState}

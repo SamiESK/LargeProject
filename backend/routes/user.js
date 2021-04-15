@@ -152,79 +152,127 @@ router.post("/register", async (req, res, next) => {
     }
 });
 
-router.get("/info", passport.authenticate("jwt", { session: false }), async (req, res) => {
+router.get(
+    "/info",
+    passport.authenticate("jwt", { session: false }),
+    async (req, res) => {
+        try {
+            const userIdValidationResult = await validateObjectID({
+                id: req.user._id.toString(),
+            });
+
+            // find user
+            const user = await User.findById({
+                _id: req.user._id,
+            });
+
+            delete user._doc.__v;
+            delete user._doc._id;
+
+            res.cookie("jwt", await jwt.refresh(req.cookies.jwt));
+
+            // sending result to client side application
+            res.status(200).json({
+                success: true,
+                user: user,
+            });
+        } catch (err) {
+            if (err.hasOwnProperty("details")) {
+                res.status(400).json({
+                    success: false,
+                    error: err.details[0].message,
+                });
+            } else {
+                console.log(`Error in ${__filename}: \n\t${err}`);
+                res.status(500).json({ success: false, error: config.server });
+            }
+        }
+    }
+);
+
+router.patch(
+    "/update",
+    passport.authenticate("jwt", { session: false }),
+    checkIfVerified,
+    async (req, res) => {
+        let entries = Object.keys(req.body);
+        let updates = {};
+
+        // constructing dynamic query
+        for (let i = 0; i < entries.length; i++) {
+            updates[entries[i]] = Object.values(req.body)[i];
+        }
+
+        try {
+            const userDoc = await User.findById(req.user._id);
+
+            if (updates.email && userDoc.email.toString() === updates.email) {
+                delete updates.email;
+            }
+
+            // validate update information
+            const value = await updateUserValidation(updates);
+
+            if (updates.password) {
+                updates.password = await argon2.hash(updates.password);
+            }
+
+            const updatedUser = await User.findByIdAndUpdate(
+                { _id: req.user._id },
+                { $set: updates },
+                { useFindAndModify: false }
+            );
+
+            // if (updatedUser == null) return res.status(500).json({error: 'email change failed'});
+
+            const _updatedUser = await User.findById(req.user._id).select(
+                "-__v"
+            );
+
+            // refreshing token
+            // const token = jwt.refresh(req.token);
+            // res.cookie("jwt", token);
+
+            // _updatedUser._doc.token = token;
+            res.cookie("jwt", await jwt.refresh(req.cookies.jwt));
+
+            // sending result to client side application
+            res.status(200).json({ success: true, ..._updatedUser.toObject() });
+        } catch (err) {
+            // if there is a validation error
+            if (err.hasOwnProperty("details")) {
+                res.status(400).json({
+                    success: false,
+                    error: err.details[0].message,
+                });
+            } else if (err.message.localeCompare(config.email_exists_err)) {
+                res.status(400).json({ success: false, error: err.message });
+            } else if (err.message.localeCompare(config.db_err)) {
+                res.status(500).json({ success: false, error: err.message });
+            } else {
+                // other error(s)
+                console.log(`Error in ${__filename}: \n\t${err}`);
+                res.status(500).json({ success: false, error: config.server });
+            }
+        }
+    }
+);
+
+router.get("/email-exists", async (req, res) => {
     try {
-        const userIdValidationResult = await validateObjectID({
-            id: req.user._id.toString(),
-        });
+        const email = await User.findOne({email: req.query.email});
 
-        // find user
-        const user = await User.findById({
-            _id: req.user._id,
-        });
-
-        delete user._doc.__v;
-        delete user._doc._id;
-
-        // sending result to client side application
-        res.status(200).json({
-            success: true,
-            user: user,
-        });
-    } catch (err) {
-        if (err.hasOwnProperty("details")) {
-            res.status(400).json({
-                success: false,
-                error: err.details[0].message,
+        if (email) {
+            res.status(200).json({
+                success: true,
+                emailExists: true,
             });
         } else {
-            console.log(`Error in ${__filename}: \n\t${err}`);
-            res.status(500).json({ success: false, error: config.server });
+            res.status(200).json({
+                success: true,
+                emailExists: false,
+            });
         }
-    }
-});
-
-router.patch("/update", passport.authenticate("jwt", { session: false }), checkIfVerified, async (req, res) => {
-    let entries = Object.keys(req.body);
-    let updates = {};
-
-    // constructing dynamic query
-    for (let i = 0; i < entries.length; i++) {
-        updates[entries[i]] = Object.values(req.body)[i];
-    }
-
-    try {
-        const userDoc = await User.findById(req.user._id);
-
-        if (updates.email && userDoc.email.toString() === updates.email) {
-            delete updates.email;
-        }
-
-        // validate update information
-        const value = await updateUserValidation(updates);
-
-        if (updates.password) {
-            updates.password = await argon2.hash(updates.password);
-        }
-
-        const updatedUser = await User.findByIdAndUpdate(
-            { _id: req.user._id },
-            { $set: updates },
-            { useFindAndModify: false }
-        );
-
-        // if (updatedUser == null) return res.status(500).json({error: 'email change failed'});
-
-        const _updatedUser = await User.findById(req.user._id).select("-__v");
-
-        // refreshing token
-        // const token = jwt.refresh(req.token);
-        // res.cookie("jwt", token);
-
-        // _updatedUser._doc.token = token;
-
-        // sending result to client side application
-        res.status(200).json({success: true, ...(_updatedUser.toObject())});
     } catch (err) {
         // if there is a validation error
         if (err.hasOwnProperty("details")) {
@@ -243,6 +291,53 @@ router.patch("/update", passport.authenticate("jwt", { session: false }), checkI
         }
     }
 });
+
+router.get(
+    "/email-exists-auth",
+    passport.authenticate("jwt", { session: false }),
+    async (req, res) => {
+        try {
+            const userDoc = await User.findById(req.user._id);
+
+            if (req.query.email && userDoc.email.toString() === req.query.email) {
+                return res.status(200).json({
+                    success: true,
+                    emailExists: false,
+                });
+            }
+
+            const email = await User.findOne({email: req.query.email});
+
+            if (email) {
+                res.status(200).json({
+                    success: true,
+                    emailExists: true,
+                });
+            } else {
+                res.status(200).json({
+                    success: true,
+                    emailExists: false,
+                });
+            }
+        } catch (err) {
+            // if there is a validation error
+            if (err.hasOwnProperty("details")) {
+                res.status(400).json({
+                    success: false,
+                    error: err.details[0].message,
+                });
+            } else if (err.message.localeCompare(config.email_exists_err)) {
+                res.status(400).json({ success: false, error: err.message });
+            } else if (err.message.localeCompare(config.db_err)) {
+                res.status(500).json({ success: false, error: err.message });
+            } else {
+                // other error(s)
+                console.log(`Error in ${__filename}: \n\t${err}`);
+                res.status(500).json({ success: false, error: config.server });
+            }
+        }
+    }
+);
 
 // #route:  GET api/user/verification/get-activation-email
 // #desc:   Send verification email to registered users email address
@@ -302,7 +397,9 @@ router.get(
                 let redirectPath;
 
                 if (process.env.NODE_ENV == "production") {
-                    redirectPath = `${req.protocol}://${req.get("host")}/verified`;
+                    redirectPath = `${req.protocol}://${req.get(
+                        "host"
+                    )}/verified`;
                 } else {
                     redirectPath = `http://127.0.0.1:3000/verified`;
                 }
@@ -317,71 +414,82 @@ router.get(
             // we might want to replace this with a redirect to a simple page that
             // tells the user they are verified http://127.0.0.1:3000/Verified or something
             if (process.env.NODE_ENV == "production") {
-                redirectPath = `${req.protocol}://${req.get("host")}/unverified`;
+                redirectPath = `${req.protocol}://${req.get(
+                    "host"
+                )}/unverified`;
             } else {
                 redirectPath = `http://127.0.0.1:3000/unverified`;
             }
-            res.redirect(redirectPath);;
+            res.redirect(redirectPath);
         }
     }
 );
 
 // #route:  POST /delete-account
 // #desc: delete a user account
-router.post("/delete-account", passport.authenticate("jwt", { session: false }), async (req, res) => {
-    const { password } = req.body;
+router.post(
+    "/delete-account",
+    passport.authenticate("jwt", { session: false }),
+    async (req, res) => {
+        const { password } = req.body;
 
-    if (!password) {
-        res.status(400).json({
-            success: false,
-            error: "Please provide your password.",
-        });
-    } else {
-        try {
-            const user = await User.findById(req.user._id).select("+password");
+        if (!password) {
+            res.status(400).json({
+                success: false,
+                error: "Please provide your password.",
+            });
+        } else {
+            try {
+                const user = await User.findById(req.user._id).select(
+                    "+password"
+                );
 
-            if (!user) {
-                res.status(404).json({
+                if (!user) {
+                    res.status(404).json({
+                        success: false,
+                        error: "Oh, something went wrong. Please try again!",
+                    });
+                } else {
+                    const pwCheck = await argon2.verify(
+                        user.password,
+                        password
+                    );
+
+                    if (!pwCheck) {
+                        res.json({
+                            success: false,
+                            error: "The provided password is not correct.",
+                        });
+                    } else {
+                        const deleted = await User.deleteOne({
+                            email: user.email,
+                        });
+
+                        await Code.deleteMany({ email: user.email });
+                        await Event.deleteMany({ userID: user._id });
+
+                        if (!deleted) {
+                            res.json({
+                                success: false,
+                                error:
+                                    "Oh, something went wrong. Please try again!",
+                            });
+                        } else {
+                            // req.session = null;
+                            res.status(200).json({ success: true });
+                        }
+                    }
+                }
+            } catch (err) {
+                console.log("Error on /delete-account: ", err);
+                res.status(500).json({
                     success: false,
                     error: "Oh, something went wrong. Please try again!",
                 });
-            } else {
-                const pwCheck = await argon2.verify(user.password, password);
-
-                if (!pwCheck) {
-                    res.json({
-                        success: false,
-                        error: "The provided password is not correct.",
-                    });
-                } else {
-                    const deleted = await User.deleteOne({
-                        email: user.email,
-                    });
-
-                    await Code.deleteMany({ email: user.email });
-                    await Event.deleteMany({ userID: user._id });
-
-                    if (!deleted) {
-                        res.json({
-                            success: false,
-                            error:
-                                "Oh, something went wrong. Please try again!",
-                        });
-                    } else {
-                        // req.session = null;
-                        res.status(200).json({ success: true });
-                    }
-                }
             }
-        } catch (err) {
-            console.log("Error on /delete-account: ", err);
-            res.status(500).json({
-                success: false,
-                error: "Oh, something went wrong. Please try again!",
-            });
         }
     }
-});
+);
 
 // #route:  POST /password-reset/get-code
 // #desc:   Reset password of user

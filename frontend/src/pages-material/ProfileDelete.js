@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -13,7 +13,9 @@ import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 
 import axios from "axios";
-import { buildPath, checkAuth, useLocalStorage } from "../config";
+import { buildPath } from "../config";
+import { useFormik } from "formik";
+import * as yup from "yup";
 
 import { useStylesProfile as useStyles } from "../config";
 
@@ -22,14 +24,12 @@ export default function ProfileDelete(darkState, handleThemeChange) {
 
     const [password, setPassword] = useState("");
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
+    const handleSubmit = async (value) => {
         try {
             const res = await axios.post(
                 buildPath("api/user/delete-account"),
                 {
-                    password: password,
+                    password: value.password,
                 },
                 { withCredentials: true }
             );
@@ -44,15 +44,24 @@ export default function ProfileDelete(darkState, handleThemeChange) {
         } catch (err) {
             console.error(err);
         }
-
-        // alert(`${email} ${password}, ${e.target.email.value} ${e.target.password.value}`);
     };
 
-    const [auth, setAuth] = useLocalStorage("auth", false);
+    const validationSchema = yup.object({
+        password: yup
+            .string("Enter your password")
+            .min(8, "Password should be of minimum 8 characters length")
+            .required("Password is required"),
+    });
 
-    useEffect(() => {
-        checkAuth(auth);
-    }, [auth]);
+    const formik = useFormik({
+        initialValues: {
+            password: "",
+        },
+        validationSchema: validationSchema,
+        onSubmit: (values) => {
+            handleSubmit(values);
+        },
+    });
 
     return (
         <Grid container component="main" className={classes.root}>
@@ -77,12 +86,13 @@ export default function ProfileDelete(darkState, handleThemeChange) {
                                     </Typography>
                                     <Typography component="h1" variant="body2">
                                         Please input your password to confirm
-                                        account deletion.
+                                        account deletion. (This action cannot be
+                                        undone)
                                     </Typography>
                                     <form
                                         className={classes.form}
                                         noValidate
-                                        onSubmit={handleSubmit}
+                                        onSubmit={formik.handleSubmit}
                                     >
                                         <Grid
                                             container
@@ -92,19 +102,33 @@ export default function ProfileDelete(darkState, handleThemeChange) {
                                             <Grid item xs={12}>
                                                 <TextField
                                                     variant="outlined"
+                                                    margin="normal"
                                                     required
                                                     fullWidth
+                                                    id="password"
                                                     name="password"
                                                     label="Password"
                                                     type="password"
-                                                    id="password"
+                                                    value={
+                                                        formik.values.password
+                                                    }
+                                                    onChange={
+                                                        formik.handleChange
+                                                    }
+                                                    error={
+                                                        formik.touched
+                                                            .password &&
+                                                        Boolean(
+                                                            formik.errors
+                                                                .password
+                                                        )
+                                                    }
+                                                    helperText={
+                                                        formik.touched
+                                                            .password &&
+                                                        formik.errors.password
+                                                    }
                                                     autoComplete="current-password"
-                                                    value={password}
-                                                    onChange={(event) => {
-                                                        setPassword(
-                                                            event.target.value
-                                                        );
-                                                    }}
                                                 />
                                             </Grid>
                                         </Grid>
