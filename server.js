@@ -4,7 +4,7 @@ const path = require("path");
 
 const PORT = process.env.PORT || 5000;
 
-const app = require("./app");
+const app = require("./backend/app");
 
 // Server static assets if in production
 if (process.env.NODE_ENV === "production") {
