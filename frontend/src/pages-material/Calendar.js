@@ -154,8 +154,8 @@ function CalendarDisplay() {
         setDescription(e.description);
         setLocation(e.location);
         setTitle(e.title);
-        setStart(e.startTime);
-        setEnd(e.endTime);
+        setStart(new Date(e.startTime));
+        setEnd(new Date(e.endTime));
         setID(e._id);
     };
 
@@ -275,23 +275,6 @@ function CalendarDisplay() {
         }
     };
 
-    const StyledTextField = withStyles((theme) => ({
-        root: {
-            margin: theme.spacing(2),
-            width: 300,
-            "& .MuiInput-underline": {
-                color: theme.palette.primary.main,
-                height: 60,
-                "& input": {
-                    textAlign: "right",
-                },
-            },
-            "& .MuiFormLabel-root": {
-                color: theme.palette.secondary.main,
-            },
-        },
-    }))(TextField);
-
     const { loading, events, hasMore, error } = useEventsSearch(
         search,
         limit,
@@ -396,11 +379,20 @@ function CalendarDisplay() {
                     <Button
                         onClick={() => {
                             LoadEvent(event);
+                            handleClickOpenRead();
+                        }}
+                        color="primary"
+                    >
+                        Open
+                    </Button>
+                    <Button
+                        onClick={() => {
+                            LoadEvent(event);
                             handleClickOpenRemove();
                         }}
                         color="primary"
                     >
-                        Delete <EditIcon />
+                        Delete <DeleteIcon />
                     </Button>
                     <Button
                         onClick={() => {
@@ -409,7 +401,7 @@ function CalendarDisplay() {
                         }}
                         color="primary"
                     >
-                        Edit <DeleteIcon />
+                        Edit <EditIcon />
                     </Button>
                     </CardContent>
                 </Card>
@@ -642,6 +634,7 @@ function CalendarDisplay() {
                                         className={classes.textarea}
                                     />
                                 </Grid>
+
 
                                 <Grid item xs={12}>
                                     <label>Start Date</label>

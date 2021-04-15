@@ -35,7 +35,6 @@ export default function ProfileUpdate(darkState, handleThemeChange) {
                 setFirstName(res.data.user.firstName);
                 setLastName(res.data.user.lastName);
                 setEmail(res.data.user.email);
-                document.location.reload();
             } else {
                 return false;
             }
@@ -73,7 +72,8 @@ export default function ProfileUpdate(darkState, handleThemeChange) {
             );
 
             if (res.data.success) {
-                //getinfo
+                getInfo();
+                // document.location.reload();
             } else {
                 // display error
             }
