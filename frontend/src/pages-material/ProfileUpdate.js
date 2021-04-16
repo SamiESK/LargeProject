@@ -23,7 +23,8 @@ import CloseIcon from "@material-ui/icons/Close";
 
 import { useStylesProfile as useStyles } from "../config";
 
-export default function ProfileUpdate(darkState, handleThemeChange) {
+export default function ProfileUpdate(darkState, handleThemeChange, title) {
+    document.title = title ? title : document.title;
     const classes = useStyles();
 
     const [auth, setAuth] = useLocalStorage("auth", false);

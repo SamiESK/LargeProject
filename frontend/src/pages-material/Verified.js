@@ -13,7 +13,8 @@ import CardContent from "@material-ui/core/CardContent";
 
 import { useStyles } from "../config";
 
-export default function Verified({ handleThemeChange, darkState }) {
+export default function Verified({ handleThemeChange, darkState, title }) {
+    document.title = title ? title : document.title;
     const classes = useStyles();
 
     return (

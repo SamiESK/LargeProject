@@ -23,7 +23,8 @@ import { buildPath, buildRedirectPath, useStyles } from "../config";
 
 import Switch from "@material-ui/core/Switch";
 
-export default function GetResetCode({ handleThemeChange, darkState }) {
+export default function GetResetCode({ handleThemeChange, darkState, title }) {
+    document.title = title ? title : document.title;
     const classes = useStyles();
 
     const [open, setOpen] = React.useState(false);

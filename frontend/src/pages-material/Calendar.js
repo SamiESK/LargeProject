@@ -33,6 +33,7 @@ import EditIcon from "@material-ui/icons/Edit";
 import DeleteIcon from "@material-ui/icons/Delete";
 import AddIcon from "@material-ui/icons/Add";
 
+import CircularProgress from "@material-ui/core/CircularProgress";
 import Alert from "@material-ui/lab/Alert";
 import IconButton from "@material-ui/core/IconButton";
 import Collapse from "@material-ui/core/Collapse";
@@ -60,7 +61,9 @@ const localizer = dateFnsLocalizer({
 
 var newEndEdit;
 
-function CalendarDisplay() {
+function CalendarDisplay({ title }) {
+    document.title = title ? title : document.title;
+
     const classes = useStyles();
 
     const [open, setOpen] = React.useState(false);
@@ -174,11 +177,17 @@ function CalendarDisplay() {
                 handleCloseRemove();
                 handleAlert("Event was successfully deleted!", true);
             } else {
-                handleAlert("An error occurred! Event was not deleted from calendar", false);
+                handleAlert(
+                    "An error occurred! Event was not deleted from calendar",
+                    false
+                );
             }
         } catch (e) {
             console.error(e);
-            handleAlert("An error occurred! Event was not deleted from calendar", false);
+            handleAlert(
+                "An error occurred! Event was not deleted from calendar",
+                false
+            );
         }
     };
 
@@ -209,11 +218,17 @@ function CalendarDisplay() {
                 handleCloseAdd();
                 handleAlert("Event was successfully added!", true);
             } else {
-                handleAlert("An error occurred! Event was not added to calendar", false);
+                handleAlert(
+                    "An error occurred! Event was not added to calendar",
+                    false
+                );
             }
         } catch (e) {
             console.error(e.toString());
-            handleAlert("An error occurred! Event was not added to calendar", false);
+            handleAlert(
+                "An error occurred! Event was not added to calendar",
+                false
+            );
         }
     };
 
@@ -377,7 +392,7 @@ function CalendarDisplay() {
     function EventCard({ event }) {
         return (
             <div>
-                <Card>
+                <Card style={{ margin: "1% 10%" }}>
                     <CardActionArea className={classes.centerPadding}>
                         <Typography
                             color="textSecondary"
@@ -558,9 +573,10 @@ function CalendarDisplay() {
                             />
                         </div>
 
-                        <Container className={classes.centerStuff}>
+                        <Container>
                             <div>
                                 <TextField
+                                    style={{ margin: "1% 8%", width: "84%" }}
                                     margin="dense"
                                     id="searchField"
                                     label="Search Events"
@@ -589,8 +605,32 @@ function CalendarDisplay() {
                                         );
                                     }
                                 })}
-                                <div>{loading && "Loading...."}</div>
-                                <div>{error && "An Error Occurred"}</div>
+                                <div style={{ position: "relative" }}>
+                                    {!error && loading && (
+                                        <CircularProgress
+                                            size={40}
+                                            left={-20}
+                                            top={10}
+                                            style={{
+                                                marginLeft: "50%",
+                                                marginBottom: "2%",
+                                            }}
+                                        />
+                                    )}
+                                </div>
+                                <div style={{ position: "relative" }}>
+                                    {error && (
+                                        <Typography
+                                            style={{
+                                                marginLeft: "43%",
+                                                marginBottom: "2%",
+                                            }}
+                                            color="error"
+                                        >
+                                            Loading Events Failed
+                                        </Typography>
+                                    )}
+                                </div>
                             </div>
                         </Container>
                     </Container>

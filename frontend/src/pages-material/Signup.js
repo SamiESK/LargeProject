@@ -17,7 +17,8 @@ import Copyright from "./Copyright";
 import axios from "axios";
 import { buildPath, buildRedirectPath, useStyles } from "../config";
 
-export default function SignUp({ handleThemeChange, darkState }) {
+export default function SignUp({ handleThemeChange, darkState, title }) {
+    document.title = title ? title : document.title;
     const classes = useStyles();
 
     const handleSubmit = async (values) => {

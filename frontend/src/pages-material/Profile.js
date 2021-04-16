@@ -7,14 +7,15 @@ import Copyright from "./Copyright";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 
-import SideBar from './profileBar.component';
+import SideBar from "./profileBar.component";
 import Cookies from "js-cookie";
 import axios from "axios";
 import { buildPath, useLocalStorage } from "../config";
 
-import {useStylesProfile as useStyles} from "../config";
+import { useStylesProfile as useStyles } from "../config";
 
-export default function Profile(darkState, handleThemeChange) {
+export default function Profile(darkState, handleThemeChange, title) {
+    document.title = title ? title : document.title;
     const classes = useStyles();
 
     const [firstName, setFirstName] = useState("");
@@ -55,7 +56,7 @@ export default function Profile(darkState, handleThemeChange) {
                     <Card>
                         <CardContent>
                             <Grid container justify="flex-end" spacing={2}>
-                                <SideBar selected={'home'} />
+                                <SideBar selected={"home"} />
                                 <Grid
                                     item
                                     xs={12}
@@ -66,26 +67,37 @@ export default function Profile(darkState, handleThemeChange) {
                                 >
                                     <Grid item xs={12}>
                                         <Typography component="h5" variant="h5">
-                                            First Name: <Typography variant="h6">{firstName}</Typography>
-                                        </Typography>
-                                    </Grid>
-                                    <Grid item xs={12}>
-                                    <Typography component="h5" variant="h5">
-                                            Last Name: <Typography variant="h6">{lastName}</Typography>
+                                            First Name:{" "}
+                                            <Typography variant="h6">
+                                                {firstName}
+                                            </Typography>
                                         </Typography>
                                     </Grid>
                                     <Grid item xs={12}>
                                         <Typography component="h5" variant="h5">
-                                            Email: <Typography variant="h6">{email}</Typography>
+                                            Last Name:{" "}
+                                            <Typography variant="h6">
+                                                {lastName}
+                                            </Typography>
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <Typography component="h5" variant="h5">
+                                            Email:{" "}
+                                            <Typography variant="h6">
+                                                {email}
+                                            </Typography>
                                         </Typography>
                                     </Grid>
 
                                     <Grid item xs={12}>
                                         <Typography component="h5" variant="h5">
-                                            Verification Status: <Typography variant='h6'>{isVerified
-                                                ? "Your email is verified!"
-                                                : "Your email is not verified..."}</Typography>
-
+                                            Verification Status:{" "}
+                                            <Typography variant="h6">
+                                                {isVerified
+                                                    ? "Your email is verified!"
+                                                    : "Your email is not verified..."}
+                                            </Typography>
                                         </Typography>
                                     </Grid>
                                 </Grid>

@@ -24,7 +24,8 @@ import * as yup from "yup";
 
 import { useStylesProfile as useStyles } from "../config";
 
-export default function ProfileDelete(darkState, handleThemeChange) {
+export default function ProfileDelete(darkState, handleThemeChange, title) {
+    document.title = title ? title : document.title;
     const classes = useStyles();
 
     const [user, setUser] = useState({});

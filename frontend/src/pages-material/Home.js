@@ -8,7 +8,8 @@ import Typography from "@material-ui/core/Typography";
 
 import { useStylesProfile as useStyles } from "../config";
 
-export default function Home() {
+export default function Home({ title }) {
+    document.title = title ? title : document.title;
     const classes = useStyles();
 
     return (
@@ -32,27 +33,32 @@ export default function Home() {
                                 </Typography>
                                 <Typography component="h1" variant="body2">
                                     Eventree is a modern and simple calendar to
-                                    fulfill you scheduling needs.
+                                    fulfill your scheduling needs.
                                 </Typography>
 
-                                <br/>
+                                <br />
                                 <Typography component="h1" variant="body2">
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    className={classes.submit}
-                                    onClick={()=> window.location.href = '/signup'}
-                                >
-                                    Sign up
-                                </Button> or {' '}
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    className={classes.submit}
-                                    onClick={() => window.location.href = '/login'}
-                                >
-                                    Sign in
-                                </Button>
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        className={classes.submit}
+                                        onClick={() =>
+                                            (window.location.href = "/signup")
+                                        }
+                                    >
+                                        Sign up
+                                    </Button>{" "}
+                                    or{" "}
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        className={classes.submit}
+                                        onClick={() =>
+                                            (window.location.href = "/login")
+                                        }
+                                    >
+                                        Sign in
+                                    </Button>
                                 </Typography>
                             </Grid>
                         </CardContent>

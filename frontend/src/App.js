@@ -59,13 +59,10 @@ function App() {
 
     const PrivateRoute = ({
         component: Component,
-        exact,
-        strict,
         path,
         ...rest
     }) => (
         <Route
-            exact={exact}
             path={path}
             render={(props) => {
 
@@ -96,7 +93,7 @@ function App() {
                                 handleThemeChange={handleThemeChange}
                                 auth={auth}
                             />
-                            <Component {...props} {...rest} />
+                            <Component {...rest} {...props} />
                         </div>
                     );
                 } else {
@@ -149,12 +146,14 @@ function App() {
                         <Login
                             darkState={darkState}
                             handleThemeChange={handleThemeChange}
+                            title={'Sign in - Eventree'}
                         />
                     </Route>
                     <Route path="/signup" exact>
                         <Signup
                             darkState={darkState}
                             handleThemeChange={handleThemeChange}
+                            title={'Sign up - Eventree'}
                         />
                     </Route>
                     <PrivateRoute
@@ -166,6 +165,7 @@ function App() {
                         <GetResetCode
                             darkState={darkState}
                             handleThemeChange={handleThemeChange}
+                            title={'Send Password Reset Email - Eventree'}
                         />
                     </Route>
                     <Route path="/get-verified">
@@ -175,33 +175,39 @@ function App() {
                         <PasswordReset
                             darkState={darkState}
                             handleThemeChange={handleThemeChange}
+                            title={'Reset Password - Eventree'}
                         />
                     </Route>
                     <PrivateRoute
                         path="/profile"
                         exact={true}
                         component={Profile}
+                        title={'Profile - Eventree'}
                     ></PrivateRoute>
                     <PrivateRoute
                         path="/profile/update"
                         exact={true}
                         component={ProfileUpdate}
+                        title={'Update Profile - Eventree'}
                     ></PrivateRoute>
                     <PrivateRoute
                         path="/profile/delete"
                         exact={true}
                         component={ProfileDelete}
+                        title={'Delete Account - Eventree'}
                     ></PrivateRoute>
                     <Route path="/verified">
                         <Verified
                             darkState={darkState}
                             handleThemeChange={handleThemeChange}
+                            title={'Successful Email Verification - Eventree'}
                         />
                     </Route>
                     <Route path="/unverified">
                         <Unverified
                             darkState={darkState}
                             handleThemeChange={handleThemeChange}
+                            title={'Unverified Email - Eventree'}
                         />
                     </Route>
                     <Redirect to="/" />

@@ -23,7 +23,8 @@ import {
 
 import { useStyles } from "../config";
 
-function SignInSide({ handleThemeChange, darkState }) {
+function SignInSide({ handleThemeChange, darkState, title }) {
+    document.title = title ? title : document.title;
     const classes = useStyles();
 
     const handleSubmit = async (values) => {

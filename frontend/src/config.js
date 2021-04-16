@@ -228,4 +228,9 @@ export const useStylesProfile = makeStyles((theme) => ({
     centerPadding: {
         padding: "1%",
     },
+    centerLoadingCircle: {
+        margin: "2% 5%",
+        width: "50%",
+
+    },
 }));

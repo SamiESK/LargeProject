@@ -17,7 +17,8 @@ import CloseIcon from "@material-ui/icons/Close";
 import axios from "axios";
 import { buildPath, useStyles, isVerified } from "../config";
 
-export default function GetVerificationCode() {
+export default function GetVerificationCode({ title }) {
+    document.title = title ? title : document.title;
     const classes = useStyles();
 
     const [open, setOpen] = React.useState(false);
