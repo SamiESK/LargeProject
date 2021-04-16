@@ -10,6 +10,7 @@ import "./App.css";
 import Login from "./pages-material/Login";
 import Signup from "./pages-material/Signup";
 import GetResetCode from "./pages-material/GetResetCode";
+import GetVerificationCode from "./pages-material/GetVerificationCode";
 import PasswordReset from "./pages-material/PasswordReset";
 import Verified from "./pages-material/Verified";
 import Unverified from "./pages-material/Unverified";
@@ -23,7 +24,7 @@ import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 import { green } from "@material-ui/core/colors";
 
-import { useLocalStorage, isAuthenticated } from "./config";
+import { useLocalStorage, isAuthenticated, isVerified } from "./config";
 
 import UserNavBar from "./pages-material/userNavBar.component";
 import Cookies from "js-cookie";
@@ -66,25 +67,49 @@ function App() {
         <Route
             exact={exact}
             path={path}
-            render={(props) =>
-                Cookies.get("jwt") !== undefined ? (
-                    <div>
-                        <UserNavBar
-                            darkState={darkState}
-                            handleThemeChange={handleThemeChange}
-                            auth={auth}
+            render={(props) => {
+
+                let verified = isVerified()
+                .then((val) => {
+                    // exists
+                    return val;
+                })
+                .catch(() => {
+                    // note exists
+                    return false;
+                });
+
+                if (Cookies.get("jwt") !== undefined && !verified) {
+                    return (
+                        <Redirect
+                            to={{
+                                pathname: "/get-verified",
+                                state: { from: props.location },
+                            }}
                         />
-                        <Component {...props} {...rest} />
-                    </div>
-                ) : (
-                    <Redirect
-                        to={{
-                            pathname: "/login",
-                            state: { from: props.location },
-                        }}
-                    />
-                )
-            }
+                    );
+                } else if (Cookies.get("jwt") !== undefined) {
+                    return (
+                        <div>
+                            <UserNavBar
+                                darkState={darkState}
+                                handleThemeChange={handleThemeChange}
+                                auth={auth}
+                            />
+                            <Component {...props} {...rest} />
+                        </div>
+                    );
+                } else {
+                    return (
+                        <Redirect
+                            to={{
+                                pathname: "/login",
+                                state: { from: props.location },
+                            }}
+                        />
+                    );
+                }
+            }}
         />
     );
 
@@ -142,6 +167,9 @@ function App() {
                             darkState={darkState}
                             handleThemeChange={handleThemeChange}
                         />
+                    </Route>
+                    <Route path="/get-verified">
+                        <GetVerificationCode />
                     </Route>
                     <Route path="/password-reset" exact>
                         <PasswordReset

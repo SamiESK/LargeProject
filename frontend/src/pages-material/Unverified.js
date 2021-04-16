@@ -44,10 +44,17 @@ export default function Verified({ handleThemeChange, darkState }) {
                                     <br />
                                     <Typography
                                         component="body2"
-                                        variant="body2"
+                                        variant="h6"
                                     >
-                                        This can happen due to your code
-                                        expiring please{" "}
+                                        Make sure to check the email you signed up with!!
+                                    </Typography>
+                                    <br/>
+                                    <Typography
+                                        component="body2"
+                                        variant="2body"
+                                    >
+                                        If your verification link directed you here your code
+                                        must have expired please{" "}
                                         <Link href="/login">sign in</Link> and
                                         request a new code.
                                     </Typography>

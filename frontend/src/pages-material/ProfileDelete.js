@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -11,6 +11,10 @@ import SideBar from "./profileBar.component";
 
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
+import Alert from "@material-ui/lab/Alert";
+import IconButton from "@material-ui/core/IconButton";
+import Collapse from "@material-ui/core/Collapse";
+import CloseIcon from "@material-ui/icons/Close";
 
 import axios from "axios";
 import { buildPath } from "../config";
@@ -22,7 +26,9 @@ import { useStylesProfile as useStyles } from "../config";
 export default function ProfileDelete(darkState, handleThemeChange) {
     const classes = useStyles();
 
-    const [password, setPassword] = useState("");
+    const [open, setOpen] = React.useState(false);
+    const [wasSuccessful, setSuccess] = React.useState(false);
+    const [msg, setMsg] = React.useState("");
 
     const handleSubmit = async (value) => {
         try {
@@ -39,10 +45,15 @@ export default function ProfileDelete(darkState, handleThemeChange) {
                     "jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
                 window.location.href = "/";
             } else {
-                // display error
+                setOpen(true);
+                setMsg("An Error Occurred");
+                setSuccess(false);
             }
         } catch (err) {
             console.error(err);
+            setOpen(true);
+            setMsg("An Error Occurred");
+            setSuccess(false);
         }
     };
 
@@ -132,7 +143,31 @@ export default function ProfileDelete(darkState, handleThemeChange) {
                                                 />
                                             </Grid>
                                         </Grid>
+                                        <Collapse in={open}>
+                                            <Alert
+                                                severity={
+                                                    wasSuccessful
+                                                        ? "success"
+                                                        : "error"
+                                                }
+                                                action={
+                                                    <IconButton
+                                                        aria-label="close"
+                                                        color="inherit"
+                                                        size="small"
+                                                        onClick={() => {
+                                                            setOpen(false);
+                                                        }}
+                                                    >
+                                                        <CloseIcon fontSize="inherit" />
+                                                    </IconButton>
+                                                }
+                                            >
+                                                {msg}
+                                            </Alert>
+                                        </Collapse>
                                         <br />
+
                                         <Button
                                             type="submit"
                                             fullWidth

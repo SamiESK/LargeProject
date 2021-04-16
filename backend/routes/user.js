@@ -260,7 +260,7 @@ router.patch(
 
 router.get("/email-exists", async (req, res) => {
     try {
-        const email = await User.findOne({email: req.query.email});
+        const email = await User.findOne({ email: req.query.email });
 
         if (email) {
             res.status(200).json({
@@ -299,14 +299,17 @@ router.get(
         try {
             const userDoc = await User.findById(req.user._id);
 
-            if (req.query.email && userDoc.email.toString() === req.query.email) {
+            if (
+                req.query.email &&
+                userDoc.email.toString() === req.query.email
+            ) {
                 return res.status(200).json({
                     success: true,
                     emailExists: false,
                 });
             }
 
-            const email = await User.findOne({email: req.query.email});
+            const email = await User.findOne({ email: req.query.email });
 
             if (email) {
                 res.status(200).json({
@@ -487,6 +490,46 @@ router.post(
                     error: "Oh, something went wrong. Please try again!",
                 });
             }
+        }
+    }
+);
+
+router.delete(
+    "/delete-account",
+    passport.authenticate("jwt", { session: false }),
+    async (req, res) => {
+        try {
+            const user = await User.findById(req.user._id);
+
+            if (!user) {
+                res.status(404).json({
+                    success: false,
+                    error: "Oh, something went wrong. Please try again!",
+                });
+            } else {
+                const deleted = await User.deleteOne({
+                    email: user.email,
+                });
+
+                await Code.deleteMany({ email: user.email });
+                await Event.deleteMany({ userID: user._id });
+
+                if (!deleted) {
+                    res.json({
+                        success: false,
+                        error: "Oh, something went wrong. Please try again!",
+                    });
+                } else {
+                    // req.session = null;
+                    res.status(200).json({ success: true });
+                }
+            }
+        } catch (err) {
+            console.log("Error on /delete-account: ", err);
+            res.status(500).json({
+                success: false,
+                error: "Oh, something went wrong. Please try again!",
+            });
         }
     }
 );

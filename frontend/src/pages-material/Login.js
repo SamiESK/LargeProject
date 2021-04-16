@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -22,7 +22,6 @@ import {
 } from "react-social-login-buttons";
 
 import { useStyles } from "../config";
-import { min } from "date-fns";
 
 function SignInSide({ handleThemeChange, darkState }) {
     const classes = useStyles();

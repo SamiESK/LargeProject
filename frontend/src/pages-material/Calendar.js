@@ -20,8 +20,6 @@ import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import TextareaAutosize from "@material-ui/core/TextareaAutosize";
 import Card from "@material-ui/core/Card";
-import CardContent from "@material-ui/core/CardContent";
-import CardHeader from "@material-ui/core/CardHeader";
 import CardActionArea from "@material-ui/core/CardActionArea";
 import CardActions from "@material-ui/core/CardActions";
 import Dialog from "@material-ui/core/Dialog";
@@ -29,12 +27,16 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import Divider from "@material-ui/core/Divider";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import EditIcon from "@material-ui/icons/Edit";
 import DeleteIcon from "@material-ui/icons/Delete";
 import AddIcon from "@material-ui/icons/Add";
+
+import Alert from "@material-ui/lab/Alert";
+import IconButton from "@material-ui/core/IconButton";
+import Collapse from "@material-ui/core/Collapse";
+import CloseIcon from "@material-ui/icons/Close";
 
 import { useFormik } from "formik";
 import * as yup from "yup";
@@ -56,18 +58,27 @@ const localizer = dateFnsLocalizer({
     locales,
 });
 
-var ID;
-var loadEvents;
 var newEndEdit;
 
 function CalendarDisplay() {
     const classes = useStyles();
 
-    const [title, setTitle] = React.useState("");
-    const [location, setLocation] = React.useState("");
-    const [description, setDescription] = React.useState("");
-    const [start, setStart] = useState(new Date());
-    const [end, setEnd] = useState(new Date());
+    const [open, setOpen] = React.useState(false);
+    const [wasSuccessful, setSuccess] = React.useState(false);
+    const [msg, setMsg] = React.useState("");
+
+    const handleAlert = (msg, success) => {
+        setOpen(true);
+        setSuccess(success);
+        setMsg(msg);
+
+        setTimeout(() => {
+            setOpen(false);
+            setSuccess(false);
+            setMsg("");
+        }, 5000);
+    };
+
     const [id, setID] = useState("");
 
     const [search, setSearch] = useState("");
@@ -84,22 +95,6 @@ function CalendarDisplay() {
         setSearch(search);
         setOffset(0);
         setLimit(10);
-    };
-
-    const handleTitleChange = (event) => {
-        setTitle(event.target.value);
-    };
-    const handleLocationChange = (event) => {
-        setLocation(event.target.value);
-    };
-    const handleDescriptionChange = (event) => {
-        setDescription(event.target.value);
-    };
-    const handleStartChange = (event) => {
-        setStart(event);
-    };
-    const handleEndChange = (event) => {
-        setEnd(event);
     };
 
     const [openAdd, setAddOpen] = React.useState(false);
@@ -177,11 +172,13 @@ function CalendarDisplay() {
                 loadEvents();
                 handleSearchChangeStr(search);
                 handleCloseRemove();
+                handleAlert("Event was successfully deleted!", true);
             } else {
-                // error
+                handleAlert("An error occurred! Event was not deleted from calendar", false);
             }
         } catch (e) {
             console.error(e);
+            handleAlert("An error occurred! Event was not deleted from calendar", false);
         }
     };
 
@@ -210,11 +207,13 @@ function CalendarDisplay() {
             if (res.data.success) {
                 loadEvents();
                 handleCloseAdd();
+                handleAlert("Event was successfully added!", true);
             } else {
-                // error
+                handleAlert("An error occurred! Event was not added to calendar", false);
             }
         } catch (e) {
             console.error(e.toString());
+            handleAlert("An error occurred! Event was not added to calendar", false);
         }
     };
 
@@ -244,11 +243,13 @@ function CalendarDisplay() {
                 loadEvents();
                 handleSearchChangeStr(search);
                 handleCloseEdit();
+                handleAlert("Event was successfully updated!", true);
             } else {
-                // error
+                handleAlert("An error occurred! Event was not updated.", false);
             }
         } catch (e) {
             console.error(e.toString());
+            handleAlert("An error occurred! Event was not updated.", false);
         }
     };
 
@@ -504,6 +505,27 @@ function CalendarDisplay() {
             <div className={classes.calendar} className={classes.calendarBG}>
                 <Container className="border p-10" id="homeBack">
                     <Container className="border p-10" id="callyContainer">
+                        {open ? <br /> : ""}
+                        <Collapse in={open}>
+                            <Alert
+                                severity={wasSuccessful ? "success" : "error"}
+                                action={
+                                    <IconButton
+                                        aria-label="close"
+                                        color="inherit"
+                                        size="small"
+                                        onClick={() => {
+                                            setOpen(false);
+                                        }}
+                                    >
+                                        <CloseIcon fontSize="inherit" />
+                                    </IconButton>
+                                }
+                            >
+                                {msg}
+                            </Alert>
+                        </Collapse>
+
                         <div id="cally" className={classes.calendarColor}>
                             <div className={classes.headerRight}>
                                 <div className={classes.headerLeft}>

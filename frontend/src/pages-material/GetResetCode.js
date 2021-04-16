@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -11,7 +11,14 @@ import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Typography from "@material-ui/core/Typography";
 import Copyright from "./Copyright";
 
+import Alert from "@material-ui/lab/Alert";
+import IconButton from "@material-ui/core/IconButton";
+import Collapse from "@material-ui/core/Collapse";
+import CloseIcon from "@material-ui/icons/Close";
+
 import axios from "axios";
+import { useFormik } from "formik";
+import * as yup from "yup";
 import { buildPath, buildRedirectPath, useStyles } from "../config";
 
 import Switch from "@material-ui/core/Switch";
@@ -19,16 +26,16 @@ import Switch from "@material-ui/core/Switch";
 export default function GetResetCode({ handleThemeChange, darkState }) {
     const classes = useStyles();
 
-    const [email, setEmail] = useState("");
+    const [open, setOpen] = React.useState(false);
+    const [wasSuccessful, setSuccess] = React.useState(false);
+    const [msg, setMsg] = React.useState("");
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
+    const handleSubmit = async (values) => {
         try {
             const res = await axios.post(
                 buildPath("api/user/password-reset/get-code"),
                 {
-                    email: email,
+                    email: values.email,
                 },
                 { withCredentials: true }
             );
@@ -36,14 +43,61 @@ export default function GetResetCode({ handleThemeChange, darkState }) {
             if (res.data.success) {
                 window.location.href = buildRedirectPath("password-reset");
             } else {
-                // display error
+                setOpen(true);
+                setMsg("An Error Occurred");
+                setSuccess(false);
             }
         } catch (err) {
             console.error(err);
+            setOpen(true);
+            setMsg("An Error Occurred");
+            setSuccess(false);
         }
 
         // alert(`${email} ${password}, ${e.target.email.value} ${e.target.password.value}`);
     };
+
+    const validationSchema = yup.object({
+        email: yup
+            .string("Enter your email")
+            .min(5, "Email should be of minimum 5 characters length")
+            .email("Enter a valid email")
+            .test(
+                "checkDuplicateEmail",
+                "This Email is not associated with an account",
+                function (value) {
+                    return new Promise((resolve, reject) => {
+                        axios
+                            .get(buildPath("api/user/email-exists"), {
+                                params: { email: value },
+                            })
+                            .then((res) => {
+                                // exists
+                                if (res.data.emailExists) {
+                                    resolve(true);
+                                } else {
+                                    resolve(false);
+                                }
+                            })
+                            .catch(() => {
+                                // note exists
+                                resolve(false);
+                            });
+                    });
+                }
+            )
+            .required("Email is required"),
+    });
+
+    const formik = useFormik({
+        initialValues: {
+            email: "",
+        },
+        validationSchema: validationSchema,
+        onSubmit: (values) => {
+            handleSubmit(values);
+        },
+    });
 
     return (
         <Grid container component="main" className={classes.root}>
@@ -68,7 +122,7 @@ export default function GetResetCode({ handleThemeChange, darkState }) {
                     <form
                         className={classes.form}
                         noValidate
-                        onSubmit={handleSubmit}
+                        onSubmit={formik.handleSubmit}
                     >
                         <Grid container justify="flex-end" spacing={2}>
                             <Grid item xs={12}>
@@ -80,10 +134,16 @@ export default function GetResetCode({ handleThemeChange, darkState }) {
                                     label="Email Address"
                                     name="email"
                                     autoComplete="email"
-                                    value={email}
-                                    onChange={(event) => {
-                                        setEmail(event.target.value);
-                                    }}
+                                    value={formik.values.email}
+                                    onChange={formik.handleChange}
+                                    error={
+                                        formik.touched.email &&
+                                        Boolean(formik.errors.email)
+                                    }
+                                    helperText={
+                                        formik.touched.email &&
+                                        formik.errors.email
+                                    }
                                 />
                             </Grid>
                         </Grid>
@@ -96,6 +156,25 @@ export default function GetResetCode({ handleThemeChange, darkState }) {
                         >
                             Get Code
                         </Button>
+                        <Collapse in={open}>
+                            <Alert
+                                severity={wasSuccessful ? "success" : "error"}
+                                action={
+                                    <IconButton
+                                        aria-label="close"
+                                        color="inherit"
+                                        size="small"
+                                        onClick={() => {
+                                            setOpen(false);
+                                        }}
+                                    >
+                                        <CloseIcon fontSize="inherit" />
+                                    </IconButton>
+                                }
+                            >
+                                {msg}
+                            </Alert>
+                        </Collapse>
                         <Grid container justify="flex-end">
                             <Grid item>
                                 <Link href="/password-reset" variant="body2">

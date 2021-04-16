@@ -89,6 +89,22 @@ export const isAuthenticated = async () => {
     }
 };
 
+export const isVerified = async () => {
+    if (Cookies.get("jwt") !== undefined) {
+        const res = await axios.get(buildPath("api/user/info"), {
+            withCredentials: true,
+        });
+
+        if (res.status !== 401 && res.data.success) {
+            return res.data.user.isVerified;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
+};
+
 export const useStyles = makeStyles((theme) => ({
     root: {
         height: "100vh",

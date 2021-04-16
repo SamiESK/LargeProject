@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -12,9 +12,14 @@ import CardContent from "@material-ui/core/CardContent";
 import SideBar from "./profileBar.component";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { buildPath, treeImageURL, useLocalStorage } from "../config";
+import { buildPath, useLocalStorage } from "../config";
 import { useFormik } from "formik";
 import * as yup from "yup";
+
+import Alert from "@material-ui/lab/Alert";
+import IconButton from "@material-ui/core/IconButton";
+import Collapse from "@material-ui/core/Collapse";
+import CloseIcon from "@material-ui/icons/Close";
 
 import { useStylesProfile as useStyles } from "../config";
 
@@ -27,9 +32,9 @@ export default function ProfileUpdate(darkState, handleThemeChange) {
         getInfo(auth);
     }, [auth]);
 
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
-    const [email, setEmail] = useState("");
+    const [open, setOpen] = React.useState(false);
+    const [wasSuccessful, setSuccess] = React.useState(false);
+    const [msg, setMsg] = React.useState("");
 
     const validationSchema = yup.object({
         email: yup
@@ -115,12 +120,19 @@ export default function ProfileUpdate(darkState, handleThemeChange) {
 
             if (res.data.success) {
                 getInfo();
+                setMsg("Profile was successfully updated!");
+                setSuccess(true);
                 // document.location.reload();
             } else {
-                // display error
+                setOpen(true);
+                setMsg("An Error Occurred");
+                setSuccess(false);
             }
         } catch (err) {
             console.error(err);
+            setOpen(true);
+            setMsg("An Error Occurred");
+            setSuccess(false);
         }
     };
 
@@ -337,6 +349,29 @@ export default function ProfileUpdate(darkState, handleThemeChange) {
                                                 />
                                             </Grid>
                                         </Grid>
+                                        <Collapse in={open}>
+                                            <Alert
+                                                severity={
+                                                    wasSuccessful
+                                                        ? "success"
+                                                        : "error"
+                                                }
+                                                action={
+                                                    <IconButton
+                                                        aria-label="close"
+                                                        color="inherit"
+                                                        size="small"
+                                                        onClick={() => {
+                                                            setOpen(false);
+                                                        }}
+                                                    >
+                                                        <CloseIcon fontSize="inherit" />
+                                                    </IconButton>
+                                                }
+                                            >
+                                                {msg}
+                                            </Alert>
+                                        </Collapse>
                                         <br />
                                         <Button
                                             type="submit"
