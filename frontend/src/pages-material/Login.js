@@ -161,31 +161,25 @@ function SignInSide({ handleThemeChange, darkState }) {
                         <br />
                         <Typography align="center">or</Typography>
                         <br />
-                        <GoogleLoginButton
-                            onClick={() =>
-                                (window.location.href = buildPath(
-                                    "auth/google"
-                                ))
-                            }
-                        />
-                        <MicrosoftLoginButton
-                            onClick={() =>
-                                (window.location.href = buildPath(
-                                    "auth/microsoft"
-                                ))
-                            }
-                        />
-                        <GithubLoginButton
-                            onClick={() =>
-                                (window.location.href = buildPath(
-                                    "auth/github"
-                                ))
-                            }
-                        />
-                        <Box mt={5}>
-                            <Copyright />
-                        </Box>
                     </form>
+                    <GoogleLoginButton
+                        onClick={() =>
+                            (window.location.href = buildPath("auth/google"))
+                        }
+                    />
+                    <MicrosoftLoginButton
+                        onClick={() =>
+                            (window.location.href = buildPath("auth/microsoft"))
+                        }
+                    />
+                    <GithubLoginButton
+                        onClick={() =>
+                            (window.location.href = buildPath("auth/github"))
+                        }
+                    />
+                    <Box mt={5}>
+                        <Copyright />
+                    </Box>
                 </div>
             </Grid>
         </Grid>
