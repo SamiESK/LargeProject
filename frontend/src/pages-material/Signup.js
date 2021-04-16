@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -10,6 +10,10 @@ import Box from "@material-ui/core/Box";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Typography from "@material-ui/core/Typography";
 import Switch from "@material-ui/core/Switch";
+import Alert from "@material-ui/lab/Alert";
+import IconButton from "@material-ui/core/IconButton";
+import Collapse from "@material-ui/core/Collapse";
+import CloseIcon from "@material-ui/icons/Close";
 import { useFormik } from "formik";
 import * as yup from "yup";
 
@@ -20,6 +24,9 @@ import { buildPath, buildRedirectPath, useStyles } from "../config";
 export default function SignUp({ handleThemeChange, darkState, title }) {
     document.title = title ? title : document.title;
     const classes = useStyles();
+
+    const [open, setOpen] = React.useState(false);
+    const [msg, setMsg] = React.useState("");
 
     const handleSubmit = async (values) => {
         try {
@@ -39,10 +46,13 @@ export default function SignUp({ handleThemeChange, darkState, title }) {
                 window.location.href = buildRedirectPath("unverified");
             } else {
                 // display error
-                console.error(res.error);
+                setOpen(true);
+                setMsg("An Error Occurred");
             }
         } catch (err) {
             console.error(err);
+            setOpen(true);
+            setMsg("An Error Occurred");
         }
 
         // alert(`${email} ${password}, ${e.target.email.value} ${e.target.password.value}`);
@@ -253,6 +263,25 @@ export default function SignUp({ handleThemeChange, darkState, title }) {
                                 />
                             </Grid>
                         </Grid>
+                        <Collapse in={open}>
+                            <Alert
+                                severity={"error"}
+                                action={
+                                    <IconButton
+                                        aria-label="close"
+                                        color="inherit"
+                                        size="small"
+                                        onClick={() => {
+                                            setOpen(false);
+                                        }}
+                                    >
+                                        <CloseIcon fontSize="inherit" />
+                                    </IconButton>
+                                }
+                            >
+                                {msg}
+                            </Alert>
+                        </Collapse>
                         <br />
                         <Button
                             type="submit"

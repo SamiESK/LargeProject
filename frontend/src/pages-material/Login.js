@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -9,6 +9,10 @@ import Box from "@material-ui/core/Box";
 import Grid from "@material-ui/core/Grid";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Typography from "@material-ui/core/Typography";
+import Alert from "@material-ui/lab/Alert";
+import IconButton from "@material-ui/core/IconButton";
+import Collapse from "@material-ui/core/Collapse";
+import CloseIcon from "@material-ui/icons/Close";
 import axios from "axios";
 import { buildPath, buildRedirectPath } from "../config";
 import Copyright from "./Copyright";
@@ -27,6 +31,9 @@ function SignInSide({ handleThemeChange, darkState, title }) {
     document.title = title ? title : document.title;
     const classes = useStyles();
 
+    const [open, setOpen] = React.useState(false);
+    const [msg, setMsg] = React.useState("");
+
     const handleSubmit = async (values) => {
         try {
             const res = await axios.post(
@@ -42,9 +49,13 @@ function SignInSide({ handleThemeChange, darkState, title }) {
                 window.location.href = buildRedirectPath("calendar");
             } else {
                 // display error
+                setOpen(true);
+                setMsg(res.data.error);
             }
         } catch (err) {
             console.error(err);
+            setOpen(true);
+            setMsg(err.response.data.error);
         }
     };
 
@@ -137,6 +148,25 @@ function SignInSide({ handleThemeChange, darkState, title }) {
                             }
                             autoComplete="current-password"
                         />
+                        <Collapse in={open}>
+                            <Alert
+                                severity={"error"}
+                                action={
+                                    <IconButton
+                                        aria-label="close"
+                                        color="inherit"
+                                        size="small"
+                                        onClick={() => {
+                                            setOpen(false);
+                                        }}
+                                    >
+                                        <CloseIcon fontSize="inherit" />
+                                    </IconButton>
+                                }
+                            >
+                                {msg}
+                            </Alert>
+                        </Collapse>
                         <Button
                             type="submit"
                             fullWidth

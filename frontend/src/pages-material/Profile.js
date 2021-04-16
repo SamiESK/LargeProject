@@ -42,8 +42,6 @@ export default function Profile(darkState, handleThemeChange, title) {
         }
     };
 
-    const [auth, setAuth] = useLocalStorage("auth", false);
-
     return (
         <Grid container component="main" className={classes.root}>
             <CssBaseline />
