@@ -246,6 +246,7 @@ function CalendarDisplay({ title }) {
             if (res.data.success) {
                 // loadEvents();
                 addEventFromList(res.data);
+                handleSearchChangeStr(search);
                 handleCloseAdd();
                 handleAlert("Event was successfully added!", true);
             } else {
@@ -433,7 +434,7 @@ function CalendarDisplay({ title }) {
                                     variant="h4"
                                     align="center"
                                 >
-                                    {event.location}
+                                    {event.title}
                                 </Typography>
                             </Grid>
 
