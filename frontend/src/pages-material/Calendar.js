@@ -5,7 +5,9 @@ import startOfWeek from "date-fns/startOfWeek";
 import getDay from "date-fns/getDay";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import React, { useRef, useCallback, useEffect } from "react";
-import DateTimePicker from "react-datetime-picker";
+
+import MomentUtils from "@date-io/moment";
+import { DateTimePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
 
 import Container from "@material-ui/core/Container";
 
@@ -29,6 +31,8 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import FormLabel from "@material-ui/core/FormLabel";
 import EditIcon from "@material-ui/icons/Edit";
 import DeleteIcon from "@material-ui/icons/Delete";
 import AddIcon from "@material-ui/icons/Add";
@@ -163,6 +167,32 @@ function CalendarDisplay({ title }) {
         setID(e._id);
     };
 
+    const addEventFromList = (addedEvent) => {
+        setevent([
+            ...myEventsList,
+            { id: addedEvent._id, allDay: false, ...addedEvent },
+        ]);
+    };
+
+    const updateEventFromList = (updatedEvent) => {
+        const index = myEventsList.findIndex(
+            (event) => event.id === updatedEvent._id
+        );
+
+        myEventsList[index].title = updatedEvent.title;
+        myEventsList[index].location = updatedEvent.location;
+        myEventsList[index].description = updatedEvent.description;
+        myEventsList[index].start = new Date(updatedEvent.startTime);
+        myEventsList[index].end = new Date(updatedEvent.endTime);
+    };
+
+    const removeEventFromList = (removedEvent) => {
+        let newList = myEventsList.filter(function (event) {
+            return event.id !== removedEvent;
+        });
+        setevent(newList);
+    };
+
     const removeEvent = async (event) => {
         event.preventDefault();
 
@@ -172,7 +202,7 @@ function CalendarDisplay({ title }) {
             });
 
             if (res.data.success) {
-                loadEvents();
+                removeEventFromList(id);
                 handleSearchChangeStr(search);
                 handleCloseRemove();
                 handleAlert("Event was successfully deleted!", true);
@@ -214,7 +244,8 @@ function CalendarDisplay({ title }) {
             });
 
             if (res.data.success) {
-                loadEvents();
+                // loadEvents();
+                addEventFromList(res.data);
                 handleCloseAdd();
                 handleAlert("Event was successfully added!", true);
             } else {
@@ -249,13 +280,14 @@ function CalendarDisplay({ title }) {
 
         try {
             let res = await axios.patch(
-                buildPath("api/events/update/" + String(id)),
+                buildPath(`api/events/update/${id}`),
                 obj,
                 { withCredentials: true }
             );
 
             if (res.data.success) {
-                loadEvents();
+                // loadEvents();
+                updateEventFromList(res.data);
                 handleSearchChangeStr(search);
                 handleCloseEdit();
                 handleAlert("Event was successfully updated!", true);
@@ -394,91 +426,123 @@ function CalendarDisplay({ title }) {
             <div>
                 <Card style={{ margin: "1% 10%" }}>
                     <CardActionArea className={classes.centerPadding}>
-                        <Typography
-                            color="textSecondary"
-                            variant="h4"
-                            gutterBottom
-                        >
-                            <TextField
-                                margin="dense"
-                                label="Title"
-                                type="text"
-                                defaultValue={event.title}
-                                InputProps={{
-                                    readOnly: true,
-                                }}
-                                variant="filled"
-                                fullWidth
-                            />
-                        </Typography>
-                        <Typography
-                            color="textSecondary"
-                            variant="h5"
-                            gutterBottom
-                        >
-                            <TextField
-                                margin="dense"
-                                label="Location"
-                                type="text"
-                                defaultValue={event.location}
-                                InputProps={{
-                                    readOnly: true,
-                                }}
-                                variant="filled"
-                                fullWidth
-                            />
-                        </Typography>
-                        <Typography
-                            color="textSecondary"
-                            variant="body2"
-                            gutterBottom
-                        >
-                            <TextField
-                                margin="dense"
-                                label="Description"
-                                type="text"
-                                defaultValue={event.description}
-                                InputProps={{
-                                    readOnly: true,
-                                }}
-                                variant="filled"
-                                fullWidth
-                            />
-                        </Typography>
-                        <Typography
-                            color="textSecondary"
-                            variant="body2"
-                            gutterBottom
-                        >
-                            <TextField
-                                margin="dense"
-                                label="Start Time"
-                                type="text"
-                                defaultValue={event.startTime}
-                                InputProps={{
-                                    readOnly: true,
-                                }}
-                                variant="filled"
-                                fullWidth
-                            />
-                        </Typography>
-                        <Typography
-                            color="textSecondary"
-                            variant="body2"
-                            gutterBottom
-                        >
-                            <TextField
-                                margin="dense"
-                                label="End Time"
-                                type="text"
-                                defaultValue={event.endTime}
-                                InputProps={{
-                                    readOnly: true,
-                                }}
-                                variant="filled"
-                                fullWidth
-                            />
-                        </Typography>
+                        <Grid container justify="flex-end" spacing={2}>
+                            <Grid item xs={12}>
+                                <Typography
+                                    color="primary"
+                                    variant="h4"
+                                    align="center"
+                                >
+                                    {event.location}
+                                </Typography>
+                            </Grid>
+
+                            <Grid item xs={12}>
+                                {/* <TextField
+                                            margin="dense"
+                                            label="Location"
+                                            type="email"
+                                            defaultValue={
+                                                formikEdit.values.location
+                                            }
+                                            InputProps={{
+                                                readOnly: true,
+                                            }}
+                                            variant="filled"
+                                            fullWidth
+                                        /> */}
+                                <FormLabel align="center">Location:</FormLabel>
+
+                                <Typography
+                                    color="textPrimary"
+                                    variant="h6"
+                                    align="center"
+                                >
+                                    {event.location}
+                                </Typography>
+                            </Grid>
+
+                            <Grid item xs={12}>
+                                {/* <TextField
+                                            margin="dense"
+                                            label="Description"
+                                            type="email"
+                                            defaultValue={
+                                                formikEdit.values.description
+                                            }
+                                            InputProps={{
+                                                readOnly: true,
+                                            }}
+                                            variant="filled"
+                                            fullWidth
+                                        /> */}
+                                <FormLabel align="center">
+                                    Description:
+                                </FormLabel>
+
+                                <Typography
+                                    color="textPrimary"
+                                    variant="h6"
+                                    align="center"
+                                >
+                                    {event.description}
+                                </Typography>
+                            </Grid>
+
+                            <Grid item xs={12}>
+                                {/* <TextField
+                                            margin="dense"
+                                            label="Start Time"
+                                            type="email"
+                                            defaultValue={
+                                                formikEdit.values.startTime
+                                            }
+                                            InputProps={{
+                                                readOnly: true,
+                                            }}
+                                            variant="filled"
+                                            fullWidth
+                                        /> */}
+
+                                <FormLabel align="center">
+                                    Start Time:
+                                </FormLabel>
+
+                                <Typography
+                                    color="textPrimary"
+                                    variant="h6"
+                                    align="center"
+                                >
+                                    {new Date(event.startTime).toString()}
+                                </Typography>
+                            </Grid>
+
+                            <Grid item xs={12}>
+                                {/* <TextField
+                                            margin="dense"
+                                            label="End Time"
+                                            type="email"
+                                            defaultValue={
+                                                formikEdit.values.endTime
+                                            }
+                                            InputProps={{
+                                                readOnly: true,
+                                            }}
+                                            variant="filled"
+                                            fullWidth
+                                        /> */}
+
+                                <FormLabel align="center">End Time:</FormLabel>
+
+                                <Typography
+                                    color="textPrimary"
+                                    variant="h6"
+                                    align="center"
+                                >
+                                    {new Date(event.endTime).toString()}
+                                </Typography>
+                            </Grid>
+                        </Grid>
                     </CardActionArea>
                     <CardActions>
                         <Button
@@ -729,12 +793,17 @@ function CalendarDisplay({ title }) {
                                 <Grid item xs={12}>
                                     <label>Start Date</label>
                                     <br />
-                                    <DateTimePicker
-                                        disableClock={true}
-                                        name="startTime"
-                                        value={formikAdd.values.startTime}
-                                        onChange={handleFormikDateAddStart}
-                                    />
+
+                                    <MuiPickersUtilsProvider
+                                        utils={MomentUtils}
+                                    >
+                                        <DateTimePicker
+                                            name="startTime"
+                                            value={formikAdd.values.startTime}
+                                            onChange={handleFormikDateAddStart}
+                                        />
+                                    </MuiPickersUtilsProvider>
+
                                     <FormHelperText
                                         error={
                                             formikAdd.touched.startTime &&
@@ -749,12 +818,16 @@ function CalendarDisplay({ title }) {
                                 <Grid item xs={12}>
                                     <label>End Date</label>
                                     <br />
-                                    <DateTimePicker
-                                        disableClock={true}
-                                        name="endTime"
-                                        value={formikAdd.values.endTime}
-                                        onChange={handleFormikDateAddEnd}
-                                    />
+                                    <MuiPickersUtilsProvider
+                                        utils={MomentUtils}
+                                    >
+                                        <DateTimePicker
+                                            disableClock={true}
+                                            name="endTime"
+                                            value={formikAdd.values.endTime}
+                                            onChange={handleFormikDateAddEnd}
+                                        />
+                                    </MuiPickersUtilsProvider>
                                     <FormHelperText
                                         error={
                                             formikAdd.touched.endTime &&
@@ -877,12 +950,16 @@ function CalendarDisplay({ title }) {
                                 <Grid item xs={12}>
                                     <label>Start Date</label>
                                     <br />
-                                    <DateTimePicker
-                                        disableClock={true}
-                                        name="startTime"
-                                        value={formikEdit.values.startTime}
-                                        onChange={handleFormikDateEditStart}
-                                    />
+                                    <MuiPickersUtilsProvider
+                                        utils={MomentUtils}
+                                    >
+                                        <DateTimePicker
+                                            disableClock={true}
+                                            name="startTime"
+                                            value={formikEdit.values.startTime}
+                                            onChange={handleFormikDateEditStart}
+                                        />
+                                    </MuiPickersUtilsProvider>
                                     <FormHelperText
                                         error={
                                             formikEdit.touched.startTime &&
@@ -897,12 +974,16 @@ function CalendarDisplay({ title }) {
                                 <Grid item xs={12}>
                                     <label>End Date</label>
                                     <br />
-                                    <DateTimePicker
-                                        disableClock={true}
-                                        name="endTime"
-                                        value={formikEdit.values.endTime}
-                                        onChange={handleFormikDateEditEnd}
-                                    />
+                                    <MuiPickersUtilsProvider
+                                        utils={MomentUtils}
+                                    >
+                                        <DateTimePicker
+                                            disableClock={true}
+                                            name="endTime"
+                                            value={formikEdit.values.endTime}
+                                            onChange={handleFormikDateEditEnd}
+                                        />
+                                    </MuiPickersUtilsProvider>
                                     <FormHelperText
                                         error={
                                             formikEdit.touched.endTime &&
@@ -940,13 +1021,19 @@ function CalendarDisplay({ title }) {
                         // onSubmit={}
                     >
                         <DialogTitle id="form-dialog-title">
-                            {formikEdit.values.title}
+                            <Typography
+                                color="primary"
+                                align="center"
+                                variant="h4"
+                            >
+                                {formikEdit.values.title}
+                            </Typography>
                         </DialogTitle>
                         <DialogContent>
                             <DialogContentText>
                                 <Grid container justify="flex-end" spacing={2}>
                                     <Grid item xs={12}>
-                                        <TextField
+                                        {/* <TextField
                                             margin="dense"
                                             label="Location"
                                             type="email"
@@ -958,11 +1045,22 @@ function CalendarDisplay({ title }) {
                                             }}
                                             variant="filled"
                                             fullWidth
-                                        />
+                                        /> */}
+                                        <FormLabel align="center">
+                                            Location:
+                                        </FormLabel>
+
+                                        <Typography
+                                            color="textPrimary"
+                                            variant="h6"
+                                            align="center"
+                                        >
+                                            {formikEdit.values.location}
+                                        </Typography>
                                     </Grid>
 
                                     <Grid item xs={12}>
-                                        <TextField
+                                        {/* <TextField
                                             margin="dense"
                                             label="Description"
                                             type="email"
@@ -974,11 +1072,22 @@ function CalendarDisplay({ title }) {
                                             }}
                                             variant="filled"
                                             fullWidth
-                                        />
+                                        /> */}
+                                        <FormLabel align="center">
+                                            Description:
+                                        </FormLabel>
+
+                                        <Typography
+                                            color="textPrimary"
+                                            variant="h6"
+                                            align="center"
+                                        >
+                                            {formikEdit.values.description}
+                                        </Typography>
                                     </Grid>
 
                                     <Grid item xs={12}>
-                                        <TextField
+                                        {/* <TextField
                                             margin="dense"
                                             label="Start Time"
                                             type="email"
@@ -990,11 +1099,23 @@ function CalendarDisplay({ title }) {
                                             }}
                                             variant="filled"
                                             fullWidth
-                                        />
+                                        /> */}
+
+                                        <FormLabel align="center">
+                                            Start Time:
+                                        </FormLabel>
+
+                                        <Typography
+                                            color="textPrimary"
+                                            variant="h6"
+                                            align="center"
+                                        >
+                                            {formikEdit.values.startTime.toString()}
+                                        </Typography>
                                     </Grid>
 
                                     <Grid item xs={12}>
-                                        <TextField
+                                        {/* <TextField
                                             margin="dense"
                                             label="End Time"
                                             type="email"
@@ -1006,7 +1127,19 @@ function CalendarDisplay({ title }) {
                                             }}
                                             variant="filled"
                                             fullWidth
-                                        />
+                                        /> */}
+
+                                        <FormLabel align="center">
+                                            End Time:
+                                        </FormLabel>
+
+                                        <Typography
+                                            color="textPrimary"
+                                            variant="h6"
+                                            align="center"
+                                        >
+                                            {formikEdit.values.endTime.toString()}
+                                        </Typography>
                                     </Grid>
                                 </Grid>
                             </DialogContentText>

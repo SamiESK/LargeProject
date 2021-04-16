@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Grid from "@material-ui/core/Grid";
 import Box from "@material-ui/core/Box";
@@ -6,6 +6,7 @@ import Typography from "@material-ui/core/Typography";
 import Copyright from "./Copyright";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
+import FormLabel from "@material-ui/core/FormLabel";
 
 import SideBar from "./profileBar.component";
 import Cookies from "js-cookie";
@@ -18,10 +19,11 @@ export default function Profile(darkState, handleThemeChange, title) {
     document.title = title ? title : document.title;
     const classes = useStyles();
 
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
-    const [email, setEmail] = useState("");
-    const [isVerified, setIsVerified] = useState(false);
+    const [user, setUser] = useState({});
+
+    useEffect(() => {
+        getInfo();
+    }, []);
 
     const getInfo = async () => {
         if (Cookies.get("jwt") !== undefined) {
@@ -30,10 +32,7 @@ export default function Profile(darkState, handleThemeChange, title) {
             });
 
             if (res.data.success) {
-                setFirstName(res.data.user.firstName);
-                setLastName(res.data.user.lastName);
-                setEmail(res.data.user.email);
-                setIsVerified(res.data.user.isVerified);
+                setUser(res.data.user);
                 return true;
             } else {
                 return false;
@@ -44,8 +43,6 @@ export default function Profile(darkState, handleThemeChange, title) {
     };
 
     const [auth, setAuth] = useLocalStorage("auth", false);
-
-    getInfo(auth);
 
     return (
         <Grid container component="main" className={classes.root}>
@@ -65,40 +62,59 @@ export default function Profile(darkState, handleThemeChange, title) {
                                     justify="center"
                                     alignItems="center"
                                 >
-                                    <Grid item xs={12}>
-                                        <Typography component="h5" variant="h5">
-                                            First Name:{" "}
-                                            <Typography variant="h6">
-                                                {firstName}
+                                    <Grid item align='center' xs={12}>
+                                        <FormLabel component="h5" variant="h5">
+                                            First Name:
+                                            <Typography
+                                                color="textPrimary"
+                                                variant="h6"
+                                            >
+                                                {user.firstName}
                                             </Typography>
-                                        </Typography>
+                                        </FormLabel>
                                     </Grid>
-                                    <Grid item xs={12}>
-                                        <Typography component="h5" variant="h5">
-                                            Last Name:{" "}
-                                            <Typography variant="h6">
-                                                {lastName}
+                                    {user.githubID ? (
+                                        ""
+                                    ) : (
+                                        <Grid align='center' item xs={12}>
+                                            <FormLabel
+                                                component="h5"
+                                                variant="h5"
+                                            >
+                                                Last Name:
+                                                <Typography
+                                                    color="textPrimary"
+                                                    variant="h6"
+                                                >
+                                                    {user.lastName}
+                                                </Typography>
+                                            </FormLabel>
+                                        </Grid>
+                                    )}
+                                    <Grid item align='center' xs={12}>
+                                        <FormLabel component="h5" variant="h5">
+                                            Email:
+                                            <Typography
+                                                color="textPrimary"
+                                                variant="h6"
+                                            >
+                                                {user.email}
                                             </Typography>
-                                        </Typography>
-                                    </Grid>
-                                    <Grid item xs={12}>
-                                        <Typography component="h5" variant="h5">
-                                            Email:{" "}
-                                            <Typography variant="h6">
-                                                {email}
-                                            </Typography>
-                                        </Typography>
+                                        </FormLabel>
                                     </Grid>
 
-                                    <Grid item xs={12}>
-                                        <Typography component="h5" variant="h5">
-                                            Verification Status:{" "}
-                                            <Typography variant="h6">
-                                                {isVerified
+                                    <Grid item align='center' xs={12}>
+                                        <FormLabel component="h5" variant="h5">
+                                            Verification Status:
+                                            <Typography
+                                                color="textPrimary"
+                                                variant="h6"
+                                            >
+                                                {user.isVerified
                                                     ? "Your email is verified!"
                                                     : "Your email is not verified..."}
                                             </Typography>
-                                        </Typography>
+                                        </FormLabel>
                                     </Grid>
                                 </Grid>
                             </Grid>
