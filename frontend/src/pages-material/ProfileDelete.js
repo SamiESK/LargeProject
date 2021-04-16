@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -17,6 +17,7 @@ import Collapse from "@material-ui/core/Collapse";
 import CloseIcon from "@material-ui/icons/Close";
 
 import axios from "axios";
+import Cookies from "js-cookie";
 import { buildPath } from "../config";
 import { useFormik } from "formik";
 import * as yup from "yup";
@@ -25,6 +26,29 @@ import { useStylesProfile as useStyles } from "../config";
 
 export default function ProfileDelete(darkState, handleThemeChange) {
     const classes = useStyles();
+
+    const [user, setUser] = useState({});
+
+    useEffect(() => {
+        getInfo();
+    }, []);
+
+    const getInfo = async () => {
+        if (Cookies.get("jwt") !== undefined) {
+            const res = await axios.get(buildPath("api/user/info"), {
+                withCredentials: true,
+            });
+
+            if (res.data.success) {
+                setUser(res.data.user);
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    };
 
     const [open, setOpen] = React.useState(false);
     const [wasSuccessful, setSuccess] = React.useState(false);
@@ -37,6 +61,34 @@ export default function ProfileDelete(darkState, handleThemeChange) {
                 {
                     password: value.password,
                 },
+                { withCredentials: true }
+            );
+
+            console.log(res);
+
+            if (res.data.success) {
+                document.cookie =
+                    "jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                window.location.href = "/";
+            } else {
+                setOpen(true);
+                setMsg("An Error Occurred");
+                setSuccess(false);
+            }
+        } catch (err) {
+            console.error(err);
+            setOpen(true);
+            setMsg("An Error Occurred");
+            setSuccess(false);
+        }
+    };
+
+    const handleSubmitThirdParty = async (event) => {
+        event.preventDefault();
+
+        try {
+            const res = await axios.delete(
+                buildPath("api/user/delete-account"),
                 { withCredentials: true }
             );
 
@@ -103,45 +155,59 @@ export default function ProfileDelete(darkState, handleThemeChange) {
                                     <form
                                         className={classes.form}
                                         noValidate
-                                        onSubmit={formik.handleSubmit}
+                                        onSubmit={
+                                            user.googleId ||
+                                            user.microsoftId ||
+                                            user.githubID
+                                                ? handleSubmitThirdParty
+                                                : formik.handleSubmit
+                                        }
                                     >
                                         <Grid
                                             container
                                             justify="flex-end"
                                             spacing={2}
                                         >
-                                            <Grid item xs={12}>
-                                                <TextField
-                                                    variant="outlined"
-                                                    margin="normal"
-                                                    required
-                                                    fullWidth
-                                                    id="password"
-                                                    name="password"
-                                                    label="Password"
-                                                    type="password"
-                                                    value={
-                                                        formik.values.password
-                                                    }
-                                                    onChange={
-                                                        formik.handleChange
-                                                    }
-                                                    error={
-                                                        formik.touched
-                                                            .password &&
-                                                        Boolean(
+                                            {user.googleId ||
+                                            user.microsoftId ||
+                                            user.githubID ? (
+                                                ""
+                                            ) : (
+                                                <Grid item xs={12}>
+                                                    <TextField
+                                                        variant="outlined"
+                                                        margin="normal"
+                                                        required
+                                                        fullWidth
+                                                        id="password"
+                                                        name="password"
+                                                        label="Password"
+                                                        type="password"
+                                                        value={
+                                                            formik.values
+                                                                .password
+                                                        }
+                                                        onChange={
+                                                            formik.handleChange
+                                                        }
+                                                        error={
+                                                            formik.touched
+                                                                .password &&
+                                                            Boolean(
+                                                                formik.errors
+                                                                    .password
+                                                            )
+                                                        }
+                                                        helperText={
+                                                            formik.touched
+                                                                .password &&
                                                             formik.errors
                                                                 .password
-                                                        )
-                                                    }
-                                                    helperText={
-                                                        formik.touched
-                                                            .password &&
-                                                        formik.errors.password
-                                                    }
-                                                    autoComplete="current-password"
-                                                />
-                                            </Grid>
+                                                        }
+                                                        autoComplete="current-password"
+                                                    />
+                                                </Grid>
+                                            )}
                                         </Grid>
                                         <Collapse in={open}>
                                             <Alert

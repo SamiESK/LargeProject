@@ -34,7 +34,7 @@ router.get(
                 );
 
                 res.cookie("jwt", token);
-                res.redirect(require('../config').buildRedirectPath(OAuthRedirect));
+                res.redirect(require('../config').buildRedirectPathClient(OAuthRedirect));
             } else {
                 res.status(400);
             }
