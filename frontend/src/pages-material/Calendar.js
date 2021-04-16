@@ -6,7 +6,7 @@ import getDay from "date-fns/getDay";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import React, { useRef, useCallback, useEffect } from "react";
 
-import MomentUtils from "@date-io/moment";
+import MomentUtils from "@date-io/date-fns";
 import { DateTimePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
 
 import Container from "@material-ui/core/Container";
