@@ -355,7 +355,7 @@ function CalendarDisplay({ title }) {
 
         const interval = setInterval(() => {
             loadEvents();
-        }, 6000); // 60 seconds
+        },5  * 60 * 1000); // 5 minutes
 
         return () => clearInterval(interval);
     }, []);
