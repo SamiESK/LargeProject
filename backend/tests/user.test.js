@@ -515,13 +515,13 @@ describe(`Testing '${BASE_URL}/delete-account' API Endpoint`, () => {
             .expect(200);
         expect(res.body.success).toBe(true);
 
-        // test user not found error
+        // test unauthorized
         res = await agent
-            .delete(`${BASE_URL}/delete-account`)
+            .post(`${BASE_URL}/delete-account`)
             .set("Authorization", TOKEN_PREFIX + token)
             .type("json")
             .send({ password: registration.password })
-            .expect(404);
+            .expect(401);
 
         await db.clear();
     });

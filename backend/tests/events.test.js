@@ -154,6 +154,86 @@ describe(`Test '${BASE_URL}/create' API Endpoint`, () => {
     });
 });
 
+describe("Test Searching Events with Database Populated from Create Test", () => {
+    beforeEach(async () => {
+        global.mockMailer = (options = defaultMailOptions) => {
+            return sgMail.send.mockImplementation(() =>
+                Promise.resolve(options)
+            );
+        };
+    });
+
+    let token;
+
+    test("Login with Verified User", async () => {
+        const sleep = (ms) => {
+            return new Promise((resolve) => {
+                setTimeout(resolve, ms);
+            });
+        };
+        await sleep(100);
+
+        res = await agent
+            .post(`${USER_URL}/login`)
+            .type("json")
+            .send({
+                email: registration.email,
+                password: registration.password,
+            })
+            .expect(200);
+
+        token = res.body.token;
+    });
+
+    test("Test Search with No Parameters", async () => {
+        res = await agent
+            .get(`${BASE_URL}/`)
+            .set("Authorization", TOKEN_PREFIX + token)
+            .expect(200);
+
+        expect(res.body.length).toBe(5);
+    });
+
+    test("Test Search with startDate AND endData parameters", async () => {
+        res = await agent
+            .get(
+                `${BASE_URL}/?startDate=2021-05-01T22:20:43.415Z&endDate=2021-05-30T22:20:43.415Z`
+            )
+            .set("Authorization", TOKEN_PREFIX + token)
+            .expect(200);
+
+        expect(res.body.length).toBe(3);
+        expect(res.body[0]).toEqual(expect.objectContaining(events[1]));
+        expect(res.body[1]).toEqual(expect.objectContaining(events[2]));
+        expect(res.body[2]).toEqual(expect.objectContaining(events[4]));
+    });
+
+    test("Test Search with startDate, endDate, and search parameters", async () => {
+        res = await agent
+            .get(
+                `${BASE_URL}/?search=Event 5&startDate=2021-05-01T22:20:43.415Z&endDate=2021-05-30T22:20:43.415Z`
+            )
+            .set("Authorization", TOKEN_PREFIX + token)
+            .expect(200);
+
+        expect(res.body.length).toBe(1);
+        expect(res.body[0]).toEqual(expect.objectContaining(events[4]));
+    });
+
+    test("Test Search with Only startDate parameters", async () => {
+        res = await agent
+            .get(`${BASE_URL}/?startDate=2021-05-01T22:20:43.415Z`)
+            .set("Authorization", TOKEN_PREFIX + token)
+            .expect(200);
+
+        expect(res.body.length).toBe(4);
+        expect(res.body[0]).toEqual(expect.objectContaining(events[1]));
+        expect(res.body[1]).toEqual(expect.objectContaining(events[2]));
+        expect(res.body[2]).toEqual(expect.objectContaining(events[4]));
+        expect(res.body[3]).toEqual(expect.objectContaining(events[3]));
+    });
+});
+
 describe(`Test '${BASE_URL}/update' API Endpoint`, () => {
     beforeEach(async () => {
         global.mockMailer = (options = defaultMailOptions) => {
@@ -164,6 +244,102 @@ describe(`Test '${BASE_URL}/update' API Endpoint`, () => {
     });
 
     let res;
+    let token;
+
+    let eventsFromDB;
+    test("Login with Verified User", async () => {
+        res = await agent
+            .post(`${USER_URL}/login`)
+            .type("json")
+            .send({
+                email: registration.email,
+                password: registration.password,
+            })
+            .expect(200);
+
+        token = res.body.token;
+    });
+
+    test("Get EventIDs from Database", async () => {
+        res = await agent
+            .get(`${BASE_URL}/`)
+            .set("Authorization", TOKEN_PREFIX + token)
+            .expect(200);
+
+        expect(res.body.length).toBe(5);
+        eventsFromDB = res.body;
+    });
+
+    let updates = {};
+
+    test("Update Each Field of an Event Individually", async () => {
+        updates.newTitle = "Event 1 is the best";
+        res = await agent
+            .patch(`${BASE_URL}/update/${eventsFromDB[0]._id}`)
+            .set("Authorization", TOKEN_PREFIX + token)
+            .type("json")
+            .send({ title: updates.newTitle })
+            .expect(200);
+
+        expect(res.body.title).toEqual(updates.newTitle);
+
+        updates.newLocation = "Location 1 is Obviously the best";
+        res = await agent
+            .patch(`${BASE_URL}/update/${eventsFromDB[0]._id}`)
+            .set("Authorization", TOKEN_PREFIX + token)
+            .type("json")
+            .send({ location: updates.newLocation })
+            .expect(200);
+
+        expect(res.body.title).toEqual(updates.newTitle);
+        expect(res.body.location).toEqual(updates.newLocation);
+
+        updates.newDescription =
+            "This is gonna be the best event because reasons";
+        res = await agent
+            .patch(`${BASE_URL}/update/${eventsFromDB[0]._id}`)
+            .set("Authorization", TOKEN_PREFIX + token)
+            .type("json")
+            .send({ description: updates.newDescription })
+            .expect(200);
+
+        expect(res.body.title).toEqual(updates.newTitle);
+        expect(res.body.location).toEqual(updates.newLocation);
+        expect(res.body.description).toEqual(updates.newDescription);
+
+        updates.newStart = Date.now();
+        updates.newEnd = Date.now() + 60 * 60;
+        res = await agent
+            .patch(`${BASE_URL}/update/${eventsFromDB[0]._id}`)
+            .set("Authorization", TOKEN_PREFIX + token)
+            .type("json")
+            .send({ endTime: updates.newEnd, startTime: updates.newStart })
+            .expect(200);
+
+        expect(res.body.title).toEqual(updates.newTitle);
+        expect(res.body.location).toEqual(updates.newLocation);
+        expect(res.body.description).toEqual(updates.newDescription);
+        expect(new Date(res.body.startTime).toString()).toEqual(
+            new Date(updates.newStart).toString()
+        );
+        expect(new Date(res.body.endTime).toString()).toEqual(
+            new Date(updates.newEnd).toString()
+        );
+    });
+
+    describe("Test Update Events", () => {});
+});
+
+describe("Test Deleting Events", () => {
+    beforeEach(async () => {
+        global.mockMailer = (options = defaultMailOptions) => {
+            return sgMail.send.mockImplementation(() =>
+                Promise.resolve(options)
+            );
+        };
+    });
+
+    let eventsFromDB;
     let token;
 
     test("Login with Verified User", async () => {
@@ -179,160 +355,35 @@ describe(`Test '${BASE_URL}/update' API Endpoint`, () => {
         token = res.body.token;
     });
 
-    describe("Test Searching Events with Database Populated from Create Test", () => {
-        test("Test Search with No Parameters", async () => {
-            res = await agent
-                .get(`${BASE_URL}/`)
-                .set("Authorization", TOKEN_PREFIX + token)
-                .expect(200);
+    test("Get EventIDs from Database", async () => {
+        res = await agent
+            .get(`${BASE_URL}/`)
+            .set("Authorization", TOKEN_PREFIX + token)
+            .expect(200);
 
-            expect(res.body.length).toBe(5);
-        });
-
-        test("Test Search with startDate AND endData parameters", async () => {
-            res = await agent
-                .get(
-                    `${BASE_URL}/?startDate=2021-05-01T22:20:43.415Z&endDate=2021-05-30T22:20:43.415Z`
-                )
-                .set("Authorization", TOKEN_PREFIX + token)
-                .expect(200);
-
-            expect(res.body.length).toBe(3);
-            expect(res.body[0]).toEqual(expect.objectContaining(events[1]));
-            expect(res.body[1]).toEqual(expect.objectContaining(events[2]));
-            expect(res.body[2]).toEqual(expect.objectContaining(events[4]));
-        });
-
-        test("Test Search with startDate, endDate, and search parameters", async () => {
-            res = await agent
-                .get(
-                    `${BASE_URL}/?search=Event 5&startDate=2021-05-01T22:20:43.415Z&endDate=2021-05-30T22:20:43.415Z`
-                )
-                .set("Authorization", TOKEN_PREFIX + token)
-                .expect(200);
-
-            expect(res.body.length).toBe(1);
-            expect(res.body[0]).toEqual(expect.objectContaining(events[4]));
-        });
-
-        test("Test Search with Only startDate parameters", async () => {
-            res = await agent
-                .get(`${BASE_URL}/?startDate=2021-05-01T22:20:43.415Z`)
-                .set("Authorization", TOKEN_PREFIX + token)
-                .expect(200);
-
-            expect(res.body.length).toBe(4);
-            expect(res.body[0]).toEqual(expect.objectContaining(events[1]));
-            expect(res.body[1]).toEqual(expect.objectContaining(events[2]));
-            expect(res.body[2]).toEqual(expect.objectContaining(events[4]));
-            expect(res.body[3]).toEqual(expect.objectContaining(events[3]));
-        });
+        expect(res.body.length).toBe(5);
+        eventsFromDB = res.body;
     });
 
-    describe("Test Update Events", () => {
-        let eventsFromDB;
+    test("Delete Each Event Created in Earlier Test from Database", async () => {
+        let total = 5;
 
-        test("Get EventIDs from Database", async () => {
+        Object.keys(eventsFromDB).forEach(async (key) => {
+            res = await agent
+                .delete(`${BASE_URL}/remove/${eventsFromDB[key]._id}`)
+                .set("Authorization", TOKEN_PREFIX + token)
+                .expect(200);
+
+            expect(res.body.success).toEqual(true);
+            expect(res.body.deletedCount).toEqual(1);
+            expect(res.body.ok).toEqual("ok");
+
             res = await agent
                 .get(`${BASE_URL}/`)
                 .set("Authorization", TOKEN_PREFIX + token)
                 .expect(200);
 
-            expect(res.body.length).toBe(5);
-            eventsFromDB = res.body;
-        });
-
-        let updates = {};
-
-        test("Update Each Field of an Event Individually", async () => {
-            updates.newTitle = "Event 1 is the best";
-            res = await agent
-                .patch(`${BASE_URL}/update/${eventsFromDB[0]._id}`)
-                .set("Authorization", TOKEN_PREFIX + token)
-                .type("json")
-                .send({ title: updates.newTitle })
-                .expect(200);
-
-            expect(res.body.title).toEqual(updates.newTitle);
-
-            updates.newLocation = "Location 1 is Obviously the best";
-            res = await agent
-                .patch(`${BASE_URL}/update/${eventsFromDB[0]._id}`)
-                .set("Authorization", TOKEN_PREFIX + token)
-                .type("json")
-                .send({ location: updates.newLocation })
-                .expect(200);
-
-            expect(res.body.title).toEqual(updates.newTitle);
-            expect(res.body.location).toEqual(updates.newLocation);
-
-            updates.newDescription =
-                "This is gonna be the best event because reasons";
-            res = await agent
-                .patch(`${BASE_URL}/update/${eventsFromDB[0]._id}`)
-                .set("Authorization", TOKEN_PREFIX + token)
-                .type("json")
-                .send({ description: updates.newDescription })
-                .expect(200);
-
-            expect(res.body.title).toEqual(updates.newTitle);
-            expect(res.body.location).toEqual(updates.newLocation);
-            expect(res.body.description).toEqual(updates.newDescription);
-
-            updates.newStart = Date.now();
-            updates.newEnd = Date.now() + 60 * 60;
-            res = await agent
-                .patch(`${BASE_URL}/update/${eventsFromDB[0]._id}`)
-                .set("Authorization", TOKEN_PREFIX + token)
-                .type("json")
-                .send({ endTime: updates.newEnd, startTime: updates.newStart })
-                .expect(200);
-
-            expect(res.body.title).toEqual(updates.newTitle);
-            expect(res.body.location).toEqual(updates.newLocation);
-            expect(res.body.description).toEqual(updates.newDescription);
-            expect(new Date(res.body.startTime).toString()).toEqual(
-                new Date(updates.newStart).toString()
-            );
-            expect(new Date(res.body.endTime).toString()).toEqual(
-                new Date(updates.newEnd).toString()
-            );
-        });
-    });
-
-    describe("Test Updating Events", () => {
-        let eventsFromDB;
-
-        test("Get EventIDs from Database", async () => {
-            res = await agent
-                .get(`${BASE_URL}/`)
-                .set("Authorization", TOKEN_PREFIX + token)
-                .expect(200);
-
-            expect(res.body.length).toBe(5);
-            eventsFromDB = res.body;
-        });
-
-        test("Delete Each Event Created in Earlier Test from Database", async () => {
-            let total = 5;
-
-            Object.keys(eventsFromDB).forEach(async (key) => {
-                res = await agent
-                    .delete(`${BASE_URL}/remove/${eventsFromDB[key]._id}`)
-                    .set("Authorization", TOKEN_PREFIX + token)
-                    .expect(200);
-
-                expect(res.body.success).toEqual(true);
-                expect(res.body.deletedCount).toEqual(1);
-                expect(res.body.ok).toEqual('ok');
-
-                res = await agent
-                    .get(`${BASE_URL}/`)
-                    .set("Authorization", TOKEN_PREFIX + token)
-                    .expect(200);
-
-                expect(res.body.length).toBe(--total);
-            });
+            expect(res.body.length).toBe(--total);
         });
     });
 });
