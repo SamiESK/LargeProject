@@ -168,10 +168,18 @@ function CalendarDisplay({ title }) {
     };
 
     const addEventFromList = (addedEvent) => {
-        setevent([
-            ...myEventsList,
-            { id: addedEvent._id, allDay: false, ...addedEvent },
-        ]);
+        const obj = {
+            title: addedEvent.title,
+            description: addedEvent.description,
+            location: addedEvent.location,
+            start: new Date(addedEvent.startTime),
+            end: new Date(addedEvent.endTime),
+            allDay: false,
+            id: addedEvent._id,
+        };
+
+        setevent((prev) => [...prev, obj]);
+        //loadEvents();
     };
 
     const updateEventFromList = (updatedEvent) => {
@@ -356,7 +364,7 @@ function CalendarDisplay({ title }) {
 
         const interval = setInterval(() => {
             loadEvents();
-        },5  * 60 * 1000); // 5 minutes
+        }, 5 * 60 * 1000); // 5 minutes
 
         return () => clearInterval(interval);
     }, []);
