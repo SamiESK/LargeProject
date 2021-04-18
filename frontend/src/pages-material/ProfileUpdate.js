@@ -121,6 +121,7 @@ export default function ProfileUpdate(darkState, handleThemeChange, title) {
 
             if (res.data.success) {
                 getInfo();
+                setOpen(true);
                 setMsg("Profile was successfully updated!");
                 setSuccess(true);
                 // document.location.reload();
