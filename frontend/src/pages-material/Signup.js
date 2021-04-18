@@ -298,10 +298,10 @@ export default function SignUp({ handleThemeChange, darkState, title }) {
                                 <Link href="/login" variant="body2">
                                     Already have an account? Sign in
                                 </Link>
-                                <Switch
+                                {/* <Switch
                                     checked={darkState}
                                     onChange={handleThemeChange}
-                                />
+                                /> */}
                             </Grid>
                         </Grid>
                         <Box mt={5}>

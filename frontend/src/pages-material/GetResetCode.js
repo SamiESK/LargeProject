@@ -181,10 +181,10 @@ export default function GetResetCode({ handleThemeChange, darkState, title }) {
                                 <Link href="/password-reset" variant="body2">
                                     Already have a Code? Reset Password
                                 </Link>
-                                <Switch
+                                {/* <Switch
                                     checked={darkState}
                                     onChange={handleThemeChange}
-                                />
+                                /> */}
                             </Grid>
                         </Grid>
                         <Box mt={5}>
