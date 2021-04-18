@@ -7,7 +7,7 @@ import axios from "axios";
 
 export const treeImageURL = "https://source.unsplash.com/featured/?nature,tree";
 
-const app_name = "eventree-calendar-test";
+const app_name = "eventree-calendar";
 
 export function buildPath(route) {
     if (process.env.NODE_ENV === "production") {

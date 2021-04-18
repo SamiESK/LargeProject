@@ -11,7 +11,7 @@ module.exports.server_err = "Oh no, Something failed on the server. Please check
 module.exports.OAuthRedirect = 'calendar';
 
 module.exports.buildRedirectPath = (route) =>{
-    const app_name = "eventree-calendar-test";
+    const app_name = "eventree-calendar";
     if (process.env.NODE_ENV === "production") {
         return "https://" + app_name + ".herokuapp.com/" + route;
     } else {
@@ -20,7 +20,7 @@ module.exports.buildRedirectPath = (route) =>{
 }
 
 module.exports.buildRedirectPathClient = (route) =>{
-    const app_name = "eventree-calendar-test";
+    const app_name = "eventree-calendar";
     if (process.env.NODE_ENV === "production") {
         return "https://" + app_name + ".herokuapp.com/" + route;
     } else {
