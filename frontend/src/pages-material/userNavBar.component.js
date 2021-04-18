@@ -11,6 +11,9 @@ import Switch from "@material-ui/core/Switch";
 import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Brightness7Icon from "@material-ui/icons/Brightness7";
+import Brightness4Icon from "@material-ui/icons/Brightness4";
+import Tooltip from "@material-ui/core/Tooltip";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -54,15 +57,32 @@ export default function UserNavBar({ darkState, handleThemeChange, auth }) {
                     <Typography variant="h6" className={classes.title}>
                         Eventree
                     </Typography>
-                    <FormControlLabel variant='body2'
-                        control={
-                            <Switch
-                                checked={darkState}
-                                onChange={handleThemeChange}
-                            />
-                        }
-                        label={(darkState) ? "Dark Mode": "Light Mode"}
-                    />
+
+                    <Tooltip title="Toggle light/dark Theme">
+                        <Switch
+                            checked={darkState}
+                            onChange={handleThemeChange}
+                        />
+                    </Tooltip>
+                    {darkState ? (
+                        <Tooltip title="Enable Light Theme">
+                            <IconButton
+                                onClick={handleThemeChange}
+                                color="inherit"
+                            >
+                                <Brightness7Icon fontSize="medium" />
+                            </IconButton>
+                        </Tooltip>
+                    ) : (
+                        <Tooltip title="Enable Dark Theme">
+                            <IconButton
+                                onClick={handleThemeChange}
+                                color="inherit"
+                            >
+                                <Brightness4Icon fontSize="medium" />
+                            </IconButton>
+                        </Tooltip>
+                    )}
 
                     {auth && (
                         <div>
