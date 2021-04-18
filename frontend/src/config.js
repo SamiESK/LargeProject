@@ -4,8 +4,10 @@ import Cookies from "js-cookie";
 import axios from "axios";
 
 // export const treeImageURL =  'https://source.unsplash.com/random?tree';
-
-export const treeImageURL = "https://source.unsplash.com/featured/?nature,tree";
+// export const treeImageURL = "https://source.unsplash.com/weekly?tree";
+// export const treeImageURL = "https://source.unsplash.com/featured/?nature,tree";
+// export const treeImageURL = "https://source.unsplash.com/featured/?tree";
+export const treeImageURL = "https://source.unsplash.com/EPy0gBJzzZU/";
 
 const app_name = "eventree-calendar";
 

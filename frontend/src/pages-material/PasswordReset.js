@@ -114,7 +114,7 @@ export default function PasswordReset({ handleThemeChange, darkState, title }) {
             .test(
                 "len",
                 "Code must be exactly 10 characters long",
-                (val) => val.length === 5
+                (val) => val.length === 10
             )
             .required("Code is required"),
     });
