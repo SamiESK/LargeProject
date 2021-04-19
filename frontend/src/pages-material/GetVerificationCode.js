@@ -14,6 +14,7 @@ import IconButton from "@material-ui/core/IconButton";
 import Collapse from "@material-ui/core/Collapse";
 import CloseIcon from "@material-ui/icons/Close";
 
+import Cookies from "js-cookie";
 import axios from "axios";
 import { buildPath, useStyles, isVerified } from "../config";
 
@@ -24,6 +25,29 @@ export default function GetVerificationCode({ title }) {
     const [open, setOpen] = React.useState(false);
     const [wasSuccessful, setSuccess] = React.useState(false);
     const [msg, setMsg] = React.useState("");
+
+    const [user, setUser] = React.useState({});
+
+    React.useEffect(() => {
+        getInfo();
+    }, []);
+
+    const getInfo = async () => {
+        if (Cookies.get("jwt") !== undefined) {
+            const res = await axios.get(buildPath("api/user/info"), {
+                withCredentials: true,
+            });
+
+            if (res.data.success) {
+                setUser(res.data.user);
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -68,9 +92,11 @@ export default function GetVerificationCode({ title }) {
                     <Typography component="h1" variant="h5">
                         Request New Verification Email
                     </Typography>
-                    <Typography component="h6" variant="body2">
-                        This email will be sent to {"email"}
-                    </Typography>
+                    {user.email && (
+                        <Typography component="h6" variant="body2">
+                            This email will be sent to {user.email}
+                        </Typography>
+                    )}
                     <form
                         className={classes.form}
                         noValidate
