@@ -71,7 +71,7 @@ export default function Profile(darkState, handleThemeChange, title) {
                                             </Typography>
                                         </FormLabel>
                                     </Grid>
-                                    {user.githubID ? (
+                                    {user.githubId ? (
                                         ""
                                     ) : (
                                         <Grid align='center' item xs={12}>

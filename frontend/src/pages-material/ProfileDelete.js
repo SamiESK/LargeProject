@@ -159,7 +159,7 @@ export default function ProfileDelete(darkState, handleThemeChange, title) {
                                         onSubmit={
                                             user.googleId ||
                                             user.microsoftId ||
-                                            user.githubID
+                                            user.githubId
                                                 ? handleSubmitThirdParty
                                                 : formik.handleSubmit
                                         }
@@ -171,7 +171,7 @@ export default function ProfileDelete(darkState, handleThemeChange, title) {
                                         >
                                             {user.googleId ||
                                             user.microsoftId ||
-                                            user.githubID ? (
+                                            user.githubId ? (
                                                 ""
                                             ) : (
                                                 <Grid item xs={12}>

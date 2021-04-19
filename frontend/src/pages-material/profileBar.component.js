@@ -61,7 +61,7 @@ export default function SideBar({ selected }) {
                     </ListItemIcon>
                     <ListItemText primary="Profile" />
                 </ListItem>
-                {user.googleId || user.microsoftId || user.githubID ? (
+                {user.googleId || user.microsoftId || user.githubId ? (
                     ""
                 ) : (
                     <ListItem
