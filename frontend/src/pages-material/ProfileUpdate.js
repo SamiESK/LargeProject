@@ -294,7 +294,7 @@ export default function ProfileUpdate(darkState, handleThemeChange, title) {
                                                     fullWidth
                                                     id="password"
                                                     name="password"
-                                                    label="Password"
+                                                    label="New Password"
                                                     type="password"
                                                     value={
                                                         formik.values.password
@@ -324,7 +324,7 @@ export default function ProfileUpdate(darkState, handleThemeChange, title) {
                                                     fullWidth
                                                     id="password2"
                                                     name="repeat_password"
-                                                    label="Confirm Password"
+                                                    label="Confirm New Password"
                                                     type="password"
                                                     value={
                                                         formik.values
