@@ -210,11 +210,26 @@ router.patch(
                 delete updates.email;
             }
 
+            let oldPass = null;
+
+            if (updates.old_password) {
+                oldPass = updates.old_password;
+                delete updates.old_password;
+            }
+
             // validate update information
             const value = await updateUserValidation(updates);
 
-            if (updates.password) {
-                updates.password = await argon2.hash(updates.password);
+            const user = await User.findOne({ _id: req.user._id }).select(
+                "+password"
+            );
+
+            if (updates.password && oldPass) {
+                if (await argon2.verify(user.password, oldPass)) {
+                    updates.password = await argon2.hash(updates.password);
+                } else {
+                    return res.json({ success: false, error: "Incorrect Password" });
+                }
             }
 
             const updatedUser = await User.findByIdAndUpdate(
@@ -228,10 +243,6 @@ router.patch(
             const _updatedUser = await User.findById(req.user._id).select(
                 "-__v"
             );
-
-            // refreshing token
-            // const token = jwt.refresh(req.token);
-            // res.cookie("jwt", token);
 
             // _updatedUser._doc.token = token;
             res.cookie("jwt", await jwt.refresh(req.cookies.jwt));

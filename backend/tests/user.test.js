@@ -277,6 +277,7 @@ describe(`Testing '${BASE_URL}/update' API Endpoint`, () => {
             .send({
                 password: updates.password,
                 repeat_password: updates.repeat_password,
+                old_password: registration.password,
             })
             .expect(200);
 
@@ -307,6 +308,7 @@ describe(`Testing '${BASE_URL}/update' API Endpoint`, () => {
             firstName: registration.firstName,
             lastName: registration.lastName,
             email: registration.email,
+            old_password: updates.password,
             password: registration.password,
             repeat_password: registration.password,
         };

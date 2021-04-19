@@ -22,6 +22,7 @@ import Collapse from "@material-ui/core/Collapse";
 import CloseIcon from "@material-ui/icons/Close";
 
 import { useStylesProfile as useStyles } from "../config";
+import { required } from "joi";
 
 export default function ProfileUpdate(darkState, handleThemeChange, title) {
     document.title = title ? title : document.title;
@@ -67,8 +68,22 @@ export default function ProfileUpdate(darkState, handleThemeChange, title) {
                     });
                 }
             ),
-        password: yup
+        old_password: yup
             .string("Enter your password")
+            .min(8, "Password should be of minimum 8 characters length")
+            .test(
+                "hasOldPassword",
+                "Your current password is required",
+                (value) => {
+                    if (Boolean(formik.values.password) && !Boolean(value)) {
+                        return false;
+                    }
+                    return true;
+                }
+            )
+            .transform((value) => (!value ? undefined : value)),
+        password: yup
+            .string("Enter your new password")
             .min(8, "Password should be of minimum 8 characters length")
             .transform((value) => (!value ? undefined : value))
             .test(
@@ -86,7 +101,10 @@ export default function ProfileUpdate(darkState, handleThemeChange, title) {
             ),
         repeat_password: yup
             .string()
-            .oneOf([yup.ref("password"), null], "Passwords must match"),
+            .oneOf([yup.ref("password"), null], "Passwords must match")
+            .test("passwordsMatch", "Passwords must match", (value) => {
+                return formik.values.repeat_password === formik.values.password;
+            }),
         firstName: yup
             .string("Enter your First name")
             .min(1, "First name should be of minimum 1 character length"),
@@ -107,10 +125,13 @@ export default function ProfileUpdate(darkState, handleThemeChange, title) {
                 values.password !== "" &&
                 values.password !== undefined &&
                 values.repeat_password !== "" &&
-                values.repeat_password !== undefined
+                values.repeat_password !== undefined &&
+                values.old_password !== "" &&
+                values.old_password !== undefined
             ) {
                 update.password = values.password;
                 update.repeat_password = values.repeat_password;
+                update.old_password = values.old_password;
             }
 
             const res = await axios.patch(
@@ -120,6 +141,9 @@ export default function ProfileUpdate(darkState, handleThemeChange, title) {
             );
 
             if (res.data.success) {
+                formik.setFieldValue("password", "");
+                formik.setFieldValue("old_password", "");
+                formik.setFieldValue("repeat_password", "");
                 getInfo();
                 setOpen(true);
                 setMsg("Profile was successfully updated!");
@@ -127,7 +151,7 @@ export default function ProfileUpdate(darkState, handleThemeChange, title) {
                 // document.location.reload();
             } else {
                 setOpen(true);
-                setMsg("An Error Occurred");
+                setMsg(res.data.error);
                 setSuccess(false);
             }
         } catch (err) {
@@ -141,6 +165,7 @@ export default function ProfileUpdate(darkState, handleThemeChange, title) {
     const formik = useFormik({
         initialValues: {
             email: "",
+            old_password: "",
             password: "",
             repeat_password: "",
             lastName: "",
@@ -288,6 +313,48 @@ export default function ProfileUpdate(darkState, handleThemeChange, title) {
                                                     autoComplete="email"
                                                 />
                                             </Grid>
+                                            <br />
+                                            <Grid item xs={12}>
+                                                <Typography
+                                                    component="h1"
+                                                    variant="body2"
+                                                    align="left"
+                                                >
+                                                    You can change your password
+                                                    below
+                                                </Typography>
+                                                <br />
+                                                <TextField
+                                                    variant="outlined"
+                                                    fullWidth
+                                                    id="old_password"
+                                                    name="old_password"
+                                                    label="Password"
+                                                    type="password"
+                                                    value={
+                                                        formik.values
+                                                            .old_password
+                                                    }
+                                                    onChange={
+                                                        formik.handleChange
+                                                    }
+                                                    error={
+                                                        formik.touched
+                                                            .old_password &&
+                                                        Boolean(
+                                                            formik.errors
+                                                                .old_password
+                                                        )
+                                                    }
+                                                    helperText={
+                                                        formik.touched
+                                                            .old_password &&
+                                                        formik.errors
+                                                            .old_password
+                                                    }
+                                                    autoComplete="current-password"
+                                                />
+                                            </Grid>
                                             <Grid item xs={12}>
                                                 <TextField
                                                     variant="outlined"
@@ -351,6 +418,7 @@ export default function ProfileUpdate(darkState, handleThemeChange, title) {
                                                 />
                                             </Grid>
                                         </Grid>
+                                        <br />
                                         <Collapse in={open}>
                                             <Alert
                                                 severity={
@@ -374,7 +442,6 @@ export default function ProfileUpdate(darkState, handleThemeChange, title) {
                                                 {msg}
                                             </Alert>
                                         </Collapse>
-                                        <br />
                                         <Button
                                             type="submit"
                                             fullWidth
