@@ -1187,7 +1187,7 @@ function CalendarDisplay({ title }) {
                     aria-labelledby="alert-dialog-title"
                     aria-describedby="alert-dialog-description"
                 >
-                    <DialogTitle id="alert-dialog-title">{`Are you sure you wan to delete ${formikEdit.values.title} from your calendar?`}</DialogTitle>
+                    <DialogTitle id="alert-dialog-title">{`Are you sure you want to delete ${formikEdit.values.title} from your calendar?`}</DialogTitle>
                     <DialogContent>
                         <DialogContentText id="alert-dialog-description">
                             This operation cannot be undone
