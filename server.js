@@ -9,6 +9,8 @@ const app = require("./backend/app");
 // Server static assets if in production
 if (process.env.NODE_ENV === "production") {
     // Set static folder
+
+    // console.log("Using frontend/build")
     app.use(express.static("frontend/build"));
 
     app.get("*", (req, res) => {

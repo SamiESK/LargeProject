@@ -1,15 +1,13 @@
-import { boolean } from 'joi';
 import React from 'react';
 import {useState} from 'react';
-import { InputGroup, InputGroupPrepend, InputGroupText, Button, Row,TextArea, Form,FormGroup, Modal, ModalContent, ModalDialog, ModalTitle, Select, Input, FormRow} from 'reacthalfmoon'
-import {onChange} from 'react';
+import { Button, TextArea, Form,FormGroup, Modal, ModalContent, ModalDialog, ModalTitle, Input} from 'reacthalfmoon'
 import DateTimePicker from 'react-datetime-picker';
 
 function AddEvent()
 {
-    
+
     const [isOpen, setIsOpen] = useState(false)
-    
+
     const app_name = "eventure-calendar";
     function buildPath(route) {
         if (process.env.NODE_ENV === "production") {
@@ -20,19 +18,19 @@ function AddEvent()
     }
     const [startDate, onChange] = useState(new Date());
     const [endDate, onChange2] = useState(new Date());
-    
+
     var title;
     var location;
     var description;
-    
+
     const addEvent = async (event) => {
         event.preventDefault();
         title = document.getElementById("eventtitle").value
         location = document.getElementById("location").value
         description = document.getElementById("description").value
-        
+
         var obj = {title: title, description: description, location: location, startTime: startDate, endTime: endDate};
-        
+
         console.log(obj);
         var js = JSON.stringify(obj);
         try {
@@ -41,14 +39,14 @@ function AddEvent()
                 body: js,
                 headers: { "Content-Type": "application/json", Authorization: 'Bearer ' + localStorage.getItem('token')},
             });
-            
+
             var res = JSON.parse(await response.text());
 
-               
-               
+
+
                 console.log(res);
-                
-                
+
+
 
         } catch (e) {
             alert(e.toString());
@@ -59,7 +57,7 @@ function AddEvent()
 	return(
 		<div>
             <Button id="addEvent" onClick={()=>{setIsOpen(true)}} color="primary" size="lg">Add Event</Button>
-            
+
             <div style={{height: "116px"}}>
         <Modal isOpen={isOpen} toggle={()=>{setIsOpen(!isOpen)}}>
             <ModalDialog>
@@ -93,20 +91,20 @@ function AddEvent()
                         <TextArea id="description" placeholder="Write a short description about your Event." />
                     </FormGroup>
                     </Form>
-                    
+
                     <Button color="danger" onClick={()=>{setIsOpen(!isOpen)}}>Cancel</Button>
                     <Button id="addEventButton" color="primary" onClick={addEvent}>Add</Button>
-                    
+
                 </ModalContent>
             </ModalDialog>
         </Modal>
-    
+
         </div>
         </div>
-		
+
 	);
 
-   
+
 };
 
 

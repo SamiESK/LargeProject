@@ -4,6 +4,8 @@ const mongoose = require("mongoose");
 const Code = mongoose.model("Code");
 const cryptoRandomString = require("crypto-random-string");
 
+const { buildRedirectPathClient } = require("./config");
+
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -55,8 +57,8 @@ const SendPasswordResetEmail = async (email) => {
         from: `Eventree <${process.env.FROM_EMAIL}>`,
         to: email,
         subject: "Your Password Reset Code for Eventree",
-        text: `Please use the following code within the next 10 minutes to reset your password on Eventree: ${secretCode}`,
-        html: `<p>Please use the following code within the next 10 minutes to reset your password on Eventree: <strong>${secretCode}</strong></p>`,
+        text: `Please use the code ${secretCode} at ${buildRedirectPathClient('password-reset')} within the next 10 minutes to reset your password on Eventree`,
+        html: `<p>Please use the following code <strong>${secretCode}</strong> <a href="${buildRedirectPathClient('password-reset')}" target="_blank">here</a> in the next 10 minutes to reset your password on Eventree</p>`,
         mail_settings: {
             sandbox_mode: {
                 enable: process.env.NODE_ENV === "test",

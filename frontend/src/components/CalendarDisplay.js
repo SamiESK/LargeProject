@@ -7,10 +7,9 @@ import 'react-big-calendar/lib/css/react-big-calendar.css'
 import React from 'react'
 import {Button, Modal, ModalContent, ModalDialog, ModalTitle, } from 'reacthalfmoon';
 import { useState} from 'react'
-import { Form, FormGroup, Input, TextArea, Container, Col, Row } from 'reacthalfmoon';
+import { Form, FormGroup, Input, TextArea, Container } from 'reacthalfmoon';
 import DateTimePicker from 'react-datetime-picker';
 import EdiText from 'react-editext';
-import { async } from 'crypto-random-string'
 
 const locales = {
   'en-US': require('date-fns/locale/en-US'),
@@ -24,7 +23,6 @@ const localizer = dateFnsLocalizer({
   locales,
 })
 
-var x = null;
 var title;
 var location;
 var description;
@@ -34,7 +32,7 @@ var newEndEdit;
 
 function CalendarDisplay()
 {
-  
+
   const [myEventsList, setevent] = useState([])
   const temp=[];
   const [isOpen, setIsOpen] = useState(false)
@@ -42,7 +40,7 @@ function CalendarDisplay()
   const [eLocation, SeteLocation] = useState('');
   const [eDescription, SeteDescription] = useState('');
   const [eTitle, SeteTitle] = useState('');
-  
+
   const app_name = "eventree-calendar";
   function buildPath(route) {
     if (process.env.NODE_ENV === "production") {
@@ -50,16 +48,14 @@ function CalendarDisplay()
     } else {
           return "http://localhost:5000/" + route;
     }
-      
+
   }
 
   const [startDate, onChange] = useState(new Date());
   const [endDate, onChange2] = useState(new Date());
-  
+
   const [EditStart, onChange3] = useState(new Date());
   const [EditEnd, onChange4] = useState(new Date());
-
-  const [isChecked, setIsChecked] = useState(false);
 
   const EventInfo = (e) =>
   {
@@ -72,26 +68,26 @@ function CalendarDisplay()
     ID = e.id;
   };
 
-  
+
   const Delete = async(event) =>
   {
     event.preventDefault();
-    
+
         try {
             const response = await fetch(buildPath('api/events/remove/'+String(ID)), {
                 method: "DELETE",
                 headers: { "Content-Type": "application/json", Authorization: 'Bearer ' + localStorage.getItem('token')},
             });
-            var res = JSON.parse(await response.text());
+
             loadEvents();
             setIsOpen(false);
         } catch (e) {
             alert(e.toString());
             return;
-        
-        }  
+
+        }
   };
-  
+
   const addEvent = async (event) => {
     var defaultendDate;
     event.preventDefault();
@@ -104,7 +100,7 @@ function CalendarDisplay()
         defaultendDate = endDate;
 
     var obj = {title: title, description: description, location: location, startTime: startDate, endTime: defaultendDate};
-    
+
     var js = JSON.stringify(obj);
     try {
         const response = await fetch(buildPath('api/events/create'), {
@@ -112,9 +108,9 @@ function CalendarDisplay()
             body: js,
             headers: { "Content-Type": "application/json", Authorization: 'Bearer ' + localStorage.getItem('token')},
         });
-        
+
         var res = JSON.parse(await response.text());
-        
+
         if(res.error)
         {
             document.getElementById("addEventError").innerHTML = "Error : " + res.error;
@@ -129,11 +125,11 @@ function CalendarDisplay()
         return;
     }
   };
-  
+
   const editEvent = async (event) => {
     event.preventDefault();
     if(!EditEnd)
-        newEndEdit = EditStart;       
+        newEndEdit = EditStart;
     else
       newEndEdit = EditEnd;
     var obj = {title: eTitle, description: eDescription, location: eLocation, startTime: EditStart, endTime: newEndEdit};
@@ -145,7 +141,7 @@ function CalendarDisplay()
             body: js,
             headers: { "Content-Type": "application/json", Authorization: 'Bearer ' + localStorage.getItem('token')},
         });
-        
+
         var res = JSON.parse(await response.text());
         console.log(res);
         if(res.error)
@@ -166,13 +162,10 @@ function CalendarDisplay()
     setIsOpen2(true);
 
   }
-  window.onload = loadEvents = async() => 
+  window.onload = loadEvents = async() =>
    {
-        
-        var obj;// = {title: title, description: description, location: location, startTime: startDate, endTime: endDate};
-        
         //console.log(obj);
-        var js = JSON.stringify(obj);
+
         try {
             const response = await fetch(buildPath('api/events/'), {
                 method: "GET",
@@ -199,8 +192,8 @@ function CalendarDisplay()
         } catch (e) {
             alert(e.toString());
             return;
-        
-        }  
+
+        }
     };
     const saveLocation = (val) => {
       SeteLocation(val)
@@ -232,7 +225,7 @@ function CalendarDisplay()
           </Container>
         </Container>
         </div>
-      
+
 
 
       <div style={{height: "400px"}}>
@@ -247,7 +240,7 @@ function CalendarDisplay()
                             value={EditStart}
                             onChange ={onChange3}
                         />
-                    
+
                     <h5><b>End Time:</b></h5>
                     <DateTimePicker disableClock = {true}
                             value={EditEnd}

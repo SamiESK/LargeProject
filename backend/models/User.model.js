@@ -25,6 +25,15 @@ const UserSchema = mongoose.Schema(
             type: Boolean,
             default: false
         },
+        googleId: {
+            type: String,
+        },
+        microsoftId: {
+            type: String,
+        },
+        githubId: {
+            type: String,
+        },
     },
     { timestamps: true }
 );
